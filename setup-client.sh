@@ -17,7 +17,10 @@ echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
 echo "UseDNS no" >> /etc/ssh/sshd_config
 echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
-setup_proxy
+echo
+echo "  Use $workdir/proxy.sh to setup proxy for faster installation."
+sleep 1
+echo 
 
 yum install -y epel-release
-yum install -y vim wget curl tree tcpdump sshpass
+yum install -y vim wget curl tree tcpdump sshpass git

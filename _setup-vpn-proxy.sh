@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# this is an interacting script. 
+#   Checking for missing dependency packages for command line client ...
+#   executing command : /usr/local/pulse/pulsesvc
+#   VPN Password: 
 username=functionid
-password=P@ssw0rd
 hostname=183.84.2.165
 
 if [ ! -f /usr/local/pulse/PulseClient_x86_64.sh ]; then
@@ -13,7 +16,7 @@ ps -ef | grep -v grep | grep pulsesvc > /dev/null
 if [ $? -ne 0 ]; then
     echo "Starting VPN connection ..."
     (/usr/local/pulse/PulseClient_x86_64.sh \
-        -h $hostname -u $username -p $password -r Users &)
+        -h $hostname -u $username -r Users &)
 fi
 
 wait=60

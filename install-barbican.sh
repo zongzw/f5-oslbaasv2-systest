@@ -1,11 +1,22 @@
 #!/bin/bash
 
+if [ $# -ne 1 ] || [ ! -f $1 ]; then
+    echo "$0 <env.conf> or $1 not exists"
+    exit 1
+fi
+
+source $1
+
+export workdir=`cd $(dirname $0); pwd`
+
 # this script can only be used as barbican setup in **** Pike OpenStack all-in-one ****.
 
 mariadb_password=mariadb_password
 barbican_db_password=barbican_password
 barbican_user_password=barbican_password
-openrc=/stack/keystonerc_admin
+openrc=$openrc
+
+RDO_VM_IP=`ifconfig eth0 |grep inet|grep -v 127.0.0.1|grep -v inet6|awk '{print $2}'|tr -d "addr:"`
 controller_host=${RDO_VM_IP:=localhost}
 
 echo "CREATE DATABASE if not exists barbican;" | mysql -u root -p$mariadb_password
@@ -115,7 +126,7 @@ yum install -y gcc
 pip install --upgrade pip
 pip install uwsgi
 
-pids=`ps -ef | grep barbican | grep -v grep | grep -v setup | tr -s ' ' | cut -d ' ' -f 2`
+pids=`ps -ef | grep barbican | grep -v grep | grep -v $(basename $0) | tr -s ' ' | cut -d ' ' -f 2`
 if [ -n "$pids" ]; then kill -9 $pids; fi
 
 uwsgi --master --emperor /etc/barbican/vassals --daemonize /var/log/barbican.log
@@ -126,14 +137,26 @@ set -e
 yum install -y openssl
 
 # self signed certificate&key
-openssl genrsa -out server.key 2048
-openssl req -new -key server.key -out server.csr -subj "/C=CN/ST=Beijing/L=BJ/O=F5China-PD-Test/OU=IT Department/CN=example.com"
-openssl x509 -req -in server.csr -signkey server.key -out server.crt
 
+kpsdir=$workdir/kps
+mkdir -p $kpsdir
+openssl genrsa -out $kpsdir/server.key 2048
+openssl req -new -key $kpsdir/server.key -out $kpsdir/server.csr -subj "/C=CN/ST=Beijing/L=BJ/O=F5China-PD-Test/OU=IT Department/CN=example.com"
+openssl x509 -req -in $kpsdir/server.csr -signkey $kpsdir/server.key -out $kpsdir/server.crt
+
+# Avoid the following error from curl request:
+# DEBUG:keystoneauth.session:REQ: \
+#   curl -g -i -X GET http://10.250.15.160:5000/v3 -H "Accept: application/json" \
+#       -H "User-Agent: barbican keystoneauth1/3.1.1 python-requests/2.14.2 CPython/2.7.5"
+# DEBUG:requests.packages.urllib3.connectionpool:Starting new HTTP connection (1): 10.250.64.101
+unset http_proxy
+unset HTTP_PROXY
+unset https_proxy
+unset HTTPS_PROXY
 # barbican secret and container test
 dt=`date +%s`
-barbican secret store --name $dt.server.key --payload "`cat server.key`" --secret-type private --payload-content-type "text/plain"
-barbican secret store --name $dt.server.crt --payload "`cat server.crt`" --secret-type certificate --payload-content-type "text/plain"
+barbican secret store --name $dt.server.key --payload "`cat $kpsdir/server.key`" --secret-type private --payload-content-type "text/plain"
+barbican secret store --name $dt.server.crt --payload "`cat $kpsdir/server.crt`" --secret-type certificate --payload-content-type "text/plain"
 
 keyref=`barbican secret list -f value -c "Name" -c "Secret href" | grep $dt.server.key | cut -d' ' -f1`
 crtref=`barbican secret list -f value -c "Name" -c "Secret href" | grep $dt.server.crt | cut -d' ' -f1`

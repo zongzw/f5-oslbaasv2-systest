@@ -25,6 +25,10 @@ yum install -y qemu-kvm libvirt libvirt-client virt-install
 systemctl start libvirtd
 systemctl enable libvirtd
 
+keystone_admin_password=admin
+neutron_db_password=neutrondb_password
+mariadb_password=mariadb_password
+
 sudo packstack \
   --os-glance-install=y \
   --os-cinder-install=n \
@@ -35,7 +39,9 @@ sudo packstack \
   --os-trove-install=n \
   --os-ironic-install=n \
   --os-neutron-lbaas-install=y \
-  --mariadb-pw=mariadb_password \
+  --mariadb-pw=$mariadb_password \
+  --os-neutron-db-password=$neutron_db_password \
+  --keystone-admin-passwd=$keystone_admin_password \
   --allinone
 
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# this is an interacting script. 
+# This is an interactive script. 
 #   Checking for missing dependency packages for command line client ...
 #   executing command : /usr/local/pulse/pulsesvc
 #   VPN Password: 

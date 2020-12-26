@@ -105,8 +105,12 @@ insecure = true" >> /etc/neutron/neutron.conf
     systemctl daemon-reload
 
     # Restart Service
+
+    echo "systemctl restart neutron-server ..."
     systemctl restart neutron-server
+    echo "systemctl enable f5-openstack-agent ..."
     systemctl enable f5-openstack-agent
+    echo "systemctl start f5-openstack-agent ..."
     systemctl start f5-openstack-agent
 }
 

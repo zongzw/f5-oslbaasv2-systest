@@ -14,6 +14,8 @@ echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 
 echo
 echo "  Use $workdir/proxy.sh to setup proxy for faster installation."
+echo
+env | grep -i proxy
 sleep 1
 echo 
 

@@ -37,12 +37,14 @@ if [ $? -ne 0 ]; then
     openstack service create --name barbican --description "Key Manager" key-manager
 fi
 
-openstack endpoint list | grep key-manager
-if [ $? -ne 0 ]; then
-    openstack endpoint create --region RegionOne key-manager public http://$controller_host:9311
-    openstack endpoint create --region RegionOne key-manager internal http://$controller_host:9311
-    openstack endpoint create --region RegionOne key-manager admin http://$controller_host:9311
+kmeps=`openstack endpoint list --service key-manager --format value --column ID`
+if [ -n "$kmeps" ]; then
+    openstack endpoint delete $kmeps
 fi
+openstack endpoint create --region RegionOne key-manager public http://$controller_host:9311
+openstack endpoint create --region RegionOne key-manager internal http://$controller_host:9311
+openstack endpoint create --region RegionOne key-manager admin http://$controller_host:9311
+
 set -e
 
 # install barbican & barbicanclient

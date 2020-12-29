@@ -10,7 +10,8 @@ with open('/etc/neutron/neutron.conf') as fr:
 
 print(neutron_conf.sections())
 
-neutron_conf.remove_option('service_providers', 'service_provider')
+neutron_conf.set('service_providers', 'service_provider', 
+    'LOADBALANCERV2:F5Networks:neutron_lbaas.drivers.f5.driver_v2.F5LBaaSV2Driver:default')
 neutron_conf.set('DEFAULT', 'debug', 'True')
 neutron_conf['service_auth'] = {
     'auth_url': 'http://%s:35357/v2.0' % os.environ['RDO_VM_IP'],
@@ -34,7 +35,6 @@ with open('/etc/neutron/neutron_lbaas.conf') as fr:
 print(lbaas_conf.sections())
 
 lbaas_conf.set('DEFAULT', 'f5_driver_perf_mode', '3')
-lbaas_conf.set('service_providers', 'service_provider', 'LOADBALANCERV2:F5Networks:neutron_lbaas.drivers.f5.driver_v2.F5LBaaSV2Driver:default')
 lbaas_conf.set('quotas', 'quota_loadbalancer', '-1')
 lbaas_conf.set('quotas', 'quota_pool', '-1')
 

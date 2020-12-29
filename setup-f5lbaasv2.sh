@@ -5,7 +5,8 @@ if [ $# -ne 1 ] || [ ! -f $1 ]; then
     exit 1
 fi
 
-source $1
+envfile=$1
+source $envfile
 workdir=`cd $(dirname $0); pwd`
 
 for n in $rpm_agent $rpm_driver $rpm_f5sdk $rpm_icontrol; do
@@ -33,8 +34,9 @@ function reconfig_f5() {
     source $openrc
 
     pip install configparser
-    cp $workdir/configs/$vers_agent-f5-openstack-agent.ini /etc/neutron/services/f5/f5-openstack-agent.ini    
-    python config-ini-conf.py
+    cp $workdir/configs/$vers_agent-f5-openstack-agent.ini /etc/neutron/services/f5/f5-openstack-agent.ini
+    
+    python $workdir/_config-ini-conf.py
     chown -R neutron:neutron /etc/neutron
 
     # Restart Service

@@ -181,6 +181,36 @@ class LBaasV2Helper:
             traceback.print_exc()
             raise e
 
+
+    def create_listener(self, loadbalancer_id):
+        ls_create_url = "http://%s:9696/v2.0/lbaas/listeners" % self.os_host
+
+        payload = {
+            "listener": {
+                "loadbalancer_id": loadbalancer_id, 
+                "protocol_port": 89,
+                "protocol": "HTTP"
+
+            }
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Auth-Token': self.authed_token
+        }
+        payload_data = json.dumps(payload)
+
+        try:
+            response = requests.request("POST", ls_create_url, headers=headers, data = payload_data)
+            if int(response.status_code / 200) == 1:
+                # print(json.dumps(json.loads(response.text.encode('utf8')), indent=2))
+                return json.loads(response.text.encode('utf8'))
+            else:
+                raise Exception("failed to create listener: %d, %s" % (response.status_code, response.text.encode('utf-8')))
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+
+
 if __name__ == "__main__":
     h = LBaasV2Helper()
     print(h.authed_token)

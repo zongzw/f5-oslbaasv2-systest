@@ -3,12 +3,8 @@
 - hosts: bigips
   gather_facts: False
   remote_user: root
-  vars_files: ./vars.yml
+  vars_files: ../conf.d/vars.yml
   tasks:
-  # ping bigips
-  # - name: check host reachable
-  #   ping: 
-  
   # - name: set timestamp value
   #   shell: date +%s
   #   register: timestamp
@@ -32,8 +28,8 @@
   #       - http-profiles
   #     provider:
   #       user: admin
-  #       server: "{{ bigip_hostname }}"
-  #       password: "{{ bigip_admin_password }}"
+  #       server: "{{ bigip.hostname }}"
+  #       password: "{{ bigip.admin_password }}"
   #       validate_certs: False
   #   register: testvar
 
@@ -56,34 +52,3 @@
   # - name: bigip module return values
   #   debug:
   #     var: res
-
-  - name: collect bigip partitions
-    bigip_device_info:
-      gather_subset:
-        - partitions
-      provider:
-        user: admin
-        server: "{{ bigip_hostname }}"
-        password: "{{ bigip_admin_password }}"
-        validate_certs: False
-    register: partitions
-
-  - name: show all partitions
-    debug:
-      var: partitions.partitions
-
-  - name: delete partition "{{item.name}}"
-    bigip_partition:
-      name: "{{item.name}}"
-      state: absent
-      provider:
-        user: admin
-        server: "{{ bigip_hostname }}"
-        password: "{{ bigip_admin_password }}"
-        validate_certs: False
-    with_items: "{{partitions.partitions}}"
-    when: item.name != "Common"
-    
-  # - name: show delete result
-  #   debug:
-  #     var: description

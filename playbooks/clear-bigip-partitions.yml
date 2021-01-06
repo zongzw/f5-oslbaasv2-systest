@@ -1,0 +1,35 @@
+---
+
+- hosts: bigips
+  gather_facts: False
+  remote_user: root
+  vars_files: ../conf.d/vars.yml
+  tasks:
+    - import_tasks: ./task-utils.yml
+
+    - name: collect bigip partitions
+      bigip_device_info:
+        gather_subset:
+          - partitions
+        provider:
+          user: admin
+          server: "{{ bigip.hostname }}"
+          password: "{{ bigip.admin_password }}"
+          validate_certs: False
+      register: partitions
+
+    - name: show all partitions
+      debug:
+        var: partitions.partitions
+
+    - name: delete partitions
+      bigip_partition:
+        name: "{{item.name}}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ bigip.hostname }}"
+          password: "{{ bigip.admin_password }}"
+          validate_certs: False
+      with_items: "{{partitions.partitions}}"
+      when: item.name != "Common"

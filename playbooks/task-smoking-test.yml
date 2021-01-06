@@ -1,0 +1,12 @@
+---
+
+- name: set timestamp variable
+  shell: date +%s
+  register: test_timestamp
+
+- name: "smoking test: create a loadbalancer {{ resource_names.loadbalancer }}"
+  shell: |
+    source {{ openrc }} && \
+    neutron lbaas-loadbalancer-create --name {{ resource_names.loadbalancer }} public_subnet
+  # notify:
+  #   - check lb created with no ERROR

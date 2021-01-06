@@ -1,0 +1,79 @@
+---
+
+
+- hosts: neutron_servers
+  vars_files: ../conf.d/vars.yml
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - name: check the host is reachable
+      ping:
+
+    - name: check neutron is installed
+      yum:
+        name: 
+          - python-neutron.noarch
+          - python-neutron-lbaas.noarch
+
+    - name: uninstall legacy f5-*
+      yum:
+        name:
+          - f5-openstack-agent.noarch
+          - f5-openstack-lbaasv2-driver.noarch
+          - f5-icontrol-rest.noarch
+          - f5-sdk.noarch
+        state: removed
+
+    - name: download f5-* packages
+      vars:
+        - download_prefix:  http://10.250.11.185/f5-packages
+      get_url:
+        url: "{{ item }}"
+        dest: /tmp
+        timeout: 30
+      with_items:
+        # - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
+        - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
+
+    - name: install f5-*
+      shell: |
+        rpm -ivh \
+          f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm \
+          f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm \
+          f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm \
+          f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
+      args:
+        chdir: /tmp
+        removes: f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
+        warn: False
+
+    - name: install configparser
+      pip:
+        name: configparser
+
+    - name: copy _config-ini-conf.py to rdo host
+      copy:
+        src: ../scripts/_config-ini-conf.py
+        dest: /tmp/_config-ini-conf.py
+        force: yes
+
+    - name: configure neutron_lbaas and f5-agent
+      shell: |
+        export bigip_admin_password={{bigip.admin_password}} && \
+        export bigip_hostname={{bigip.hostname}} && \
+        source {{ openrc }} && \
+        python /tmp/_config-ini-conf.py
+
+    - name: restart neutron-server and f5-openstack-agent
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - neutron-server
+        - f5-openstack-agent
+
+    - import_tasks: ./task-smoking-test.yml
+      tags: smokingtest

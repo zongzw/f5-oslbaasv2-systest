@@ -2,9 +2,88 @@
 
 - hosts: bigips
   gather_facts: False
-  vars:
   remote_user: root
+  vars_files: ./vars.yml
   tasks:
   # ping bigips
-  - name: check host reachable
-    ping: 
+  # - name: check host reachable
+  #   ping: 
+  
+  # - name: set timestamp value
+  #   shell: date +%s
+  #   register: timestamp
+  # - debug: var=timestamp.stdout
+
+  # - name: collect bigip device info
+  #   bigip_device_info:
+  #     gather_subset:
+  #       - system-info
+  #       - partitions
+  #       # - provision-info
+  #       # - interfaces
+  #       # - client-ssl-profiles
+  #       # - ltm-pools
+  #       # - virtual-servers
+  #       # - vlans
+  #       # - nodes
+  #       # - virtual-addresses
+  #       # - profiles
+  #       - devices
+  #       - http-profiles
+  #     provider:
+  #       user: admin
+  #       server: "{{ bigip_hostname }}"
+  #       password: "{{ bigip_admin_password }}"
+  #       validate_certs: False
+  #   register: testvar
+
+  # - name: show bigip infor {{testvar.devices.name}}
+  #   debug:
+  #     var: testvar
+
+  # - name: test shell
+  #   shell: "echo test > /var/testshellfile"
+  #   register: testvar
+  # - name: bigip module return values
+  #   debug:
+  #     # var: testvar
+
+  # - debug: msg="{{ item }}"
+  #   with_items:
+  #     - one
+  #     - two
+  #   register: res
+  # - name: bigip module return values
+  #   debug:
+  #     var: res
+
+  - name: collect bigip partitions
+    bigip_device_info:
+      gather_subset:
+        - partitions
+      provider:
+        user: admin
+        server: "{{ bigip_hostname }}"
+        password: "{{ bigip_admin_password }}"
+        validate_certs: False
+    register: partitions
+
+  - name: show all partitions
+    debug:
+      var: partitions.partitions
+
+  - name: delete partition "{{item.name}}"
+    bigip_partition:
+      name: "{{item.name}}"
+      state: absent
+      provider:
+        user: admin
+        server: "{{ bigip_hostname }}"
+        password: "{{ bigip_admin_password }}"
+        validate_certs: False
+    with_items: "{{partitions.partitions}}"
+    when: item.name != "Common"
+    
+  # - name: show delete result
+  #   debug:
+  #     var: description

@@ -4,9 +4,28 @@
   shell: date +%s
   register: test_timestamp
 
-- name: "smoking test: create a loadbalancer {{ resource_names.loadbalancer }}"
+- name: copy necessary files to controller host
+  copy:
+    src: ../scripts/wait_assert_lb_active.sh
+    dest: /tmp/wait_assert_lb_active.sh
+    force: yes
+    mode: 0755
+
+- name: "smoking test: create lbaasv2 resources"
   shell: |
-    source {{ openrc }} && \
-    neutron lbaas-loadbalancer-create --name {{ resource_names.loadbalancer }} public_subnet
-  # notify:
-  #   - check lb created with no ERROR
+    source {{ openrc }} && {{ item }} && /tmp/wait_assert_lb_active.sh {{ resource_names.loadbalancer }}
+  with_items:
+    - neutron lbaas-loadbalancer-create --name {{ resource_names.loadbalancer }} {{ resource_names.subnet }}
+    - neutron lbaas-pool-create --name {{ resource_names.pool }} --loadbalancer {{ resource_names.loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol HTTP
+    - neutron lbaas-listener-create --name {{ resource_names.listener }} --loadbalancer {{ resource_names.loadbalancer }} --protocol HTTP --protocol-port 80
+    - neutron lbaas-member-create --name {{ resource_names.member }} --subnet {{ resource_names.subnet }} --address 1.1.1.1 --protocol-port 80 {{ resource_names.pool }}
+
+- name: "smoking test: check lbaasv2 resources created on bigip"
+- name: "smoking test: delete lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && {{ item }} && sleep 3
+  with_items:
+    - neutron lbaas-member-delete {{ resource_names.member }} {{ resource_names.pool }}
+    - neutron lbaas-pool-delete {{ resource_names.pool }}
+    - neutron lbaas-listener-delete {{ resource_names.listener }}
+    - neutron lbaas-loadbalancer-delete {{ resource_names.loadbalancer }}

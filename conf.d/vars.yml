@@ -13,4 +13,9 @@ openrc: /root/keystonerc_admin
 #openrc: /home/heat-admin/overcloudrc
 
 resource_names:
+  subnet: public_subnet
   loadbalancer: lb-{{ test_timestamp.stdout }}
+  listener: ls-{{ test_timestamp.stdout }}
+  pool: pl-{{ test_timestamp.stdout }}
+  member: mb-{{ test_timestamp.stdout }}
+  l7policy: l7-{{ test_timestamp.stdout }}

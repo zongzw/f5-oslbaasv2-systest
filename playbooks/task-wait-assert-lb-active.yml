@@ -1,0 +1,11 @@
+---
+
+- name: "wait and check loadbalancer becomes ACTIVE"
+  shell: |
+    source {{ openrc }} && \
+    neutron lbaas-loadbalancer-show {{ resource_names.loadbalancer }} \
+      --format value --column provisioning_status
+  register: lb_status
+  until: lb_status.stdout == 'ACTIVE'
+  retries: 10
+  delay: 3

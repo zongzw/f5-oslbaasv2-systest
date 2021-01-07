@@ -8,6 +8,7 @@
   tasks:
     - name: check the host is reachable
       ping:
+      delegate_to: localhost
 
     - name: check neutron is installed
       yum:

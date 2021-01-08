@@ -5,16 +5,17 @@
   remote_user: root
   vars_files: ../conf.d/vars.yml
   tasks:
-    - import_tasks: ./task-utils.yml
-
+    - name: check {{ inventory_hostname }} reachable
+      ping:
+      
     - name: collect bigip partitions
       bigip_device_info:
         gather_subset:
           - partitions
         provider:
           user: admin
-          server: "{{ bigip.hostname }}"
-          password: "{{ bigip.admin_password }}"
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
           validate_certs: False
       register: partitions
 
@@ -28,8 +29,8 @@
         state: absent
         provider:
           user: admin
-          server: "{{ bigip.hostname }}"
-          password: "{{ bigip.admin_password }}"
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
           validate_certs: False
       with_items: "{{partitions.partitions}}"
       when: item.name != "Common"

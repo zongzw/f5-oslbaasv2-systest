@@ -1,10 +1,12 @@
 [neutron_servers]
-#10.250.23.60
-#10.250.23.59
-#10.250.23.54
 10.250.15.160
 
+[neutron_servers:vars]
+openrc = /root/keystonerc_admin
+
 [bigips]
-#10.250.2.211
-#10.250.2.212
 10.250.18.104
+
+[bigips:vars]
+admin_password = admin@f5
+root_password = pd123@f5

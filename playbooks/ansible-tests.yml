@@ -5,6 +5,18 @@
   remote_user: root
   vars_files: ../conf.d/vars.yml
   tasks:
+    - debug: msg="{{ item }}"
+      with_items: 
+        - "groups={{groups}}"
+        - "group_names={{group_names}}"
+        - "hostvars={{hostvars}}"
+        - "inventory_hostname={{inventory_hostname}}"
+        - "inventory_hostname_short={{inventory_hostname_short}}"
+        - "play_hosts={{play_hosts}}"
+        - "inventory_dir={{inventory_dir}}"
+        - "password: {{hostvars[groups['bigips'][0]].admin_password}}"
+        - "hosts: {{groups['bigips'] | join(',')}}"
+      run_once: True
     # - name: purposely fail
     #   shell: echo zongzw
     #   register: task_register_var
@@ -17,12 +29,12 @@
     #   debug:
     #     msg: "{{ task_register_var }}"
 
-    - name: get  neutron  db infor
-      shell: cat  ~/test.json
-      register:  vara
-      delegate_to: localhost
+    # - name: get  neutron  db infor
+    #   shell: cat  ~/test.json
+    #   register:  vara
+    #   delegate_to: localhost
     
-    - debug: var=vara
+    # - debug: var=vara
   # - name: set timestamp value
   #   shell: date +%s
   #   register: timestamp

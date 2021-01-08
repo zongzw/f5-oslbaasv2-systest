@@ -73,8 +73,8 @@
 
     - name: configure neutron_lbaas and f5-agent
       shell: |
-        export bigip_admin_password={{bigip.admin_password}} && \
-        export bigip_hostname={{bigip.hostname}} && \
+        export bigip_admin_password={{ hostvars[groups['bigips'][0]].admin_password }} && \
+        export bigip_hostname={{ groups['bigips'] | join(',') }} && \
         source {{ openrc }} && \
         python /tmp/_config-ini-conf.py
 
@@ -87,4 +87,5 @@
         - f5-openstack-agent
 
     - import_tasks: ./task-smoking-test.yml
+      run_once: True
       tags: smokingtest

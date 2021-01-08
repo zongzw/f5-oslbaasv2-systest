@@ -3,6 +3,13 @@
 10.250.23.59
 10.250.23.54
 
+[neutron_servers:vars]
+openrc = /home/heat-admin/overcloudrc
+
 [bigips]
 10.250.2.211
 10.250.2.212
+
+[bigips:vars]
+admin_password = P@ssw0rd123
+root_password = P@ssw0rd123

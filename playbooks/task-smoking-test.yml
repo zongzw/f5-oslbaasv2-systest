@@ -20,7 +20,7 @@
     - neutron lbaas-listener-create --name {{ resource_names.listener }} --loadbalancer {{ resource_names.loadbalancer }} --protocol HTTP --protocol-port 80
     - neutron lbaas-member-create --name {{ resource_names.member }} --subnet {{ resource_names.subnet }} --address 1.1.1.1 --protocol-port 80 {{ resource_names.pool }}
 
-- name: "smoking test: check lbaasv2 resources created on bigip"
+# - name: "smoking test: check lbaasv2 resources created on bigip"
 - name: "smoking test: delete lbaasv2 resources"
   shell: |
     source {{ openrc }} && {{ item }} && sleep 3

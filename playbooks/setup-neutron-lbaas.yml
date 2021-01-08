@@ -16,6 +16,9 @@
           - python-neutron.noarch
           - python-neutron-lbaas.noarch
 
+    - import_tasks: ./task-customize-neutron.yml
+      tags: customizeneutron
+
     - name: uninstall legacy f5-*
       yum:
         name:

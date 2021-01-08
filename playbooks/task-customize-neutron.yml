@@ -1,0 +1,53 @@
+---
+
+- name: list the files of patches directory
+  shell: ls chdir=../patches
+  register: patch_files
+  delegate_to: localhost
+  tags: copyfile
+
+- name: customize neutron* code
+  copy: src=../patches/{{ item }} dest=/ force=yes
+  with_items: "{{ patch_files.stdout_lines }}"
+  tags: copyfile
+
+- name: copy .sql to neutron-server
+  copy: src=../scripts/customizing.db.sql dest=/tmp force=yes
+  tags: migratedb
+  run_once: True
+
+- name: copy get_neutron_db_info.py to neutron-server
+  copy: src=../scripts/get_neutron_db_info.py dest=/tmp force=yes
+  run_once: True
+  tags:
+    - getneutrondbinfo
+    - migratedb
+
+- name: get neutron db info
+  shell: python /tmp/get_neutron_db_info.py {{ item }}
+  with_items:
+    - username
+    - password
+    - hostname
+    - database
+  register: neutron_db_info
+  run_once: True
+  tags:
+    - getneutrondbinfo
+    - migratedb
+
+- debug: var=neutron_db_info
+  tags:
+    - getneutrondbinfo
+    - migratedb
+
+- name: migrate neutron db tables
+  mysql_db:
+    name: "{{neutron_db_info.results[3].stdout}}"
+    login_user: "{{neutron_db_info.results[0].stdout}}"
+    login_password: "{{neutron_db_info.results[1].stdout}}"
+    login_host: "{{neutron_db_info.results[2].stdout}}"
+    target: /tmp/customizing.db.sql
+    state: import
+  run_once: True
+  tags: migratedb

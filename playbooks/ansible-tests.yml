@@ -5,17 +5,24 @@
   remote_user: root
   vars_files: ../conf.d/vars.yml
   tasks:
-    - name: purposely fail
-      shell: echo zongzw
-      register: task_register_var
-      until: task_register_var.stdout == 'zongzw'
-      retries: 2
-      delay: 1
-      ignore_errors: yes
+    # - name: purposely fail
+    #   shell: echo zongzw
+    #   register: task_register_var
+    #   until: task_register_var.stdout == 'zongzw'
+    #   retries: 2
+    #   delay: 1
+    #   ignore_errors: yes
 
-    - name: debug task_register_var
-      debug:
-        msg: "{{ task_register_var }}"
+    # - name: debug task_register_var
+    #   debug:
+    #     msg: "{{ task_register_var }}"
+
+    - name: get  neutron  db infor
+      shell: cat  ~/test.json
+      register:  vara
+      delegate_to: localhost
+    
+    - debug: var=vara
   # - name: set timestamp value
   #   shell: date +%s
   #   register: timestamp

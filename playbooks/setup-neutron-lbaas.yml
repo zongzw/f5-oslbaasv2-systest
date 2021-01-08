@@ -16,6 +16,17 @@
           - python-neutron.noarch
           - python-neutron-lbaas.noarch
 
+    - name: install configparser
+      shell: |
+        installed=`which pip`
+        if [ -z "$installed" ]; then 
+          wget https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py && \
+          python /tmp/get-pip.py
+        fi
+        pip install configparser
+      tags:
+        - migratedb
+
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
 
@@ -53,10 +64,6 @@
         chdir: /tmp
         removes: f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
         warn: False
-
-    - name: install configparser
-      pip:
-        name: configparser
 
     - name: copy _config-ini-conf.py to rdo host
       copy:

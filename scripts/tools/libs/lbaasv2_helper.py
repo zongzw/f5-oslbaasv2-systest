@@ -153,11 +153,16 @@ class LBaasV2Helper:
         while max_times > 0:
             lb = self.get_loadbalancer(loadbalancer_id)
             if lb['loadbalancer']['provisioning_status'].startswith("PENDING_"):
-                max_times -= 1
-                time.sleep(1)
+                print("waiting for lb %s to be ACTIVE" % loadbalancer_id)
+                pass
             else:
-                break
+                print("lb %s becomes to %s" % (loadbalancer_id, lb['loadbalancer']['provisioning_status']))
+                return
 
+            max_times -= 1
+            time.sleep(3)
+
+        raise Exception("Timeout for waiting for lb %s ACTIVE" % loadbalancer_id)
 
     def delete_loadbalancer(self, loadbalancer_id):
         lb_url = "http://%s:9696/v2.0/lbaas/loadbalancers/%s" % (self.os_host, loadbalancer_id)

@@ -7,8 +7,8 @@ if [ -z "$1" ]; then
     exit 1 
 fi
 
-retries=10
-delay=3
+retries=30
+delay=2
 
 echo "loadbalancer: $1"
 

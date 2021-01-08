@@ -5,6 +5,7 @@
   register: patch_files
   delegate_to: localhost
   tags: copyfile
+  run_once: True
 
 - name: customize neutron* code
   copy: src=../patches/{{ item }} dest=/ force=yes
@@ -36,7 +37,13 @@
     - getneutrondbinfo
     - migratedb
 
-- debug: var=neutron_db_info
+- debug: msg={{ item }}
+  run_once: True
+  with_items:
+    - "username: {{ neutron_db_info.results[0].stdout }}"
+    - "password: {{ neutron_db_info.results[1].stdout }}"
+    - "hostname: {{ neutron_db_info.results[2].stdout }}"
+    - "database: {{ neutron_db_info.results[3].stdout }}"
   tags:
     - getneutrondbinfo
     - migratedb

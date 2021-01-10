@@ -4,16 +4,9 @@
   shell: date +%s
   register: test_timestamp
 
-- name: copy necessary files to controller host
-  copy:
-    src: ../scripts/wait_assert_lb_active.sh
-    dest: /tmp/wait_assert_lb_active.sh
-    force: yes
-    mode: 0755
-
 - name: set neutron resource names
   set_fact:
-    subnet: public_subnet
+    subnet: "{{ test_subnet }}"
     loadbalancer: lb-{{ test_timestamp.stdout }}
     listener: ls-{{ test_timestamp.stdout }}
     pool: pl-{{ test_timestamp.stdout }}
@@ -22,14 +15,17 @@
 
 - name: "smoking test: create lbaasv2 resources"
   shell: |
-    source {{ openrc }} && {{ item }} && /tmp/wait_assert_lb_active.sh {{ loadbalancer }}
+    source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
   with_items:
     - neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
     - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol HTTP
     - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --protocol HTTP --protocol-port 80
     - neutron lbaas-member-create --name {{ member }} --subnet {{ subnet }} --address 1.1.1.1 --protocol-port 80 {{ pool }}
 
-# - name: "smoking test: check lbaasv2 resources created on bigip"
+- name: "TODO: check resources created on bigips"
+  shell: echo "todo."
+  run_once: True
+
 - name: "smoking test: delete lbaasv2 resources"
   shell: |
     source {{ openrc }} && {{ item }} && sleep 3

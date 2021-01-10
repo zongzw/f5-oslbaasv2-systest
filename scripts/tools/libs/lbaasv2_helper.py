@@ -216,14 +216,46 @@ class LBaasV2Helper:
             raise e
 
 
+    def get_agents(self, **kwargs):
+        agents_url = "http://%s:9696/v2.0/agents" % (self.os_host)
+
+        payload  = {}
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Auth-Token': self.authed_token
+        }
+
+        queries = []
+        for n in kwargs:
+            queries.append('%s=%s' % (n, kwargs[n]))
+        
+        if queries:
+            agents_url = "%s?%s" % (agents_url, '&'.join(queries))
+
+        try:
+            response = requests.request("GET", agents_url, headers=headers, data = payload)
+            
+            if int(response.status_code / 200) == 1:
+                # print(json.dumps(json.loads(response.text.encode('utf8')), indent=2))
+                return json.loads(response.text.encode('utf8'))
+            else:
+                print("failed to get loadbalancer: %d, %s" % (response.status_code, response.text.encode('utf-8')))
+                sys.exit(1)
+        except Exception  as e:
+            traceback.print_exc()
+            raise e
+
+
 if __name__ == "__main__":
     h = LBaasV2Helper()
-    print(h.authed_token)
-    print(h.get_subnet_id('public_subnet'))
-    lb = h.create_loadbalancer('public_subnet')
-    print(lb)
-    lbid = lb['loadbalancer']['id']
-    print(h.get_loadbalancer(lbid))
-    h.wait_for_loadbalancer_updated(lbid)
-    h.delete_loadbalancer(lbid)
+    # print(h.authed_token)
+    # print(h.get_subnet_id('public_subnet'))
+    # lb = h.create_loadbalancer('public_subnet')
+    # print(lb)
+    # lbid = lb['loadbalancer']['id']
+    # print(h.get_loadbalancer(lbid))
+    # h.wait_for_loadbalancer_updated(lbid)
+    # h.delete_loadbalancer(lbid)
 
+    agents = h.get_agents(binary='f5-oslbaasv2-agent')
+    print(json.dumps(agents, indent=2))

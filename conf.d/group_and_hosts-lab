@@ -4,7 +4,10 @@
 10.250.23.54
 
 [neutron_servers:vars]
+test_env = lab
 openrc = /home/heat-admin/overcloudrc
+agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
+test_subnet = vlan30_subnet
 
 [bigips]
 10.250.2.211

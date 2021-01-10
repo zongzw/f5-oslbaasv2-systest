@@ -12,20 +12,8 @@
   with_items: "{{ patch_files.stdout_lines }}"
   tags: copyfile
 
-- name: copy .sql to neutron-server
-  copy: src=../scripts/customizing.db.sql dest=/tmp force=yes
-  tags: migratedb
-  run_once: True
-
-- name: copy get_neutron_db_info.py to neutron-server
-  copy: src=../scripts/get_neutron_db_info.py dest=/tmp force=yes
-  run_once: True
-  tags:
-    - getneutrondbinfo
-    - migratedb
-
 - name: get neutron db info
-  shell: python /tmp/get_neutron_db_info.py {{ item }}
+  shell: python /tmp/scripts/get_neutron_db_info.py {{ item }}
   with_items:
     - username
     - password
@@ -54,7 +42,7 @@
     login_user: "{{neutron_db_info.results[0].stdout}}"
     login_password: "{{neutron_db_info.results[1].stdout}}"
     login_host: "{{neutron_db_info.results[2].stdout}}"
-    target: /tmp/customizing.db.sql
+    target: /tmp/scripts/customizing.db.sql
     state: import
   run_once: True
   tags: migratedb

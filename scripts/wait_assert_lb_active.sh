@@ -17,7 +17,12 @@ while [ $retries -gt 0 ]; do
 
     provisioning_status=`neutron lbaas-loadbalancer-show $1 --format value --column provisioning_status`
     echo "provisionging status: $provisioning_status"
-    [ "$provisioning_status" = "ACTIVE" ] && exit 0 || continue
+    if [ "$provisioning_status" = "ACTIVE" ]; then
+        exit 0
+    elif [ "$provisioning_status" = "ERROR" ]; then 
+        exit 1
+    fi
+    continue
 done
 
 echo "timeout for waiting $1 to ACTIVE, quit."

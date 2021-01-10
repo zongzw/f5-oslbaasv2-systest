@@ -1,22 +1,24 @@
 ---
 
-- hosts: bigips
+- hosts: neutron_servers
   gather_facts: False
   remote_user: root
-  vars_files: ../conf.d/vars.yml
   tasks:
-    - debug: msg="{{ item }}"
-      with_items: 
-        - "groups={{groups}}"
-        - "group_names={{group_names}}"
-        - "hostvars={{hostvars}}"
-        - "inventory_hostname={{inventory_hostname}}"
-        - "inventory_hostname_short={{inventory_hostname_short}}"
-        - "play_hosts={{play_hosts}}"
-        - "inventory_dir={{inventory_dir}}"
-        - "password: {{hostvars[groups['bigips'][0]].admin_password}}"
-        - "hosts: {{groups['bigips'] | join(',')}}"
-      run_once: True
+    - debug: msg="{{item}}"
+      with_items:
+        - "{{agent_services.split(',')}}"
+    # - debug: msg="{{ item }}"
+    #   with_items: 
+    #     - "groups={{groups}}"
+    #     - "group_names={{group_names}}"
+    #     - "hostvars={{hostvars}}"
+    #     - "inventory_hostname={{inventory_hostname}}"
+    #     - "inventory_hostname_short={{inventory_hostname_short}}"
+    #     - "play_hosts={{play_hosts}}"
+    #     - "inventory_dir={{inventory_dir}}"
+    #     - "password: {{hostvars[groups['bigips'][0]].admin_password}}"
+    #     - "hosts: {{groups['bigips'] | join(',')}}"
+    #   run_once: True
     # - name: purposely fail
     #   shell: echo zongzw
     #   register: task_register_var

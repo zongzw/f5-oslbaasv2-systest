@@ -26,8 +26,7 @@ with open('/etc/neutron/neutron.conf') as fr:
 
 print(neutron_conf.sections())
 
-neutron_conf.set('service_providers', 'service_provider', 
-    '            LOADBALANCERV2:F5Networks:neutron_lbaas.drivers.f5.driver_v2.F5LBaaSV2Driver:default')
+neutron_conf.set('service_providers', 'service_provider', 'LOADBALANCERV2:F5Networks:neutron_lbaas.drivers.f5.driver_v2.F5LBaaSV2Driver:default')
 neutron_conf.set('DEFAULT', 'debug', 'True')
 neutron_conf.set('DEFAULT', 'changed_at', '%s' % time.time())
 neutron_conf['service_auth'] = {

@@ -1,8 +1,6 @@
 ---
 
-
 - hosts: neutron_servers
-  vars_files: ../conf.d/vars.yml
   gather_facts: False
   remote_user: root
   tasks:
@@ -16,6 +14,9 @@
           - python-neutron.noarch
           - python-neutron-lbaas.noarch
 
+    - name: copy necessary files to neutron server
+      copy: src=../scripts dest=/tmp force=yes
+
     - name: install configparser
       shell: |
         installed=`which pip`
@@ -24,13 +25,19 @@
           python /tmp/get-pip.py
         fi
         pip install configparser
-      tags:
-        - migratedb
+      tags: migratedb
 
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
 
-    - name: uninstall legacy f5-*
+    # yum uninstall is pretty slow in lab, so use rpm instead.
+    - name: uninstall legacy f5-* using rpm
+      shell: |
+        f5_rpms=`rpm -qa | grep -E "^f5-"`
+        if [ -n "$f5_rpms" ]; then rpm -ev $f5_rpms; fi
+      when: test_env == "lab"
+
+    - name: uninstall legacy f5-* using yum
       yum:
         name:
           - f5-openstack-agent.noarch
@@ -38,14 +45,10 @@
           - f5-icontrol-rest.noarch
           - f5-sdk.noarch
         state: removed
+      when: test_env != "lab"
 
     - name: download f5-* packages
-      vars:
-        - download_prefix:  http://10.250.11.185/f5-packages
-      get_url:
-        url: "{{ item }}"
-        dest: /tmp
-        timeout: 30
+      get_url: url={{ item }} dest=/tmp timeout=30
       with_items:
         # - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
         - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
@@ -65,18 +68,30 @@
         removes: f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
         warn: False
 
-    - name: copy _config-ini-conf.py to rdo host
-      copy:
-        src: ../scripts/_config-ini-conf.py
-        dest: /tmp/_config-ini-conf.py
-        force: yes
-
     - name: configure neutron_lbaas and f5-agent
       shell: |
         export bigip_admin_password={{ hostvars[groups['bigips'][0]].admin_password }} && \
         export bigip_hostname={{ groups['bigips'] | join(',') }} && \
         source {{ openrc }} && \
-        python /tmp/_config-ini-conf.py
+        python /tmp/scripts/_config-ini-conf.py
+      when: test_env != "lab"
+
+    - name: set runing_files variable
+      shell: ls chdir=../conf.d/{{ test_env }}
+      register: runtime_files
+      delegate_to: localhost
+      when: test_env == "lab"
+      run_once: True
+      tags: copylabruntimefiles
+
+    - name: copy lab runtime files
+      copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
+      with_items: "{{ runtime_files.stdout_lines }}"
+      when: test_env == "lab"
+      tags: copylabruntimefiles
+
+    - name: execute systemctl daemon-reload
+      shell: systemctl daemon-reload
 
     - name: restart neutron-server and f5-openstack-agent
       service:
@@ -84,8 +99,15 @@
         state: restarted
       with_items:
         - neutron-server
-        - f5-openstack-agent
+        - "{{agent_services.split(',')}}"
+    
+    - name: waiting for agents to be ready
+      shell: |
+        source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py
+      with_items:
+        - "{{agent_services.split(',')}}"
 
     - import_tasks: ./task-smoking-test.yml
       run_once: True
       tags: smokingtest
+      

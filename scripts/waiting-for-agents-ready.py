@@ -8,13 +8,12 @@ fp = os.path.abspath(__file__)
 sys.path.append(os.path.join(os.path.dirname(fp), './tools'))
 from libs import lbaasv2_helper
 
-curdt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-print("current time: %s" % curdt)
+origdt = {}
 
 l = lbaasv2_helper.LBaasV2Helper()
 
-retries = 30
-delay = 5
+retries = 100
+delay = 6
 while retries > 0:
     time.sleep(delay)
     retries = retries - 1
@@ -26,8 +25,11 @@ while retries > 0:
 
     done = True
     for a in agents['agents']:
-        print("agent %s timestamp: %s" % (a['id'], a['heartbeat_timestamp']))
-        if a['heartbeat_timestamp'] <= curdt: 
+        id = a['id']
+        print("agent %s timestamp: %s" % (id, a['heartbeat_timestamp']))
+        if not id in origdt:
+            origdt[id] = a['heartbeat_timestamp']
+        if a['heartbeat_timestamp'] <= origdt[id]: 
             done = False
     
     if done:

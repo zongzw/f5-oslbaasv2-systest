@@ -14,8 +14,7 @@
           - python-neutron.noarch
           - python-neutron-lbaas.noarch
 
-    - name: copy necessary files to neutron server
-      copy: src=../scripts dest=/tmp force=yes
+    - import_tasks: ./task-download-scripts.yml
 
     - name: install configparser
       shell: |
@@ -36,6 +35,7 @@
         f5_rpms=`rpm -qa | grep -E "^f5-"`
         if [ -n "$f5_rpms" ]; then rpm -ev $f5_rpms; fi
       when: test_env == "lab"
+      tags: reinstallf5packages
 
     - name: uninstall legacy f5-* using yum
       yum:
@@ -46,6 +46,7 @@
           - f5-sdk.noarch
         state: removed
       when: test_env != "lab"
+      tags: reinstallf5packages
 
     - name: download f5-* packages
       get_url: url={{ item }} dest=/tmp timeout=30
@@ -55,6 +56,7 @@
         - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
         - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
         - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
+      tags: reinstallf5packages
 
     - name: install f5-*
       shell: |
@@ -67,6 +69,7 @@
         chdir: /tmp
         removes: f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
         warn: False
+      tags: reinstallf5packages
 
     - name: configure neutron_lbaas and f5-agent
       shell: |

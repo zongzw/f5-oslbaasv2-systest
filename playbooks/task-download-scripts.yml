@@ -1,0 +1,3 @@
+
+- name: copy necessary files to neutron server
+  copy: src=../scripts dest=/tmp force=yes

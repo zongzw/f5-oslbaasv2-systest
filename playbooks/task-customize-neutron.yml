@@ -12,29 +12,8 @@
   with_items: "{{ patch_files.stdout_lines }}"
   tags: copyfile
 
-- name: get neutron db info
-  shell: python /tmp/scripts/get_neutron_db_info.py {{ item }}
-  with_items:
-    - username
-    - password
-    - hostname
-    - database
-  register: neutron_db_info
-  run_once: True
-  tags:
-    - getneutrondbinfo
-    - migratedb
-
-- debug: msg={{ item }}
-  run_once: True
-  with_items:
-    - "username: {{ neutron_db_info.results[0].stdout }}"
-    - "password: {{ neutron_db_info.results[1].stdout }}"
-    - "hostname: {{ neutron_db_info.results[2].stdout }}"
-    - "database: {{ neutron_db_info.results[3].stdout }}"
-  tags:
-    - getneutrondbinfo
-    - migratedb
+- import_tasks: ./task-neutron-db-info.yml
+  tags: migratedb
 
 - name: migrate neutron db tables
   mysql_db:

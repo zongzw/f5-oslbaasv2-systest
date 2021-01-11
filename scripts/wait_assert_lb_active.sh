@@ -8,13 +8,14 @@ if [ -z "$1" ]; then
 fi
 
 retries=30
-delay=2
+delay=6
 
 echo "loadbalancer: $1"
 
 while [ $retries -gt 0 ]; do
     retries=$(($retries - 1))
-
+    sleep $delay
+    
     provisioning_status=`neutron lbaas-loadbalancer-show $1 --format value --column provisioning_status`
     echo "provisionging status: $provisioning_status"
     if [ "$provisioning_status" = "ACTIVE" ]; then

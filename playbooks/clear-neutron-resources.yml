@@ -1,0 +1,22 @@
+---
+
+- hosts: neutron_servers
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - name: check the host is reachable
+      ping:
+      delegate_to: localhost
+
+    - import_tasks: ./task-download-scripts.yml
+    - import_tasks: ./task-neutron-db-info.yml
+
+    - name: clear data from neutron db tables
+      mysql_db:
+        name: "{{neutron_db_info.results[3].stdout}}"
+        login_user: "{{neutron_db_info.results[0].stdout}}"
+        login_password: "{{neutron_db_info.results[1].stdout}}"
+        login_host: "{{neutron_db_info.results[2].stdout}}"
+        target: /tmp/scripts/delete-from-db.sql
+        state: import
+      run_once: True

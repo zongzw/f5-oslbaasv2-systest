@@ -1,0 +1,21 @@
+- name: get neutron db info
+  shell: python /tmp/scripts/get_neutron_db_info.py {{ item }}
+  with_items:
+    - username
+    - password
+    - hostname
+    - database
+  register: neutron_db_info
+  run_once: True
+  tags:
+    - getneutrondbinfo
+
+- debug: msg={{ item }}
+  run_once: True
+  with_items:
+    - "username: {{ neutron_db_info.results[0].stdout }}"
+    - "password: {{ neutron_db_info.results[1].stdout }}"
+    - "hostname: {{ neutron_db_info.results[2].stdout }}"
+    - "database: {{ neutron_db_info.results[3].stdout }}"
+  tags:
+    - getneutrondbinfo

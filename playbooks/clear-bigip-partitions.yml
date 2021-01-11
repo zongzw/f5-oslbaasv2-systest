@@ -11,19 +11,23 @@
       bigip_device_info:
         gather_subset:
           - partitions
+          - self-ips
+          - vlans
         provider:
           user: admin
           server: "{{ inventory_hostname }}"
           password: "{{ admin_password }}"
           validate_certs: False
-      register: partitions
+      register: bigip_infos
+      tags: getbigipinfo
 
     - name: show all partitions
-      debug: var=partitions.partitions
+      debug: var=bigip_infos
+      tags: getbigipinfo
 
     - name: remove objects under partitions
       file: path=/config/partitions/{{ item.name }} state=absent
-      with_items: "{{partitions.partitions}}"
+      with_items: "{{bigip_infos.partitions}}"
     
     - name: executing tmsh load sys config
       shell: tmsh load sys config
@@ -37,5 +41,28 @@
           server: "{{ inventory_hostname }}"
           password: "{{ admin_password }}"
           validate_certs: False
-      with_items: "{{partitions.partitions}}"
+      with_items: "{{bigip_infos.partitions}}"
       when: item.name != "Common"
+    
+    - name: delete self-ips
+      bigip_selfip:
+        name: "{{ item.name }}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
+          validate_certs: False
+      with_items: "{{ bigip_infos.self_ips }}"
+      when: item.full_path != '/Common/vtep'
+
+    - name: delete vlans
+      bigip_vlan:
+        name: "{{ item.name }}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
+          validate_certs: False
+      with_items: "{{ bigip_infos.vlans }}"

@@ -3,9 +3,8 @@
 - hosts: bigips
   gather_facts: False
   remote_user: root
-  vars_files: ../conf.d/vars.yml
   tasks:
-    - name: check {{ inventory_hostname }} reachable
+    - name: check bigips be reachable
       ping:
       
     - name: collect bigip partitions
@@ -20,8 +19,14 @@
       register: partitions
 
     - name: show all partitions
-      debug:
-        var: partitions.partitions
+      debug: var=partitions.partitions
+
+    - name: remove objects under partitions
+      file: path=/config/partitions/{{ item.name }} state=absent
+      with_items: "{{partitions.partitions}}"
+    
+    - name: executing tmsh load sys config
+      shell: tmsh load sys config
 
     - name: delete partitions
       bigip_partition:

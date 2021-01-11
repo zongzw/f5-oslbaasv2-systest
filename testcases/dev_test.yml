@@ -1,0 +1,10 @@
+- hosts: neutron_servers
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - import_tasks: ./basic/test.yml
+      tags: basic
+      run_once: True
+    
+    - import_tasks: ./mtls/test.yml
+      tags: mtls

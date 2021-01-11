@@ -8,7 +8,7 @@ versions:
 download_prefix:  http://10.250.11.185/f5-packages
 # proxy: http://10.250.64.101:3128
 
-features:
+testcases:
   basic: 
   mtls: 
     client_ca_path: ../kps/client-ca.cert

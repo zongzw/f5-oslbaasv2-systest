@@ -12,6 +12,7 @@
     pool: pl-{{ test_timestamp.stdout }}
     member: mb-{{ test_timestamp.stdout }}
     l7policy: l7-{{ test_timestamp.stdout }}
+    healthmonitor: hm-{{ test_timestamp.stdout }}
 
 - name: "smoking test: create lbaasv2 resources"
   shell: |
@@ -19,18 +20,29 @@
   with_items:
     - neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
     - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol HTTP
-    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --protocol HTTP --protocol-port 80
-    - neutron lbaas-member-create --name {{ member }} --subnet {{ subnet }} --address 1.1.1.1 --protocol-port 80 {{ pool }}
+    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol HTTP --protocol-port 80
+    - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type HTTP --pool {{ pool }}
+
+- name: "smoking test: create members under pool {{ pool }}"
+  shell: |
+    source {{ openrc }} && \
+      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port 80 {{ pool }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
+  with_items:
+    - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
+  when: test_env == 'lab'
 
 - name: "TODO: check resources created on bigips"
   shell: echo "todo."
-  run_once: True
 
 - name: "smoking test: delete lbaasv2 resources"
   shell: |
-    source {{ openrc }} && {{ item }} && sleep 3
+    source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
   with_items:
-    - neutron lbaas-member-delete {{ member }} {{ pool }}
+    - neutron lbaas-healthmonitor-delete {{ healthmonitor }}
     - neutron lbaas-pool-delete {{ pool }}
     - neutron lbaas-listener-delete {{ listener }}
-    - neutron lbaas-loadbalancer-delete {{ loadbalancer }}
+
+- name: "smoking test: delete lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && neutron lbaas-loadbalancer-delete {{ loadbalancer }}

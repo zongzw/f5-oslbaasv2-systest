@@ -7,17 +7,17 @@ versions:
 download_prefix:  http://10.250.11.185/f5-packages
 # proxy: http://10.250.64.101:3128
 
-features:
-  basic: 
-  mtls: 
+testcases:
+  - name: basic
+  - name: mtls
     client_ca_path: ../kps/client-ca.cert
-  bwc: 
-  udp: 
-  ftp: 
-  ipv6: 
-    test_environment: lab
-    test_subnet: ipv6-pd-sub
-  l7policy: 
-  toa: 
-  esd:
-  xff:
+  # - name: bwc
+  # - name: udp
+  # - name: ftp
+  # - name: ipv6
+  #   test_environment: lab
+  #   test_subnet: ipv6-pd-sub
+  # - name: l7policy
+  # - name: toa
+  # - name: esd
+  # - name: xff

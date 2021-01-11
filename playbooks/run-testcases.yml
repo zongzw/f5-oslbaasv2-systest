@@ -1,0 +1,17 @@
+---
+
+- hosts: neutron_servers
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - debug: msg="{{ansible_run_tags}}"
+    - include_tasks: "../testcases/{{testname.name}}/test.yml"
+      with_items: "{{ testcases }}"
+      loop_control: 
+        loop_var: testname
+      run_once: True
+      when: ansible_run_tags[0] == 'all'
+
+    - name: x
+      debug: msg="{{ ansible_run_tags }}"
+      when: ansible_run_tags[0] != 'all'

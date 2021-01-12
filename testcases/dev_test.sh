@@ -2,7 +2,7 @@
 
 workdir=`cd $(dirname $0); pwd`
 set -x
-ansible-playbook -i $workdir/../conf.d/group_and_hosts-dev -e @$workdir/../conf.d/vars-ruijie-public-2021.01.08.yml $workdir/dev_test.yml $@
+ansible-playbook -i $workdir/../conf.d/group_and_hosts-lab -e @$workdir/../conf.d/vars-cmcc-ruijie-private-4.5.1.yml $workdir/dev_test.yml $@
 
 cat > /dev/null <<  EOF
 {

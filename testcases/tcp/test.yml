@@ -1,5 +1,3 @@
----
-
 - name: set timestamp variable
   shell: date +%s
   register: test_timestamp
@@ -14,19 +12,19 @@
     l7policy: l7-{{ test_timestamp.stdout }}
     healthmonitor: hm-{{ test_timestamp.stdout }}
 
-- name: "smoking test: create lbaasv2 resources"
+- name: "TCP protocol: create lbaasv2 resources"
   shell: |
     source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
   with_items:
     - neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
-    - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol HTTP
-    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol HTTP --protocol-port 80
+    - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol TCP
+    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol TCP --protocol-port 22
     - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type HTTP --pool {{ pool }}
 
-- name: "smoking test: create members under pool {{ pool }}"
+- name: "create members under pool {{ pool }}"
   shell: |
     source {{ openrc }} && \
-      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port 80 {{ pool }} && \
+      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port 22 {{ pool }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
@@ -39,19 +37,13 @@
   register: vip_address
 - debug: var=vip_address.stdout
 
-- name: "Check vip accessible"
-  shell: curl http://{{ vip_address.stdout }} warn=false
+- name: "Check TCP 22 is reachable"
+  shell: nc -z {{ vip_address.stdout }} 22
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
-  when: test_env == 'lab'
-# - name: Retry a task until a certain condition is met
-#   ansible.builtin.shell: /usr/bin/foo
-#   register: result
-#   until: result.stdout.find("all systems go") != -1
-#   retries: 10000
-#   delay: 0
+  when: test_env == "lab"
 
-- name: "smoking test: delete lbaasv2 resources"
+- name: "delete lbaasv2 resources"
   shell: |
     source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
   with_items:
@@ -62,3 +54,8 @@
 - name: "smoking test: delete {{ loadbalancer }}"
   shell: |
     source {{ openrc }} && neutron lbaas-loadbalancer-delete {{ loadbalancer }}
+
+# neutron lbaas-listener-create --loadbalancer lb28 --protocol-port 22 --protocol tcp --name listenertcp28
+# neutron lbaas-pool-create --name vlan28tcp-pool --lb-algorithm ROUND_ROBIN --listener listenertcp28 --protocol TCP
+# neutron lbaas-healthmonitor-create --name vlan28tcphm --pool vlan28tcp-pool --type PING --delay 15 --timeout 15 --max-retries 5
+# neutron lbaas-member-create --name VLAN28Servertcp3 --tenant-id 94f2338bf383405db151c4784c0e358c --subnet 10.250.28.0/24 --address 10.250.28.108 --protocol-port 22 --weight 5 vlan28tcp-pool

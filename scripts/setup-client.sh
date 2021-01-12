@@ -20,4 +20,4 @@ sleep 1
 echo 
 
 yum install -y epel-release
-yum install -y vim wget curl tree tcpdump sshpass git jq
+yum install -y vim wget curl tree tcpdump sshpass git jq nc

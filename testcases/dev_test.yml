@@ -8,3 +8,8 @@
     
     - import_tasks: ./mtls/test.yml
       tags: mtls
+      run_once: True
+    
+    - import_tasks: ./tcp/test.yml
+      tags: tcp
+      run_once: True

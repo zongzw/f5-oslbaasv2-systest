@@ -1,59 +1,17 @@
-- name: set timestamp variable
-  shell: date +%s
-  register: test_timestamp
 
-- name: set neutron resource names
-  set_fact:
-    subnet: "{{ test_subnet }}"
-    loadbalancer: lb-{{ test_timestamp.stdout }}
-    listener: ls-{{ test_timestamp.stdout }}
-    pool: pl-{{ test_timestamp.stdout }}
-    member: mb-{{ test_timestamp.stdout }}
-    l7policy: l7-{{ test_timestamp.stdout }}
-    healthmonitor: hm-{{ test_timestamp.stdout }}
+- set_fact: test_protocol=TCP test_tcpport=22
 
-- name: "TCP protocol: create lbaasv2 resources"
-  shell: |
-    source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
-  with_items:
-    - neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
-    - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol TCP
-    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol TCP --protocol-port 22
-    - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type HTTP --pool {{ pool }}
+- import_tasks: ../../playbooks/task-define-resources.yml
 
-- name: "create members under pool {{ pool }}"
-  shell: |
-    source {{ openrc }} && \
-      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port 22 {{ pool }} && \
-      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
-  with_items:
-    - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
-  when: test_env == 'lab'
-
-- name: get vip address for test.
-  shell: |
-    source {{ openrc }} && \
-      neutron lbaas-loadbalancer-show {{ loadbalancer }} --format value --column vip_address
-  register: vip_address
-- debug: var=vip_address.stdout
+- import_tasks: ../../playbooks/task-create-resources.yml
 
 - name: "Check TCP 22 is reachable"
-  shell: nc -z {{ vip_address.stdout }} 22
+  shell: nc -z {{ vip_address.stdout }} {{ test_tcpport }}
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == "lab"
 
-- name: "delete lbaasv2 resources"
-  shell: |
-    source {{ openrc }} && {{ item }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
-  with_items:
-    - neutron lbaas-healthmonitor-delete {{ healthmonitor }}
-    - neutron lbaas-pool-delete {{ pool }}
-    - neutron lbaas-listener-delete {{ listener }}
-
-- name: "smoking test: delete {{ loadbalancer }}"
-  shell: |
-    source {{ openrc }} && neutron lbaas-loadbalancer-delete {{ loadbalancer }}
+- import_tasks: ../../playbooks/task-remove-resources.yml
 
 # neutron lbaas-listener-create --loadbalancer lb28 --protocol-port 22 --protocol tcp --name listenertcp28
 # neutron lbaas-pool-create --name vlan28tcp-pool --lb-algorithm ROUND_ROBIN --listener listenertcp28 --protocol TCP

@@ -1,0 +1,16 @@
+- name: set timestamp variable
+  shell: date +%s
+  register: test_timestamp
+  delegate_to: localhost
+
+- name: set neutron resource names
+  set_fact:
+    subnet: "{{ test_subnet }}"
+    loadbalancer: lb-{{ test_timestamp.stdout }}
+    listener: ls-{{ test_timestamp.stdout }}
+    pool: pl-{{ test_timestamp.stdout }}
+    member: mb-{{ test_timestamp.stdout }}
+    l7policy: l7-{{ test_timestamp.stdout }}
+    healthmonitor: hm-{{ test_timestamp.stdout }}
+    protocol: "{{ test_protocol }}"
+    tcpport: "{{ test_tcpport }}"

@@ -110,7 +110,17 @@
       with_items:
         - "{{agent_services.split(',')}}"
 
-    - import_tasks: ./task-smoking-test.yml
+    - set_fact: test_protocol=HTTP test_tcport=80
+      tags: smokingtest
+  
+    - import_tasks: ./task-define-resources.yml
       run_once: True
       tags: smokingtest
-      
+
+    - import_tasks: ./task-create-resources.yml
+      run_once: True
+      tags: smokingtest
+
+    - import_tasks: ./task-remove-resources.yml
+      run_once: True
+      tags: smokingtest

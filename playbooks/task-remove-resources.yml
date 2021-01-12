@@ -1,0 +1,8 @@
+- name: "delete lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-healthmonitor-delete {{ healthmonitor }}
+    - neutron lbaas-pool-delete {{ pool }}
+    - neutron lbaas-listener-delete {{ listener }}
+    - neutron lbaas-loadbalancer-delete {{ loadbalancer }}

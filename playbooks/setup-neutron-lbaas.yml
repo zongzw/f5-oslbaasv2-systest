@@ -109,8 +109,9 @@
         source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py
       with_items:
         - "{{agent_services.split(',')}}"
+      tags: smokingtest
 
-    - set_fact: test_protocol=HTTP test_tcport=80
+    - set_fact: test_protocol=HTTP test_tcpport=80
       tags: smokingtest
   
     - import_tasks: ./task-define-resources.yml

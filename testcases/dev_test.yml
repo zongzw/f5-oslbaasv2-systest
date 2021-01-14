@@ -10,6 +10,12 @@
       tags: mtls
       run_once: True
     
-    - import_tasks: ./tcp/test.yml
-      tags: tcp
+    - import_tasks: ./tcphttps/test.yml
+      tags: tcphttps
+      run_once: True
+    - import_tasks: ./persist/test.yml
+      tags: persist
+      run_once: True
+    - import_tasks: ./l7x/test.yml
+      tags: l7x
       run_once: True

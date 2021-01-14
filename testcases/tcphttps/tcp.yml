@@ -5,7 +5,7 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- name: "Check TCP 22 is reachable"
+- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
   shell: nc -z {{ vip_address.stdout }} {{ test_tcpport }}
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"

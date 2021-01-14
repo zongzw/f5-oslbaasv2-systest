@@ -1,0 +1,39 @@
+
+- set_fact: test_protocol=HTTP test_tcpport=80
+
+- import_tasks: ../../playbooks/task-define-resources.yml
+
+- import_tasks: ../../playbooks/task-create-resources.yml
+
+- name: update pool with session persistence
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron lbaas-pool-update --session-persistence type=APP_COOKIE,cookie_name=JSESSIONID {{ pool }}
+
+- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_tcpport }} warn=false
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients']}}"
+  when: test_env == 'lab'
+
+- name: check configuration is placed on bigips
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+      - profiles
+      - irules
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item]['admin_password'] }}"
+      validate_certs: False
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['bigips'] }}"
+  register: check_persistence
+  tags: checkconfig
+
+- name: "TODO: check more"
+  debug: var=check_persistence
+  tags: checkconfig
+
+- import_tasks: ../../playbooks/task-remove-resources.yml

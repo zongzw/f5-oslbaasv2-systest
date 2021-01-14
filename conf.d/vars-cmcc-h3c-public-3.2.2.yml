@@ -12,7 +12,7 @@ testcases:
   - name: basic
   - name: mtls
     client_ca_path: ../kps/client-ca.cert
-  - name: tcp
+  - name: tcphttps
   # - name: bwc
   # - name: udp
   # - name: ftp

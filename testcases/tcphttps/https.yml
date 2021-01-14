@@ -1,12 +1,15 @@
 
-- set_fact: test_protocol=HTTPS test_tcpport=443
+- set_fact:
+    test_listener_protocol: HTTPS
+    test_pool_protocol: HTTPS
+    test_listener_tcpport: 443
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
-  shell: curl -k https://{{ vip_address.stdout }}:{{ test_tcpport }} warn=false
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == "lab"

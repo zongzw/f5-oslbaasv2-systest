@@ -1,5 +1,8 @@
 
-- set_fact: test_protocol=HTTP test_tcpport=80
+- set_fact:  
+    test_listener_protocol: HTTP
+    test_pool_protocol: HTTP
+    test_listener_tcpport: 80
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -10,8 +13,8 @@
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-pool-update --session-persistence type=APP_COOKIE,cookie_name=JSESSIONID {{ pool }}
 
-- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_tcpport }} warn=false
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == 'lab'

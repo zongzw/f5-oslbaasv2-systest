@@ -9,7 +9,7 @@ download_prefix:  http://10.250.11.185/f5-packages
 
 testcases:
   - name: basic
-  - name: mtls
+  - name: tls
     client_ca_path: ../kps/client-ca.cert
   - name: tcphttps
   # - name: bwc

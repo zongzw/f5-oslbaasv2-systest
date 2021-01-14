@@ -1,12 +1,15 @@
 
-- set_fact: test_protocol=TCP test_tcpport=22
+- set_fact:
+    test_listener_protocol: TCP
+    test_pool_protocol: TCP
+    test_listener_tcpport: 22
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
-  shell: nc -z {{ vip_address.stdout }} {{ test_tcpport }}
+- name: "Check {{ test_pool_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: nc -z {{ vip_address.stdout }} {{ test_listener_tcpport }}
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == "lab"

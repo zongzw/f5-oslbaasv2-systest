@@ -1,0 +1,5 @@
+- name: check barbican is available
+  shell: source {{ openrc }} && barbican secret container list
+
+- import_tasks: ./mtls.yml
+- import_tasks: ./terminated_https.yml

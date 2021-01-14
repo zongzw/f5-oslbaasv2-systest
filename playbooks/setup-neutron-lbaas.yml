@@ -111,7 +111,10 @@
         - "{{agent_services.split(',')}}"
       tags: smokingtest
 
-    - set_fact: test_protocol=HTTP test_tcpport=80
+    - set_fact: 
+        test_listener_protocol: HTTP
+        test_pool_protocol: HTTP
+        test_listener_tcpport: 80
       tags: smokingtest
   
     - import_tasks: ./task-define-resources.yml

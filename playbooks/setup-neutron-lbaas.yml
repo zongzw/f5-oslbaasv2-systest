@@ -87,7 +87,7 @@
       run_once: True
       tags: copylabruntimefiles
 
-    - name: copy lab runtime files
+    - name: "copy lab runtime files TODO: using configparser to create config files."
       copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
       with_items: "{{ runtime_files.stdout_lines }}"
       when: test_env == "lab"

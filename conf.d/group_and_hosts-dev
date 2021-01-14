@@ -13,3 +13,6 @@ test_subnet = public_subnet
 [bigips:vars]
 admin_password = admin@f5
 root_password = pd123@f5
+
+[backend_servers]
+10.250.26.13

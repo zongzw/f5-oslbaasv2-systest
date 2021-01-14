@@ -10,8 +10,3 @@
       loop_control: 
         loop_var: testname
       run_once: True
-      when: ansible_run_tags[0] == 'all'
-
-    - name: x
-      debug: msg="{{ ansible_run_tags }}"
-      when: ansible_run_tags[0] != 'all'

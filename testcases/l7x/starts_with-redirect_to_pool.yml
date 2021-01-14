@@ -1,0 +1,28 @@
+
+- set_fact: test_protocol=HTTP test_tcpport=80
+
+- import_tasks: ../../playbooks/task-define-resources.yml
+
+- import_tasks: ../../playbooks/task-create-resources.yml
+
+- name: create l7policy and l7rule with {{ listener }}
+  shell: |
+    source {{ openrc }} && \
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+    neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} \
+      --action redirect_to_pool --redirect-pool {{ pool }} --position 1 && \
+    neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type starts_with --value "/api"
+
+- name: "Check {{ test_protocol }} {{ test_tcpport }} is reachable"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_tcpport }} warn=false
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients']}}"
+  when: test_env == 'lab'
+
+- name: delete l7policy and l7rule
+  shell: |
+    source {{ openrc }} && \
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+    neutron lbaas-l7policy-delete {{ l7policy }}
+
+- import_tasks: ../../playbooks/task-remove-resources.yml

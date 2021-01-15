@@ -4,6 +4,7 @@
     test_listener_protocol: HTTPS
     test_pool_protocol: HTTPS
     test_listener_tcpport: 443
+    test_healthmonitor_protocol: HTTPS
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 

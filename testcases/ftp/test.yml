@@ -1,11 +1,10 @@
 
 - set_fact:
-    test_casename: "customized(http-profile) test"
-    test_listener_protocol: HTTP
-    test_pool_protocol: HTTP
+    test_casename: "basic test"
+    test_listener_protocol: FTP
+    test_pool_protocol: FTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
-    test_listener_additional_options: "--customized '{\"http_profile\": {\"insertXforwardedFor\": \"disabled\"}}'"
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 

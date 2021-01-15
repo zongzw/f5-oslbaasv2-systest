@@ -14,13 +14,12 @@ testcases:
   - name: tcphttps
   - name: persist
   - name: l7x
+  - name: customized
+  - name: ftp
   # - name: bwc
   # - name: udp
-  # - name: ftp
   # - name: ipv6
   #   test_environment: lab
   #   test_subnet: ipv6-pd-sub
-  # - name: l7policy
   # - name: toa
   # - name: esd
-  # - name: xff

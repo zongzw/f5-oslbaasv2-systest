@@ -8,6 +8,7 @@
     test_listener_protocol: TERMINATED_HTTPS
     test_listener_tcpport: 443
     test_listener_additional_options: --default-tls-container={{ tls_container.stdout }}
+    test_healthmonitor_protocol: HTTP
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 

@@ -4,6 +4,7 @@
     test_listener_protocol: TCP
     test_pool_protocol: TCP
     test_listener_tcpport: 22
+    test_healthmonitor_protocol: TCP
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 

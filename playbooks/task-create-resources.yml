@@ -10,7 +10,7 @@
   with_items:
     - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
     - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
-    - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type {{ pool_protocol }} --pool {{ pool }}
+    - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}
 
 - name: "{{ testcasename }}: create members under pool {{ pool }}"
   shell: |

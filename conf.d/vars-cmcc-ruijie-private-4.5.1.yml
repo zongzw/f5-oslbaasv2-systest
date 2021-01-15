@@ -12,6 +12,8 @@ testcases:
   - name: tls
     client_ca_path: ../kps/client-ca.cert
   - name: tcphttps
+  - name: persist
+  - name: l7x
   # - name: bwc
   # - name: udp
   # - name: ftp

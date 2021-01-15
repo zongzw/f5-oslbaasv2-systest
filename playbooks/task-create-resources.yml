@@ -1,10 +1,10 @@
 ---
 
-- name: create loadbalancer
+- name: "{{ testcasename }}: create loadbalancer"
   shell: |
     source {{ openrc }} && neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
 
-- name: "create lbaasv2 resources"
+- name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
@@ -12,7 +12,7 @@
     - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
     - neutron lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type {{ pool_protocol }} --pool {{ pool }}
 
-- name: "create members under pool {{ pool }}"
+- name: "{{ testcasename }}: create members under pool {{ pool }}"
   shell: |
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
@@ -21,7 +21,7 @@
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
   when: test_env == 'lab'
 
-- name: get vip address for test.
+- name: "{{ testcasename }}: get vip address for test"
   shell: |
     source {{ openrc }} && \
       neutron lbaas-loadbalancer-show {{ loadbalancer }} --format value --column vip_address

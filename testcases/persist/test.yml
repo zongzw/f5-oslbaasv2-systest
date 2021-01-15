@@ -1,5 +1,6 @@
 
-- set_fact:  
+- set_fact:
+    test_casename: "persistence test"
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
@@ -8,10 +9,21 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- name: update pool with session persistence
+- name: update pool with session persistence of app_cookie
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-pool-update --session-persistence type=APP_COOKIE,cookie_name=JSESSIONID {{ pool }}
+
+- name: "TODO: check app_cookie persistence"
+  shell: echo
+
+- name: update pool with session persistence of source_ip
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron lbaas-pool-update --session-persistence type=SOURCE_IP {{ pool }}
+
+- name: "TODO: check source_ip persistence"
+  shell: echo
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
@@ -19,21 +31,21 @@
   with_items: "{{groups['clients']}}"
   when: test_env == 'lab'
 
-- name: check configuration is placed on bigips
-  bigip_device_info:
-    gather_subset:
-      - virtual-servers
-      - profiles
-      - irules
-    provider:
-      user: admin
-      server: "{{ item }}"
-      password: "{{ hostvars[item]['admin_password'] }}"
-      validate_certs: False
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups['bigips'] }}"
-  register: check_persistence
-  tags: checkconfig
+# - name: check configuration is placed on bigips
+#   bigip_device_info:
+#     gather_subset:
+#       - virtual-servers
+#       - profiles
+#       - irules
+#     provider:
+#       user: admin
+#       server: "{{ item }}"
+#       password: "{{ hostvars[item]['admin_password'] }}"
+#       validate_certs: False
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups['bigips'] }}"
+#   register: check_persistence
+#   tags: checkconfig
 
 - name: "TODO: check more"
   debug: var=check_persistence

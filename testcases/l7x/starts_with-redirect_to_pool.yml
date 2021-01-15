@@ -1,5 +1,6 @@
 
 - set_fact:
+    test_casename: "l7policy starts_with + redirect_to_pool test"
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80

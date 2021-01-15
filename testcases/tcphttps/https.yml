@@ -1,5 +1,6 @@
 
 - set_fact:
+    test_casename: "HTTPS test"
     test_listener_protocol: HTTPS
     test_pool_protocol: HTTPS
     test_listener_tcpport: 443

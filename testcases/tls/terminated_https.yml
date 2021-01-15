@@ -2,7 +2,8 @@
   shell: echo http://localhost:9311/v1/containers/ded30a46-b6c4-4e0f-936c-f02ac23bf391
   register: tls_container
 
-- set_fact: 
+- set_fact:
+    test_casename: "TERMINATED_HTTPS test"
     test_pool_protocol: HTTP
     test_listener_protocol: TERMINATED_HTTPS
     test_listener_tcpport: 443

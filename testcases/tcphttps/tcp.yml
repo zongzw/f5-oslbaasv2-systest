@@ -1,5 +1,6 @@
 
 - set_fact:
+    test_casename: "TCP test"
     test_listener_protocol: TCP
     test_pool_protocol: TCP
     test_listener_tcpport: 22

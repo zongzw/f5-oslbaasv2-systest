@@ -28,6 +28,7 @@
     - name: remove objects under partitions
       file: path=/config/partitions/{{ item.name }} state=absent
       with_items: "{{bigip_infos.partitions}}"
+      when: item.name != 'Common'
     
     - name: executing tmsh load sys config
       shell: tmsh load sys config
@@ -54,7 +55,7 @@
           password: "{{ admin_password }}"
           validate_certs: False
       with_items: "{{ bigip_infos.self_ips }}"
-      when: item.full_path != '/Common/vtep'
+      when: item.full_path != '/Common/vtep' and (item.name | regex_search('^.*[0-9a-f\-]{36}$'))
 
     - name: delete vlans
       bigip_vlan:
@@ -66,3 +67,4 @@
           password: "{{ admin_password }}"
           validate_certs: False
       with_items: "{{ bigip_infos.vlans }}"
+      when: (item.description | default('') | regex_search('^[0-9a-f\-]{36}$'))

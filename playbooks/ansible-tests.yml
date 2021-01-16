@@ -4,22 +4,29 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - debug: msg={{'self24'| regex_search('.*[0-9a-f\-]{36}$')}}
+      when: ('self24'| regex_search('.*[0-9a-f\-]{36}$'))
+    - debug: msg={{ 'local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7' | regex_search('.*[0-9a-f\-]{36}')}}
+      when: ('local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7' | regex_search('.*[0-9a-f\-]{36}$'))
+    - debug: msg={{ 'local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7' | regex_search('.*[0-9a-f\-]{50}')}}
+      when: ('local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7' | regex_search('.*[0-9a-f\-]{50}'))
+
     # - debug: msg="{{item}}"
     #   with_items:
     #     - "{{agent_services.split(',')}}"
-    - debug: msg="{{ item }}"
-      with_items: 
-        - "groups={{groups}}"
-        - "group_names={{group_names}}"
-        - "hostvars={{hostvars}}"
-        - "inventory_hostname={{inventory_hostname}}"
-        - "inventory_hostname_short={{inventory_hostname_short}}"
-        - "play_hosts={{play_hosts}}"
-        - "inventory_dir={{inventory_dir}}"
-        - "password: {{hostvars[groups['bigips'][0]].admin_password}}"
-        - "hosts: {{groups['bigips'] | join(',')}}"
-        - "ansible_run_tags: {{ ansible_run_tags }}"
-      run_once: True
+    # - debug: msg="{{ item }}"
+    #   with_items: 
+    #     - "groups={{groups}}"
+    #     - "group_names={{group_names}}"
+    #     - "hostvars={{hostvars}}"
+    #     - "inventory_hostname={{inventory_hostname}}"
+    #     - "inventory_hostname_short={{inventory_hostname_short}}"
+    #     - "play_hosts={{play_hosts}}"
+    #     - "inventory_dir={{inventory_dir}}"
+    #     - "password: {{hostvars[groups['bigips'][0]].admin_password}}"
+    #     - "hosts: {{groups['bigips'] | join(',')}}"
+    #     - "ansible_run_tags: {{ ansible_run_tags }}"
+    #   run_once: True
     # - name: purposely fail
     #   shell: echo zongzw
     #   register: task_register_var

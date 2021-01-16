@@ -1,0 +1,254 @@
+{
+    "bigip_infos": {
+        "changed": false,
+        "failed": false,
+        "partitions": [
+            {
+                "default_route_domain": 0,
+                "full_path": "CORE_94f2338bf383405db151c4784c0e358c",
+                "name": "CORE_94f2338bf383405db151c4784c0e358c"
+            },
+            {
+                "default_route_domain": 0,
+                "description": "Repository for system objects and shared objects.",
+                "full_path": "Common",
+                "name": "Common"
+            }
+        ],
+        "queried": true,
+        "self_ips": [
+            {
+                "address": "10.250.28.25",
+                "floating": "no",
+                "full_path": "/Common/local-192.168.1.245_hostname-4f659d5d-762c-4102-8861-4c685b18040b",
+                "name": "local-192.168.1.245_hostname-4f659d5d-762c-4102-8861-4c685b18040b",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan-28"
+            },
+            {
+                "address": "10.250.11.9",
+                "floating": "no",
+                "full_path": "/Common/local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7",
+                "name": "local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan-11"
+            },
+            {
+                "address": "10.250.26.21",
+                "floating": "no",
+                "full_path": "/Common/local-192.168.1.245_hostname-741b2d0e-14ff-4e4b-90ad-3eb6597f1358",
+                "name": "local-192.168.1.245_hostname-741b2d0e-14ff-4e4b-90ad-3eb6597f1358",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan-26"
+            },
+            {
+                "address": "10.250.30.13",
+                "floating": "no",
+                "full_path": "/Common/local-192.168.1.245_hostname-8c3b7979-b1f7-45d6-8d4d-273c5f2d6475",
+                "name": "local-192.168.1.245_hostname-8c3b7979-b1f7-45d6-8d4d-273c5f2d6475",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan-30"
+            },
+            {
+                "address": "10.250.29.7",
+                "floating": "no",
+                "full_path": "/Common/local-192.168.1.245_hostname-c1dab16c-5fdf-415e-9562-8821c79a36d8",
+                "name": "local-192.168.1.245_hostname-c1dab16c-5fdf-415e-9562-8821c79a36d8",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan-29"
+            },
+            {
+                "address": "10.250.24.199",
+                "allow_access_list": [
+                    "default"
+                ],
+                "floating": "no",
+                "full_path": "/Common/self24",
+                "name": "self24",
+                "netmask": "255.255.255.0",
+                "netmask_cidr": 24,
+                "traffic_group": "/Common/traffic-group-local-only",
+                "traffic_group_inherited": "no",
+                "vlan": "/Common/vlan6"
+            }
+        ],
+        "vlans": [
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "description": "8b41b5d6-a5eb-42ca-9d59-578663e48e1c",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan-11",
+                "if_index": 1824,
+                "interfaces": [
+                    {
+                        "full_path": "5.0",
+                        "name": "5.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan-11",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "yes",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "yes",
+                "source_check_enabled": "disabled",
+                "tag": 11,
+                "true_mac_address": "00:94:a1:5e:f6:87"
+            },
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "description": "c1fb8123-64da-42b9-9e81-c1ea6a01812f",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan-26",
+                "if_index": 1840,
+                "interfaces": [
+                    {
+                        "full_path": "5.0",
+                        "name": "5.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan-26",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "yes",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "yes",
+                "source_check_enabled": "disabled",
+                "tag": 26,
+                "true_mac_address": "00:94:a1:5e:f6:88"
+            },
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "description": "5c2719ae-3404-4212-9ffb-ec50d44678e3",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan-28",
+                "if_index": 1856,
+                "interfaces": [
+                    {
+                        "full_path": "5.0",
+                        "name": "5.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan-28",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "yes",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "yes",
+                "source_check_enabled": "disabled",
+                "tag": 28,
+                "true_mac_address": "00:94:a1:5e:f6:89"
+            },
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "description": "3b5388fe-155a-4b99-b8bd-fd96f56d4217",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan-29",
+                "if_index": 1760,
+                "interfaces": [
+                    {
+                        "full_path": "5.0",
+                        "name": "5.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan-29",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "yes",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "yes",
+                "source_check_enabled": "disabled",
+                "tag": 29,
+                "true_mac_address": "00:94:a1:5e:f6:84"
+            },
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "description": "d87e4fce-fd42-4825-8568-2149c58061b8",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan-30",
+                "if_index": 1808,
+                "interfaces": [
+                    {
+                        "full_path": "5.0",
+                        "name": "5.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan-30",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "yes",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "yes",
+                "source_check_enabled": "disabled",
+                "tag": 30,
+                "true_mac_address": "00:94:a1:5e:f6:86"
+            },
+            {
+                "auto_lasthop": "default",
+                "cmp_hash_algorithm": "default",
+                "failsafe_action": "failover-restart-tm",
+                "failsafe_enabled": "no",
+                "failsafe_timeout": 90,
+                "full_path": "/Common/vlan6",
+                "if_index": 1232,
+                "interfaces": [
+                    {
+                        "full_path": "6.0",
+                        "name": "6.0",
+                        "tagged": "yes"
+                    }
+                ],
+                "learning_mode": "enable-forward",
+                "mtu": 1500,
+                "name": "vlan6",
+                "sflow_poll_interval": 0,
+                "sflow_poll_interval_global": "no",
+                "sflow_sampling_rate": 0,
+                "sflow_sampling_rate_global": "no",
+                "source_check_enabled": "disabled",
+                "tag": 24,
+                "true_mac_address": "00:94:a1:5e:f6:85"
+            }
+        ]
+    }
+}

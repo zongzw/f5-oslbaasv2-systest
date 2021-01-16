@@ -2,8 +2,8 @@
 - set_fact:
     test_casename: "basic test"
     test_listener_protocol: FTP
-    test_pool_protocol: FTP
-    test_listener_tcpport: 80
+    test_pool_protocol: TCP
+    test_listener_tcpport: 21
     test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml

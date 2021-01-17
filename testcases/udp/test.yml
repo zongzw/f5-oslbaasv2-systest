@@ -1,0 +1,19 @@
+
+- set_fact:
+    test_casename: "udp test"
+    test_listener_protocol: UDP
+    test_pool_protocol: UDP   # not ready for udp pool creation
+    test_listener_tcpport: 5672
+    test_healthmonitor_protocol: PING
+
+- import_tasks: ../../playbooks/task-define-resources.yml
+
+- import_tasks: ../../playbooks/task-create-resources.yml
+
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients']}}"
+  when: test_env == 'lab'
+
+- import_tasks: ../../playbooks/task-remove-resources.yml

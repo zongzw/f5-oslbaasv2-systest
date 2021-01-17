@@ -1,4 +1,5 @@
 ALTER TABLE lbaas_listeners MODIFY COLUMN protocol enum('HTTP','HTTPS','TCP','UDP','TERMINATED_HTTPS','FTP');
+ALTER TABLE lbaas_pools MODIFY COLUMN protocol enum('HTTP','HTTPS','TCP','UDP','FTP');
 
 -- ****** NOT WORK IN 21V LAB ******
 -- ALTER TABLE lbaas_listeners ADD COLUMN IF NOT EXISTS mutual_authentication_up tinyint(1) AFTER default_tls_container_id;

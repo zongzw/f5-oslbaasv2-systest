@@ -1,6 +1,6 @@
 
 - set_fact:
-    test_casename: "basic test"
+    test_casename: "ftp test"
     test_listener_protocol: FTP
     test_pool_protocol: TCP
     test_listener_tcpport: 21

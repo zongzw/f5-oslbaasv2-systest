@@ -26,6 +26,14 @@
 - name: "TODO: check source_ip persistence"
   shell: echo
 
+- name: update pool with session persistence of http_cookie,persistence_timeout
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron lbaas-pool-update --session-persistence type=HTTP_COOKIE,persistence_timeout=2236 {{ pool }}
+
+- name: "TODO: check http_cookie persistence with timeout"
+  shell: echo
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"
@@ -48,8 +56,8 @@
 #   register: check_persistence
 #   tags: checkconfig
 
-- name: "TODO: check more"
-  debug: var=check_persistence
-  tags: checkconfig
+# - name: "TODO: check more"
+#   debug: var=check_persistence
+#   tags: checkconfig
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

@@ -29,3 +29,7 @@
     - import_tasks: ./ftp/test.yml
       tags: ftp
       run_once: True
+
+    - import_tasks: ./udp/test.yml
+      tags: udp
+      run_once: True

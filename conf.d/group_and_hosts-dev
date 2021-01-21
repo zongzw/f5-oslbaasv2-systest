@@ -16,3 +16,5 @@ root_password = pd123@f5
 
 [backend_servers]
 10.250.26.13
+[backend_servers:vars]
+subnet = public_subnet

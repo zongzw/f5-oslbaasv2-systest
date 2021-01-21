@@ -19,7 +19,7 @@
       neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
-  when: test_env == 'lab'
+  # when: test_env == 'lab'
 
 - name: "{{ testcasename }}: get vip address for test"
   shell: |

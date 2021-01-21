@@ -17,11 +17,8 @@ testcases:
   - name: customized
   - name: ftp
   - name: bwc
-  # - name: udp
-
-  # - name: ipv6
-  #   test_environment: lab
-  #   test_subnet: ipv6-pd-sub
+  - name: udp
+  - name: ipv6
   # - name: toa
   # - name: esd
   

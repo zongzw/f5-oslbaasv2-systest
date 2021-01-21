@@ -2,13 +2,27 @@
 - set_fact:
     test_casename: "udp test"
     test_listener_protocol: UDP
-    test_pool_protocol: UDP   # not ready for udp pool creation
     test_listener_tcpport: 5672
     test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
-- import_tasks: ../../playbooks/task-create-resources.yml
+- name: "{{ testcasename }}: create loadbalancer"
+  shell: |
+    source {{ openrc }} && neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
+
+- name: "{{ testcasename }}: create lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
+
+- name: "{{ testcasename }}: get vip address for test"
+  shell: |
+    source {{ openrc }} && \
+      neutron lbaas-loadbalancer-show {{ loadbalancer }} --format value --column vip_address
+  register: vip_address
+- debug: var=vip_address.stdout
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
@@ -16,4 +30,9 @@
   with_items: "{{groups['clients']}}"
   when: test_env == 'lab'
 
-- import_tasks: ../../playbooks/task-remove-resources.yml
+- name: "{{ testcasename }}: delete lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-listener-delete {{ listener }}
+    - neutron lbaas-loadbalancer-delete {{ loadbalancer }}

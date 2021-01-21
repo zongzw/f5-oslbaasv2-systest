@@ -37,3 +37,8 @@
     - import_tasks: ./bwc/test.yml
       tags: bwc
       run_once: True
+
+    - import_tasks: ./ipv6/test.yml
+      tags: ipv6
+      run_once: True
+      when: test_env == 'lab'

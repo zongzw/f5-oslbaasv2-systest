@@ -9,6 +9,7 @@ openrc = /home/heat-admin/overcloudrc
 agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
 # something wrong with vlan30_subnet
 test_subnet = vlan29_subnet
+test_ipv6_subnet = ipv6-pd-sub
 
 [bigips]
 10.250.2.211

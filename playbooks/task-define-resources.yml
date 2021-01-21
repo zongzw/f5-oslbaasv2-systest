@@ -20,4 +20,5 @@
     listener_protocol: "{{ test_listener_protocol | default('HTTP')}}"
     listener_tcpport: "{{ test_listener_tcpport | default(80) }}"
     listener_additional_options: "{{ test_listener_additional_options | default('') }}"
+    member_tcpport: "{{ test_member_tcpport | default(80) }}"
     healthmonitor_protocol: "{{ test_healthmonitor_protocol | default('PING') }}"

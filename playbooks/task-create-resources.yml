@@ -16,7 +16,7 @@
   shell: |
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
-      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ tcpport }} {{ pool }}
+      neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
   when: test_env == 'lab'

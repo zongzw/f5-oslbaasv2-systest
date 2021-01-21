@@ -2,7 +2,7 @@
 
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |
-    source {{ openrc }} && neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ subnet }}
+    source {{ openrc }} && neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |

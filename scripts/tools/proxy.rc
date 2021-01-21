@@ -1,5 +1,5 @@
 
-export proxy=http://10.250.64.101:3128
+export proxy=http://10.250.64.103:3128
 
 # Used by yum wget git
 export http_proxy=$proxy

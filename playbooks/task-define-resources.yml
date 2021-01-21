@@ -15,6 +15,7 @@
     l7policy: l7-{{ test_timestamp.stdout }}
     healthmonitor: hm-{{ test_timestamp.stdout }}
 
+    loadbalancer_additional_options: "{{ test_loadbalancer_additional_options | default('') }}"
     pool_protocol: "{{ test_pool_protocol | default('HTTP') }}"
     listener_protocol: "{{ test_listener_protocol | default('HTTP')}}"
     listener_tcpport: "{{ test_listener_tcpport | default(80) }}"

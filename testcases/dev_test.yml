@@ -33,3 +33,7 @@
     - import_tasks: ./udp/test.yml
       tags: udp
       run_once: True
+
+    - import_tasks: ./bwc/test.yml
+      tags: bwc
+      run_once: True

@@ -5,6 +5,8 @@
   remote_user: root
   tasks:
     - debug: msg="{{ansible_run_tags}}"
+      tags: testtags
+      
     - include_tasks: "../testcases/{{testname.name}}/test.yml"
       with_items: "{{ testcases }}"
       loop_control: 

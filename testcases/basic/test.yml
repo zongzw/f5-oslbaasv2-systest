@@ -10,6 +10,32 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
+# - name: get created resource id
+#   shell: |
+#     source {{ openrc }} && {{ item }} --format value --column id
+#   with_items:
+#     - neutron lbaas-loadbalancer-show {{ loadbalancer }}
+#     - neutron lbaas-listener-show {{ listener }}
+#     - neutron lbaas-pool-show {{ pool }}
+#     - neutron lbaas-member-list {{ pool }}
+#     - neutron lbaas-healthmonitor-show {{ healthmonitor }}
+#   register: resource_ids
+
+# - debug: msg="{{ resource_id }}"
+
+# - name: collect bigip partitions
+#   bigip_device_info:
+#     gather_subset:
+#       - partitions
+#       - self-ips
+#       - vlans
+#     provider:
+#       user: admin
+#       server: "{{ inventory_hostname }}"
+#       password: "{{ admin_password }}"
+#       validate_certs: False
+#   register: bigip_infos
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"

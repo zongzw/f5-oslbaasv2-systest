@@ -4,6 +4,9 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - import_tasks: ./task-define-resources.yml
+    - import_tasks: ./task-check-resources.yml
+
     # - debug: msg={{'self24'| regex_search('.*[0-9a-f\-]{36}$')}}
     #   when: ('self24'| regex_search('.*[0-9a-f\-]{36}$'))
     # - debug: msg={{ 'local-192.168.1.245_hostname-63e5913e-0324-420e-8815-6716174666a7' | regex_search('.*[0-9a-f\-]{36}')}}
@@ -50,35 +53,37 @@
   #   register: timestamp
   # - debug: var=timestamp.stdout
 
-  - name: collect bigip device info
-    bigip_device_info:
-      gather_subset:
-        - system-info
-        - partitions
-        # - provision-info
-        # - interfaces
-        - client-ssl-profiles
-        - ltm-pools
-        - virtual-servers
-        - vlans
-        # - nodes
-        - virtual-addresses
-        - profiles
-        - devices
-        - http-profiles
-      provider:
-        user: admin
-        server: "{{ item }}"
-        password: "{{ hostvars[item].admin_password }}"
-        validate_certs: False
-    register: testvar
-    with_items: "{{ groups['bigips'] }}"
-    # delegate_to: localhost
+  # - name: collect bigip device info
+  #   bigip_device_info:
+  #     gather_subset:
+  #       - system-info
+  #       - partitions
+  #       - provision-info
+  #       - interfaces
+  #       - client-ssl-profiles
+  #       - ltm-pools
+  #       - virtual-servers
+  #       - vlans
+  #       - nodes
+  #       - virtual-addresses
+  #       - profiles
+  #       - devices
+  #       - http-profiles
+  #       - monitors
+  #     provider:
+  #       user: admin
+  #       server: "{{ item }}"
+  #       password: "{{ hostvars[item].admin_password }}"
+  #       validate_certs: False
+  #   register: testvar
+  #   with_items: "{{ groups['bigips'] }}"
+  #   # delegate_to: localhost
 
-  - name: show bigip infor {{testvar.devices.name}}
-    debug:
-      var: testvar
+  # - name: show bigip infor {{testvar.devices.name}}
+  #   debug:
+  #     var: testvar.results
 
+  # - debug: msg="{{testvar.results[0].partitions | map(attribute='name') | list | join(' ') }}"
   # - name: test shell
   #   shell: "echo test > /var/testshellfile"
   #   register: testvar

@@ -10,6 +10,8 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
+- import_tasks: ../../playbooks/task-check-resources.yml
+
 # - name: get created resource id
 #   shell: |
 #     source {{ openrc }} && {{ item }} --format value --column id
@@ -35,6 +37,7 @@
 #       password: "{{ admin_password }}"
 #       validate_certs: False
 #   register: bigip_infos
+
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false

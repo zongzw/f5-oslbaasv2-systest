@@ -4,8 +4,18 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - import_tasks: ./task-define-resources.yml
-    - import_tasks: ./task-check-resources.yml
+    - assert:
+        that:
+          - "'{{item}}' in 'zongzhaowei zongzw andrewz1 2 '"
+      with_items:
+        - 1
+        - 2
+      loop_control:
+        label: "zong"
+      no_log: yes
+  
+    # - import_tasks: ./task-define-resources.yml
+    # - import_tasks: ./task-check-resources.yml
 
     # - debug: msg={{'self24'| regex_search('.*[0-9a-f\-]{36}$')}}
     #   when: ('self24'| regex_search('.*[0-9a-f\-]{36}$'))

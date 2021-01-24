@@ -61,10 +61,14 @@
   with_items: "{{ groups['bigips'] }}"
   delegate_to: localhost
 
-- assert:
+- name: assert resources are created on bigips
+  assert:
     that:
       - "'{{project_id}}' in '{{item.partitions | map(attribute='name') | list | join(' ') }}'"
       - "'{{loadbalancer_id}}' in '{{item.virtual_addresses | map(attribute='name') | list | join(' ') }}'"
       - "'{{listener_id}}' in '{{item.virtual_servers | map(attribute='name') | list | join(' ') }}'"
       - "'{{pool_id}}' in '{{item.ltm_pools | map(attribute='name') | list | join(' ') }}'"
   with_items: "{{bigip_infos.results}}"
+  loop_control:
+    label: "{{ item.item }}"
+  no_log: yes

@@ -3,10 +3,6 @@
   register: test_timestamp
   delegate_to: localhost
 
-- set_fact:
-    test_timestamp:
-      stdout: 1611386546
-
 - name: set neutron resource names
   set_fact:
     testcasename: "{{ test_casename | default('Common-Test') }}"

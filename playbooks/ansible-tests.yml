@@ -17,21 +17,24 @@
     - name: collect bigip device info
       bigip_device_info:
         gather_subset:
+          # - all
           # - system-info
           # - partitions
           # - provision-info
           # - interfaces
           # - client-ssl-profiles
           # - ltm-pools
-          - virtual-servers
+          # - virtual-servers
           # - vlans
           # - nodes
-          - virtual-addresses
+          # - virtual-addresses
           # - profiles
           # - devices
           # - http-profiles
           # - monitors
-          - irules
+          # - irules
+          # - ltm-policies
+          # - self-ips
         provider:
           user: admin
           server: "{{ item }}"
@@ -41,21 +44,23 @@
       with_items: "{{ groups['bigips'] }}"
       delegate_to: localhost
 
-    - set_fact:
-        loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
+    - name: show everything
+      debug: msg="{{bigip_infos}}"
+    # - set_fact:
+    #     loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
 
-    - name: show bigip infor
-      debug:
-        msg: "{{ bigip_infos.results[0] | json_query(querystring) }}"
-      vars:
-          querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
+    # - name: show bigip infor
+    #   debug:
+    #     msg: "{{ bigip_infos.results[0] | json_query(querystring) }}"
+    #   vars:
+    #       querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
 
-    - name: assert irule body
-      assert:
-        that:
-          - "{{ bigip_infos.results[0] | json_query(querystring) | length }} == 1"
-      vars:
-        querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
+    # - name: assert irule body
+    #   assert:
+    #     that:
+    #       - "{{ bigip_infos.results[0] | json_query(querystring) | length }} == 1"
+    #   vars:
+    #     querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
     # - set_fact:
     #     loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
     # - name: assert bwc_irule is created

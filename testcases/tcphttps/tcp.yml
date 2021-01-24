@@ -10,6 +10,8 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
 - name: "Check {{ test_pool_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: nc -z {{ vip_address.stdout }} {{ test_listener_tcpport }}
   delegate_to: "{{ item }}"

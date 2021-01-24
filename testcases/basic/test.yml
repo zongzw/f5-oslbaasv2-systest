@@ -10,7 +10,9 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- import_tasks: ../../playbooks/task-check-resources.yml
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
+- import_tasks: ../../playbooks/task-check-resources-created.yml
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
@@ -19,3 +21,5 @@
   when: test_env == 'lab'
 
 - import_tasks: ../../playbooks/task-remove-resources.yml
+
+- import_tasks: ../../playbooks/task-check-resources-removed.yml

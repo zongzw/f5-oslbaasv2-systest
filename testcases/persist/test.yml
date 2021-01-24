@@ -10,6 +10,8 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
 - name: update pool with session persistence of app_cookie
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \

@@ -10,6 +10,8 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
 - name: create l7policy and l7rule with {{ listener }}
   shell: |
     source {{ openrc }} && \

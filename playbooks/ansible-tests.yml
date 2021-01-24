@@ -4,15 +4,112 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - assert:
+    # - name: give me list combo of two lists
+    #   debug:
+    #     msg: "{{ [1,2,3,4,5] | zip(['a','b','c','d','e','f']) | list }}"
+
+    # - name: give me shortest combo of two lists
+    #   debug:
+    #     msg: "{{ [1,2,3] | zip(['a','b','c','d','e','f']) | list }}"
+    # - name: give me longest combo of three lists , fill with X
+    #   debug:
+    #     msg: "{{ [1,2,3] | zip_longest(['a','b','c','d','e','f'], [21, 22, 23], fillvalue='X') | list }}"
+    - name: collect bigip device info
+      bigip_device_info:
+        gather_subset:
+          # - system-info
+          # - partitions
+          # - provision-info
+          # - interfaces
+          # - client-ssl-profiles
+          # - ltm-pools
+          - virtual-servers
+          # - vlans
+          # - nodes
+          - virtual-addresses
+          # - profiles
+          # - devices
+          # - http-profiles
+          # - monitors
+          - irules
+        provider:
+          user: admin
+          server: "{{ item }}"
+          password: "{{ hostvars[item].admin_password }}"
+          validate_certs: False
+      register: bigip_infos
+      with_items: "{{ groups['bigips'] }}"
+      delegate_to: localhost
+
+    - set_fact:
+        loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
+
+    - name: show bigip infor
+      debug:
+        msg: "{{ bigip_infos.results[0] | json_query(querystring) }}"
+      vars:
+          querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
+
+    - name: assert irule body
+      assert:
         that:
-          - "'{{item}}' in 'zongzhaowei zongzw andrewz1 2 '"
-      with_items:
-        - 1
-        - 2
-      loop_control:
-        label: "zong"
-      no_log: yes
+          - "{{ bigip_infos.results[0] | json_query(querystring) | length }} == 1"
+      vars:
+        querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
+    # - set_fact:
+    #     loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
+    # - name: assert bwc_irule is created
+    #   assert:
+    #     that:
+    #       - "'bwc_irule_{{ loadbalancer_id }}' in '{{item.irules | map(attribute='name') | list | join(' ') }}'"
+    #   with_items: "{{bigip_infos.results}}"
+    #   loop_control:
+    #     label: "{{item.item}}"
+
+# TASK [bandwidth test: get resource ids] *****************************************************************************************************************************************************************************
+# changed: [10.250.15.160] => (item=neutron lbaas-loadbalancer-show lb-1611480145)
+# changed: [10.250.15.160] => (item=neutron lbaas-pool-show pl-1611480145)
+# changed: [10.250.15.160] => (item=neutron lbaas-listener-show ls-1611480145)
+# changed: [10.250.15.160] => (item=neutron lbaas-healthmonitor-show hm-1611480145)
+# changed: [10.250.15.160] => (item=neutron lbaas-member-list pl-1611480145)
+# changed: [10.250.15.160] => (item=openstack project show $OS_PROJECT_NAME)
+# Perform task: TASK: set_fact (N)o/(y)es/(c)ontinue: y
+
+# Perform task: TASK: set_fact (N)o/(y)es/(c)ontinue: *****************************************************************************************************************************************************************
+
+# TASK [set_fact] *****************************************************************************************************************************************************************************************************
+# ok: [10.250.15.160]
+# Perform task: TASK: debug (N)o/(y)es/(c)ontinue: y
+
+# Perform task: TASK: debug (N)o/(y)es/(c)ontinue: ********************************************************************************************************************************************************************
+
+# TASK [debug] ********************************************************************************************************************************************************************************************************
+# ok: [10.250.15.160] => (item=project_id:472b437bc08c4f9f88466bcbb7250cda) => {
+#     "msg": "project_id:472b437bc08c4f9f88466bcbb7250cda"
+# }
+# ok: [10.250.15.160] => (item=loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc) => {
+#     "msg": "loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc"
+# }
+# ok: [10.250.15.160] => (item=pool_id: fc15b062-1705-4214-a909-b0f12988da5f) => {
+#     "msg": "pool_id: fc15b062-1705-4214-a909-b0f12988da5f"
+# }
+# ok: [10.250.15.160] => (item=listener_id: 94733482-4384-4f42-a0cb-87ed8ecd5f2c) => {
+#     "msg": "listener_id: 94733482-4384-4f42-a0cb-87ed8ecd5f2c"
+# }
+# ok: [10.250.15.160] => (item=healthmonitor_id: 8961b682-76de-4d78-8c69-0059b2ab2beb) => {
+#     "msg": "healthmonitor_id: 8961b682-76de-4d78-8c69-0059b2ab2beb"
+# }
+# ok: [10.250.15.160] => (item=member_ids: ['341eec37-09a1-465c-9cd1-f2d1b3506de2', '0f4d1613-05b2-4bef-8f50-10b0204d0709']) => {
+#     "msg": "member_ids: ['341eec37-09a1-465c-9cd1-f2d1b3506de2', '0f4d1613-05b2-4bef-8f50-10b0204d0709']"
+    # - assert:
+    #     that:
+    #       - "'{{item}}' in 'zongzhaowei zongzw andrewz1 2 '"
+    #   with_items:
+    #     - 1
+    #     - 2
+    #   loop_control:
+    #     label: "zong"
+    #   no_log: yes
   
     # - import_tasks: ./task-define-resources.yml
     # - import_tasks: ./task-check-resources.yml

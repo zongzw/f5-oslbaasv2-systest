@@ -13,6 +13,33 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - irules
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert irules created
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+  vars:
+    query_string: "irules[?name == 'bwc_irule_{{ loadbalancer_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "bwc_irule_{{ loadbalancer_id }}"
+  no_log: yes
+
+- name: "TODO: more check on bwc policy, vs irule binding."
+  debug: msg="listener_id: {{ listener_id }}"
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"

@@ -6,10 +6,10 @@ test_env = dev
 openrc = /root/keystonerc_admin
 agent_services = f5-openstack-agent
 test_subnet = public_subnet
+environment_prefix = Project
 
 [bigips]
 10.250.18.104
-
 
 [bigips:vars]
 admin_password = admin@f5

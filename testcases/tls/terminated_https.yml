@@ -1,4 +1,4 @@
-- name: get secret container
+- name: "get secret container TODO: create and get from barbican"
   shell: echo http://localhost:9311/v1/containers/ded30a46-b6c4-4e0f-936c-f02ac23bf391
   register: tls_container
 

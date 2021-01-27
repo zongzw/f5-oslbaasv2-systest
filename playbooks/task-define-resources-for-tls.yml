@@ -1,0 +1,20 @@
+- ansible.builtin.debug:
+    msg: "{{ test_timestamp }}"
+
+- name: set neutron resource names
+  set_fact:
+    testcasename: "{{ test_casename | default('Common-Test') }}"
+
+    subnet: "{{ test_subnet }}"
+    loadbalancer: lb-{{ test_timestamp.stdout }}
+    listener: ls-{{ test_timestamp.stdout }}
+    pool: pl-{{ test_timestamp.stdout }}
+    member: mb-{{ test_timestamp.stdout }}
+    l7policy: l7-{{ test_timestamp.stdout }}
+    healthmonitor: hm-{{ test_timestamp.stdout }}
+
+    pool_protocol: "{{ test_pool_protocol | default('HTTP') }}"
+    listener_protocol: "{{ test_listener_protocol | default('HTTP')}}"
+    listener_tcpport: "{{ test_listener_tcpport | default(80) }}"
+    listener_additional_options: "{{ test_listener_additional_options | default('') }}"
+    healthmonitor_protocol: "{{ test_healthmonitor_protocol | default('PING') }}"

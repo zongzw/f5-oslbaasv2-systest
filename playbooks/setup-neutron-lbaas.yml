@@ -29,6 +29,27 @@
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
 
+    - name: download f5-* packages
+      get_url: url={{ item }} dest=/tmp timeout=30
+      with_items:
+        # - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
+        - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
+        - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
+      tags: reinstallf5packages
+      when: (download_prefix | regex_search("^https://github.com")) == ''
+
+    - name: download f5-* packages
+      get_url: url={{ item }} dest=/tmp timeout=30
+      with_items:
+        - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
+        - https://github.com/F5Networks/f5-icontrol-rest-python/releases/download/v{{ versions.icontrol }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm
+        - https://github.com/F5Networks/f5-openstack-agent/releases/download/v{{ versions.agent }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
+        - https://github.com/F5Networks/f5-openstack-lbaasv2-driver/releases/download/v{{ versions.driver }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm
+      tags: reinstallf5packages
+      when: (download_prefix | regex_search("^https://github.com")) != ''
+
     # yum uninstall is pretty slow in lab, so use rpm instead.
     - name: uninstall legacy f5-* using rpm
       shell: |
@@ -46,16 +67,6 @@
           - f5-sdk.noarch
         state: removed
       when: test_env != "lab"
-      tags: reinstallf5packages
-
-    - name: download f5-* packages
-      get_url: url={{ item }} dest=/tmp timeout=30
-      with_items:
-        # - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
-        - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
       tags: reinstallf5packages
 
     - name: install f5-*

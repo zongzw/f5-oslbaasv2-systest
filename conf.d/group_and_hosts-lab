@@ -11,6 +11,7 @@ agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
 test_subnet = vlan29_subnet
 test_ipv6_subnet = ipv6-pd-sub
 environment_prefix = CORE
+download_prefix = http://10.250.11.185/f5-packages
 
 [bigips]
 10.250.2.211

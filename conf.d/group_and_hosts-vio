@@ -1,20 +1,20 @@
 [neutron_servers]
-10.250.15.160
+10.145.73.123
 
 [neutron_servers:vars]
-test_env = dev
+test_env = vio
 openrc = /root/keystonerc_admin
 agent_services = f5-openstack-agent
 test_subnet = public_subnet
 environment_prefix = Project
-download_prefix = http://10.250.11.185/f5-packages
+download_prefix = https://github.com
 
 [bigips]
-10.250.18.104
+10.145.75.136
 
 [bigips:vars]
-admin_password = admin@f5
-root_password = pd123@f5
+admin_password = admin
+root_password = default
 
 [backend_servers]
 10.250.26.13

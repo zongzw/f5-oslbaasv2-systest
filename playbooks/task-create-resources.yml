@@ -6,7 +6,7 @@
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |
-    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+    sleep 15 && source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
     - neutron lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
     - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
@@ -14,6 +14,7 @@
 
 - name: "{{ testcasename }}: create members under pool {{ pool }}"
   shell: |
+    sleep 15 && \
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}

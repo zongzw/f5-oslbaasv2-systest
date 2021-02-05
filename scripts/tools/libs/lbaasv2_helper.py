@@ -8,6 +8,7 @@ import traceback
 import re
 
 class LBaasV2Helper:
+    # TODO auth with v2.0
     def __init__(self):
         for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME', 'OS_PROJECT_DOMAIN_NAME']:
             if os.environ.get(n, None) == None:

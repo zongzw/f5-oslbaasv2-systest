@@ -18,6 +18,7 @@ while retries > 0:
     time.sleep(delay)
     retries = retries - 1
 
+    # TODO: possible to find multiple agent. handle this exception.
     agents = l.get_agents(binary='f5-oslbaasv2-agent')
     if len(agents['agents']) == 0:
         print('agents found: 0')

@@ -15,16 +15,22 @@
           - python-neutron-lbaas.noarch
 
     - import_tasks: ./task-download-scripts.yml
+      tags:
+        - configureneutron
 
+    # TODO: wget: command not found
+    # TODO: consider slow network situation.
     - name: install configparser
       shell: |
         installed=`which pip`
         if [ -z "$installed" ]; then 
-          wget https://bootstrap.pypa.io/get-pip.py -O /tmp/get-pip.py && \
+          wget https://bootstrap.pypa.io/2.7/get-pip.py -O /tmp/get-pip.py && \
           python /tmp/get-pip.py
         fi
         pip install configparser
-      tags: migratedb
+      tags: 
+        - migratedb
+        - customizeneutron
 
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
@@ -32,7 +38,6 @@
     - name: download f5-* packages
       get_url: url={{ item }} dest=/tmp timeout=30
       with_items:
-        # - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
         - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
         - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
         - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
@@ -82,6 +87,7 @@
         warn: False
       tags: reinstallf5packages
 
+    # TODO: backup original configuration files.
     - name: configure neutron_lbaas and f5-agent
       shell: |
         export bigip_admin_password={{ hostvars[groups['bigips'][0]].admin_password }} && \
@@ -89,6 +95,7 @@
         source {{ openrc }} && \
         python /tmp/scripts/_config-ini-conf.py
       when: test_env != "lab"
+      tags: configureneutron
 
     - name: set runing_files variable
       shell: ls chdir=../conf.d/{{ test_env }}
@@ -96,13 +103,17 @@
       delegate_to: localhost
       when: test_env == "lab"
       run_once: True
-      tags: copylabruntimefiles
+      tags: 
+        - copylabruntimefiles
+        - configureneutron
 
     - name: "copy lab runtime files TODO: using configparser to create config files."
       copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
       with_items: "{{ runtime_files.stdout_lines }}"
       when: test_env == "lab"
-      tags: copylabruntimefiles
+      tags: 
+        - copylabruntimefiles
+        - configureneutron
 
     - name: execute systemctl daemon-reload
       shell: systemctl daemon-reload

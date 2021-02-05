@@ -1,4 +1,4 @@
-
+# TODO: check with vpn side: how to finalize the vpn address. 
 export proxy=http://10.250.64.103:3128
 
 # Used by yum wget git

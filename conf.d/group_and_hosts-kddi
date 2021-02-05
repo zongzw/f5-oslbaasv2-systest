@@ -1,0 +1,44 @@
+[neutron_servers]
+10.251.13.58
+10.251.13.56
+10.251.13.62
+
+[neutron_servers:vars]
+test_env = kddi
+openrc = /home/heat-admin/overcloudrc
+agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
+test_subnet = 10.251.27.0/24
+#test_ipv6_subnet = ipv6-pd-sub
+environment_prefix = CORE
+download_prefix = http://10.250.11.185/f5-packages
+
+[bigips]
+10.250.11.193
+10.250.11.194
+
+[bigips:vars]
+admin_password = P@ssw0rd123
+root_password = P@ssw0rd123
+
+[backend_servers:children]
+servers_vlan28
+# servers_vlan26
+
+[servers_vlan26]
+10.250.26.13
+10.250.26.7
+10.250.26.8
+
+[clients]
+10.250.27.104
+
+[servers_vlan26:vars]
+subnet = vlan26_subnet
+
+[servers_vlan28]
+10.250.28.14
+# 10.250.28.5
+# 10.250.28.6
+
+[servers_vlan28:vars]
+subnet = vlan28_subnet

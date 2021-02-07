@@ -12,7 +12,7 @@ ifile=$1
 if [ "$2" = "public" ]; then
     efile=$workdir/conf.d/vars-ruijie-public-2021.01.08.yml
 elif [ "$2" = "private" ]; then
-    efile=$workdir/conf.d/vars-cmcc-private-2021.01.08.yml
+    efile=$workdir/conf.d/vars-private-2021.01.08.yml
 else
     echo "not support. $2"
     exit 1

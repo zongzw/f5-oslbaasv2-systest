@@ -2,7 +2,7 @@
 10.250.15.160
 
 [neutron_servers:vars]
-test_env = dev
+test_env = rdo
 openrc = /root/keystonerc_admin
 agent_services = f5-openstack-agent
 test_subnet = public_subnet

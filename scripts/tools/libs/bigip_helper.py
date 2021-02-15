@@ -58,7 +58,7 @@ class BigipHelper:
         except Exception  as e:
             raise e
 
-    def clear_all_partitions(self):
+    def clean_all_partitions(self):
 
         declare_url = "https://%s/mgmt/shared/appsvcs/declare" % self.bigip_hostname
 
@@ -89,4 +89,4 @@ if __name__ == "__main__":
     h = BigipHelper()
     # print(h.get_virtual('472b437bc08c4f9f88466bcbb7250cda', 'sdfa'))
     print(h.validate_as3())
-    print(h.clear_all_partitions())
+    print(h.clean_all_partitions())

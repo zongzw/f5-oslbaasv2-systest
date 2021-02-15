@@ -55,12 +55,12 @@
       tags: reinstallf5packages
       when: (download_prefix | regex_search("^https://github.com")) != ''
 
-    # yum uninstall is pretty slow in lab, so use rpm instead.
+    # yum uninstall is pretty slow in osp, so use rpm instead.
     - name: uninstall legacy f5-* using rpm
       shell: |
         f5_rpms=`rpm -qa | grep -E "^f5-"`
         if [ -n "$f5_rpms" ]; then rpm -ev $f5_rpms; fi
-      when: test_env == "lab"
+      when: test_env == "osp"
       tags: reinstallf5packages
 
     - name: uninstall legacy f5-* using yum
@@ -71,7 +71,7 @@
           - f5-icontrol-rest.noarch
           - f5-sdk.noarch
         state: removed
-      when: test_env != "lab"
+      when: test_env != "osp"
       tags: reinstallf5packages
 
     - name: install f5-*
@@ -94,25 +94,25 @@
         export bigip_hostname={{ groups['bigips'] | join(',') }} && \
         source {{ openrc }} && \
         python /tmp/scripts/_config-ini-conf.py
-      when: test_env != "lab"
+      when: test_env != "osp"
       tags: configureneutron
 
     - name: set runing_files variable
       shell: ls chdir=../conf.d/{{ test_env }}
       register: runtime_files
       delegate_to: localhost
-      when: test_env == "lab"
+      when: test_env == "osp"
       run_once: True
       tags: 
-        - copylabruntimefiles
+        - copyospruntimefiles
         - configureneutron
 
-    - name: "copy lab runtime files TODO: using configparser to create config files."
+    - name: "copy osp runtime files TODO: using configparser to create config files."
       copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
       with_items: "{{ runtime_files.stdout_lines }}"
-      when: test_env == "lab"
+      when: test_env == "osp"
       tags: 
-        - copylabruntimefiles
+        - copyospruntimefiles
         - configureneutron
 
     - name: execute systemctl daemon-reload

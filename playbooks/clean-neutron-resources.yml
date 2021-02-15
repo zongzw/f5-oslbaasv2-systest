@@ -11,7 +11,7 @@
     - import_tasks: ./task-download-scripts.yml
     - import_tasks: ./task-neutron-db-info.yml
 
-    - name: clear data from neutron db tables
+    - name: clean data from neutron db tables
       mysql_db:
         name: "{{neutron_db_info.results[3].stdout}}"
         login_user: "{{neutron_db_info.results[0].stdout}}"

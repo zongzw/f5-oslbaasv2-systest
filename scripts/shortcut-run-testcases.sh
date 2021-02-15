@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 2 ]; then
-    echo "$0 <dev|lab> <public|private>"
+    echo "$0 <rdo|osp> <public|private>"
     exit 1
 fi 
 

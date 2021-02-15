@@ -2,7 +2,7 @@
 
 workdir=`cd $(dirname $0); pwd`
 set -x
-ansible-playbook -i $workdir/../conf.d/group_and_hosts-lab -e @$workdir/../conf.d/vars-ruijie-private-4.5.1.yml $workdir/dev_test.yml $@
+ansible-playbook -i $workdir/../conf.d/group_and_hosts-osp -e @$workdir/../conf.d/vars-ruijie-private-4.5.1.yml $workdir/dev_test.yml $@
 
 cat > /dev/null <<  EOF
 {
@@ -13,7 +13,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -76,7 +76,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.2.211",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -105,7 +105,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -168,7 +168,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.2.212",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -197,7 +197,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -260,13 +260,13 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.23.54",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
         "openrc": "/home/heat-admin/overcloudrc",
         "playbook_dir": "/root/f5-oslbaasv2-systest/playbooks",
-        "test_env": "lab",
+        "test_env": "osp",
         "test_subnet": "vlan30_subnet",
         "testcases": [
             {
@@ -291,7 +291,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -354,13 +354,13 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.23.59",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
         "openrc": "/home/heat-admin/overcloudrc",
         "playbook_dir": "/root/f5-oslbaasv2-systest/playbooks",
-        "test_env": "lab",
+        "test_env": "osp",
         "test_subnet": "vlan30_subnet",
         "testcases": [
             {
@@ -385,7 +385,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -448,13 +448,13 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.23.60",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
         "openrc": "/home/heat-admin/overcloudrc",
         "playbook_dir": "/root/f5-oslbaasv2-systest/playbooks",
-        "test_env": "lab",
+        "test_env": "osp",
         "test_subnet": "vlan30_subnet",
         "testcases": [
             {
@@ -478,7 +478,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -542,7 +542,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.26.13",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -570,7 +570,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -634,7 +634,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.26.7",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -662,7 +662,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -726,7 +726,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.26.8",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -754,7 +754,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -818,7 +818,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.28.14",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -846,7 +846,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -910,7 +910,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.28.5",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",
@@ -938,7 +938,7 @@ cat > /dev/null <<  EOF
         "ansible_facts": {},
         "ansible_forks": 5,
         "ansible_inventory_sources": [
-            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab"
+            "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp"
         ],
         "ansible_playbook_python": "/usr/bin/python2",
         "ansible_run_tags": [
@@ -1002,7 +1002,7 @@ cat > /dev/null <<  EOF
             "ungrouped": []
         },
         "inventory_dir": "/root/f5-oslbaasv2-systest/conf.d",
-        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-lab",
+        "inventory_file": "/root/f5-oslbaasv2-systest/conf.d/group_and_hosts-osp",
         "inventory_hostname": "10.250.28.6",
         "inventory_hostname_short": "10",
         "omit": "__omit_place_holder__2ed4fea494022e3c2fff45aeec4a7f6e764e67d4",

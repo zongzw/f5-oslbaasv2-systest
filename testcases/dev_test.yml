@@ -41,4 +41,4 @@
     - import_tasks: ./ipv6/test.yml
       tags: ipv6
       run_once: True
-      when: test_env == 'lab'
+      when: test_env == 'osp'

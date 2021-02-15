@@ -24,7 +24,7 @@
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
-  when: test_env == 'lab'
+  when: test_env == 'osp'
 
 - name: delete l7policy and l7rule
   shell: |

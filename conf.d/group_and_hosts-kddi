@@ -4,7 +4,7 @@
 10.251.13.62
 
 [neutron_servers:vars]
-test_env = kddi
+test_env = osp
 openrc = /home/heat-admin/overcloudrc
 agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
 test_subnet = 10.251.27.0/24

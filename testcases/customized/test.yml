@@ -33,12 +33,12 @@
     that:
       - "{{ item | json_query(query_string) | length }} == 1"
       - "(item | json_query(query_string))[0].insert_x_forwarded_for == 'no'"
+    quiet: yes
   vars:
     query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
-  no_log: yes
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false

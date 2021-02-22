@@ -5,18 +5,15 @@ import sys
 import json
 
 class BigipHelper:
-    def __init__(self):
-        for n in ['bigip_admin_password', 'bigip_hostname']:
-            if os.environ.get(n, None) == None:
-                raise Exception("Missing environment: %s" % n)
-
+    def __init__(self, hostname, admin_password):
         self.authorization = "%s" % base64.b64encode(
-            'admin:%s' % os.environ['bigip_admin_password'])
-        self.bigip_hostname = os.environ['bigip_hostname']
+            'admin:%s' % admin_password)
+        self.bigip_hostname = hostname
 
-    def get_virtual(self, project_id, listener_id):
-        virtual_url = "https://%s/mgmt/tm/ltm/virtual/~Project_%s~Project_%s?expandSubcollections=true" % (
-            self.bigip_hostname, project_id, listener_id)
+    def get_virtual(self, vs='', partition='Common'):
+        full_path = "~%s~%s" % (partition, vs) if vs != '' else ''
+        virtual_url = "https://%s/mgmt/tm/ltm/virtual/%s?expandSubcollections=true" % (
+            self.bigip_hostname, full_path)
 
         payload = {}
         headers = {
@@ -32,6 +29,28 @@ class BigipHelper:
                 return json.loads(response.text.encode('utf8'))
             else:
                 print("failed to get bigip virtual: %d, %s" % (response.status_code, response.text.encode('utf-8')))
+                sys.exit(1)
+        except Exception  as e:
+            raise e
+
+    def get_ftp_profile(self, profile_name, partition='Common'): 
+        virtual_url = "https://%s/mgmt/tm/ltm/profile/ftp/~%s~%s" % (
+            self.bigip_hostname, partition, profile_name)
+
+        payload = {}
+        headers = {
+            'content-type': 'application/json',
+            'Authorization': 'Basic %s' % self.authorization
+        }
+
+        try:
+            response = requests.request("GET", virtual_url, verify=False, headers=headers, data = payload)
+            
+            if int(response.status_code / 200) == 1:
+                # print(json.dumps(json.loads(response.text.encode('utf8')), indent=2))
+                return json.loads(response.text.encode('utf8'))
+            else:
+                print("failed to get bigip ftp profile: %d, %s" % (response.status_code, response.text.encode('utf-8')))
                 sys.exit(1)
         except Exception  as e:
             raise e
@@ -84,9 +103,14 @@ class BigipHelper:
     
 
 if __name__ == "__main__":
-    os.environ['bigip_admin_password'] = 'admin@f5'
-    os.environ['bigip_hostname'] = '10.250.18.104'
-    h = BigipHelper()
-    # print(h.get_virtual('472b437bc08c4f9f88466bcbb7250cda', 'sdfa'))
-    print(h.validate_as3())
-    print(h.clean_all_partitions())
+    # os.environ['bigip_admin_password'] = 'P@ssw0rd123'
+    # os.environ['bigip_hostname'] = '10.250.2.211'
+    h = BigipHelper('10.250.2.211', 'P@ssw0rd123')
+    # print(h.get_virtual())
+    # jd = json.dumps(h.get_virtual('CORE_7e1d7b36-be14-43bd-8ae7-537664d35362', 'CORE_94f2338bf383405db151c4784c0e358c'))
+    # # print(h.validate_as3())
+    # print(jd)
+
+    jd = json.dumps(h.get_ftp_profile('ftp_profile_7e1d7b36-be14-43bd-8ae7-537664d35362', 'CORE_94f2338bf383405db151c4784c0e358c'))
+    # print(h.clean_all_partitions())
+    print(jd)

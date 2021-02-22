@@ -6,3 +6,4 @@
     - neutron lbaas-pool-delete {{ pool }}
     - neutron lbaas-listener-delete {{ listener }}
     - neutron lbaas-loadbalancer-delete {{ loadbalancer }}
+  when: nodelete is not defined

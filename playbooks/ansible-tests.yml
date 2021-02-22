@@ -4,10 +4,43 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - set_fact:
+        project_id: 94f2338bf383405db151c4784c0e358c
+        listener_id: 7e1d7b36-be14-43bd-8ae7-537664d35362
+      run_once: true
+
+    - name: get infor from bigips
+      shell: |
+        b64credential=`echo -n admin:{{ hostvars[item].admin_password }} | base64`
+        full_path=~{{ environment_prefix }}_{{ project_id }}~ftp_profile_{{ listener_id }}
+        curl -k --location --request GET \
+          "https://{{ item }}/mgmt/tm/ltm/profile/ftp/$full_path" \
+          --header 'content-type: application/json' \
+          --header "Authorization: Basic $b64credential"
+      with_items: "{{ groups.bigips }}"
+      register: bigip_infos
+      run_once: true
+    
+    # - debug: msg="{{ item.stdout | from_json }}"
+    #   with_items: "{{ bigip_infos.results }}"
+    #   run_once: true
+
+    - name: assert ftp is created and associated
+      assert:
+        that:
+          - "{{ (item.stdout | from_json).port }} == 20"
+        quiet: yes
+      with_items: "{{ bigip_infos.results }}"
+      loop_control:
+        label: "{{ item.item }} - {{ (item.stdout | from_json).name }}"
+      run_once: true
     # - name: collect resources from bigip
     #   bigip_device_info:
     #     gather_subset:
-    #       - http-profiles
+    #       - profiles
+    #       - tcp-profiles
+    #       - fastl4-profiles
+    #       - virtual-servers
     #     provider:
     #       user: admin
     #       server: "{{ item }}"
@@ -16,11 +49,14 @@
     #   register: bigip_infos
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
+    #   run_once: true
 
     # - debug: msg={{ bigip_infos }}
+    #   run_once: true
 
     # - set_fact:
     #     listener_id: 4fabe4cb-012e-4eb9-beeb-167edbb7785f
+    #   run_once: true
 
     # - name: assert http_profile insert_x_forwarded_for is no
     #   assert:
@@ -32,7 +68,9 @@
     #   with_items: "{{ bigip_infos.results }}"
     #   loop_control:
     #     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
-  # no_log: yes
+    #   run_once: true
+
+    # no_log: yes
     # - name: give me list combo of two lists
     #   debug:
     #     msg: "{{ [1,2,3,4,5] | zip(['a','b','c','d','e','f']) | list }}"

@@ -27,13 +27,13 @@
 - name: assert resources are removed on bigips
   assert:
     that:
-      # TODO: guarantee partition is removed.
+      # TODO: assert partition is removed.
       # - "'{{project_id}}' in '{{item.partitions | map(attribute='name') | list | join(' ') }}'"
       - "'{{loadbalancer_id}}' not in '{{item.virtual_addresses | map(attribute='name') | list | join(' ') }}'"
       - "'{{listener_id}}' not in '{{item.virtual_servers | map(attribute='name') | list | join(' ') }}'"
       - "'{{pool_id}}' not in '{{item.ltm_pools | map(attribute='name') | list | join(' ') }}'"
       # TODO: check member and healthmonitor
+    quiet: yes
   with_items: "{{bigip_infos.results}}"
   loop_control:
     label: "{{ item.item }}"
-  no_log: yes

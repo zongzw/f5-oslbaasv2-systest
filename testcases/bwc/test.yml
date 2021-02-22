@@ -30,12 +30,12 @@
   assert:
     that:
       - "{{ item | json_query(query_string) | length }} == 1"
+    quiet: yes
   vars:
     query_string: "irules[?name == 'bwc_irule_{{ loadbalancer_id }}']"
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "bwc_irule_{{ loadbalancer_id }}"
-  no_log: yes
 
 - name: "TODO: more check on bwc policy, vs irule binding, there is no way to get acceleration -> bwc controller policy through bigip_device_info."
   debug: msg="listener_id {{ listener_id }}"

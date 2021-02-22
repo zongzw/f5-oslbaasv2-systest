@@ -12,10 +12,27 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
-  delegate_to: "{{ item }}"
-  with_items: "{{groups['clients']}}"
-  when: test_env == 'osp'
+# bigip ansible module has no way to collect ftp-profiles, so, use curl instead.
+- name: get infor from bigips
+  shell: |
+    b64credential=`echo -n admin:{{ hostvars[item].admin_password }} | base64`
+    full_path=~{{ environment_prefix }}_{{ project_id }}~ftp_profile_{{ listener_id }}
+    curl -k --location --request GET \
+      "https://{{ item }}/mgmt/tm/ltm/profile/ftp/$full_path" \
+      --header 'content-type: application/json' \
+      --header "Authorization: Basic $b64credential"
+  with_items: "{{ groups.bigips }}"
+  register: bigip_infos
+  run_once: true
+
+- name: assert ftp is created and associated
+  assert:
+    that:
+      - "{{ (item.stdout | from_json).port }} == {{ test_listener_tcpport - 1 }}"
+    quiet: yes
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }} - {{ (item.stdout | from_json).name }}"
+  run_once: true
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

@@ -1,1 +1,23 @@
 # TODO setup client and backend servers.
+
+---
+
+- hosts: clients
+  gather_facts: false
+  remote_user: root
+  tasks:
+    - import_tasks: ./task-set-webproxy.yml
+      when: webproxy is defined
+
+    - name: check clients are reachable
+      ping:
+      delegate_to: localhost
+
+    - name: make sure yum packages installed
+      yum:
+        name: 
+          - wget
+          - curl
+      environment: "{{ proxy_env | default({}) }}"
+
+    - import_tasks: ./task-download-scripts.yml

@@ -1,0 +1,14 @@
+# - name: check proxy server is reachable
+#   shell: ping
+#   delegate_to: localhost
+
+- wait_for: host="{{ webproxy }}" port=3128 timeout=1
+
+- set_fact:
+    proxy_env:
+      http_proxy: http://{{ webproxy }}:3128
+      https_proxy: http://{{ webproxy }}:3128
+      HTTP_PROXY: http://{{ webproxy }}:3128
+      HTTPS_PROXY: http://{{ webproxy }}:3128
+
+- debug: msg={{proxy_env}}

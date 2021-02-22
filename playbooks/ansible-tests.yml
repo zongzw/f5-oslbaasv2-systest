@@ -4,6 +4,35 @@
   gather_facts: False
   remote_user: root
   tasks:
+    # - name: collect resources from bigip
+    #   bigip_device_info:
+    #     gather_subset:
+    #       - http-profiles
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+
+    # - debug: msg={{ bigip_infos }}
+
+    # - set_fact:
+    #     listener_id: 4fabe4cb-012e-4eb9-beeb-167edbb7785f
+
+    # - name: assert http_profile insert_x_forwarded_for is no
+    #   assert:
+    #     that:
+    #       - "{{ item | json_query(query_string) | length }} == 1"
+    #       - "(item | json_query(query_string))[0].insert_x_forwarded_for == 'no'"
+    #   vars:
+    #     query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
+    #   with_items: "{{ bigip_infos.results }}"
+    #   loop_control:
+    #     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
+  # no_log: yes
     # - name: give me list combo of two lists
     #   debug:
     #     msg: "{{ [1,2,3,4,5] | zip(['a','b','c','d','e','f']) | list }}"
@@ -14,38 +43,38 @@
     # - name: give me longest combo of three lists , fill with X
     #   debug:
     #     msg: "{{ [1,2,3] | zip_longest(['a','b','c','d','e','f'], [21, 22, 23], fillvalue='X') | list }}"
-    - name: collect bigip device info
-      bigip_device_info:
-        gather_subset:
-          # - all
-          # - system-info
-          # - partitions
-          # - provision-info
-          # - interfaces
-          # - client-ssl-profiles
-          # - ltm-pools
-          # - virtual-servers
-          # - vlans
-          # - nodes
-          # - virtual-addresses
-          # - profiles
-          # - devices
-          # - http-profiles
-          # - monitors
-          # - irules
-          # - ltm-policies
-          # - self-ips
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
+    # - name: collect bigip device info
+    #   bigip_device_info:
+    #     gather_subset:
+    #       # - all
+    #       # - system-info
+    #       # - partitions
+    #       # - provision-info
+    #       # - interfaces
+    #       # - client-ssl-profiles
+    #       # - ltm-pools
+    #       # - virtual-servers
+    #       # - vlans
+    #       # - nodes
+    #       # - virtual-addresses
+    #       # - profiles
+    #       # - devices
+    #       # - http-profiles
+    #       # - monitors
+    #       # - irules
+    #       # - ltm-policies
+    #       # - self-ips
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
 
-    - name: show everything
-      debug: msg="{{bigip_infos}}"
+    # - name: show everything
+    #   debug: msg="{{bigip_infos}}"
     # - set_fact:
     #     loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
 

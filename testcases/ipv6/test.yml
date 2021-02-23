@@ -13,10 +13,41 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
-  delegate_to: "{{ item }}"
-  with_items: "{{groups['clients']}}"
-  when: test_env == 'osp'
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+      - virtual-addresses
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+  run_once: true
+
+# - debug: msg={{ item.virtual_servers }}
+#   with_items: "{{ bigip_infos.results }}"
+
+- assert:
+    that:
+      - item | json_query(virtual_string) | length == 1
+      - (item | json_query(address_string))[0].address == vip_address.stdout
+    quiet: yes
+  vars:
+    virtual_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+    address_string: "virtual_addresses[?name == '{{ environment_prefix }}_{{ loadbalancer_id}}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }} - listener:{{listener_id}} - loadbalancer:{{loadbalancer_id}}"
+  run_once: true
+
+# - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+#   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }} warn=false
+#   delegate_to: "{{ item }}"
+#   with_items: "{{groups['clients']}}"
+#   when: test_env == 'osp'
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

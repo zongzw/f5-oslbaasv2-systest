@@ -43,7 +43,7 @@
         - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
         - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
       tags: reinstallf5packages
-      when: (download_prefix | regex_search("^https://github.com")) == ''
+      when: (download_prefix | regex_search("^https://github.com")) == None
 
     - name: download f5-* packages
       get_url: url={{ item }} dest=/tmp timeout=30
@@ -53,7 +53,7 @@
         - https://github.com/F5Networks/f5-openstack-agent/releases/download/v{{ versions.agent }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
         - https://github.com/F5Networks/f5-openstack-lbaasv2-driver/releases/download/v{{ versions.driver }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm
       tags: reinstallf5packages
-      when: (download_prefix | regex_search("^https://github.com")) != ''
+      when: (download_prefix | regex_search("^https://github.com")) != None
 
     # yum uninstall is pretty slow in osp, so use rpm instead.
     - name: uninstall legacy f5-* using rpm
@@ -125,13 +125,15 @@
       with_items:
         - neutron-server
         - "{{agent_services.split(',')}}"
+      tags:
+        - configureneutron
     
     - name: waiting for agents to be ready
       shell: |
         source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py
       with_items:
         - "{{agent_services.split(',')}}"
-      tags: smokingtest
+      tags: configureneutron
 
     - set_fact:
         test_casename: smoking test
@@ -140,14 +142,6 @@
         test_listener_tcpport: 80
       tags: smokingtest
   
-    - import_tasks: ./task-define-resources.yml
-      run_once: True
-      tags: smokingtest
-
-    - import_tasks: ./task-create-resources.yml
-      run_once: True
-      tags: smokingtest
-
-    - import_tasks: ./task-remove-resources.yml
+    - import_tasks: ./task-smoking-test.yml
       run_once: True
       tags: smokingtest

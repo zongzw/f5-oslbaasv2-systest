@@ -4,6 +4,31 @@
   gather_facts: False
   remote_user: root
   tasks:
+    # - debug: msg="{{ download_prefix }}"
+    # - debug: msg="{{ download_prefix | regex_search("^https://github.com") }}"
+    # # - debug: msg="{{ download_prefix | regex_search("^https://github.com") | length }}"
+    # - debug: msg="{{ download_prefix | regex_search("^https://github.com") | string == "" }}"
+    # - debug: msg="{{ download_prefix | regex_search("^https://github.com") == None }}"
+    # - debug: msg="{{ "" == "" }}"
+    # - name: download f5-* packages
+    #   get_url: url={{ item }} dest=/tmp timeout=30
+    #   with_items:
+    #     - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
+    #     - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
+    #     - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
+    #     - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
+    #   tags: reinstallf5packages
+    #   when: (download_prefix | regex_search("^https://github.com")) == ""
+
+    # - name: download f5-* packages
+    #   get_url: url={{ item }} dest=/tmp timeout=30
+    #   with_items:
+    #     - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
+    #     - https://github.com/F5Networks/f5-icontrol-rest-python/releases/download/v{{ versions.icontrol }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm
+    #     - https://github.com/F5Networks/f5-openstack-agent/releases/download/v{{ versions.agent }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
+    #     - https://github.com/F5Networks/f5-openstack-lbaasv2-driver/releases/download/v{{ versions.driver }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm
+    #   tags: reinstallf5packages
+    #   when: (download_prefix | regex_search("^https://github.com")) != ''
     # - set_fact:
     #     project_id: 94f2338bf383405db151c4784c0e358c
     #     listener_id: 7e1d7b36-be14-43bd-8ae7-537664d35362
@@ -34,41 +59,41 @@
     #   loop_control:
     #     label: "{{ item.item }} - {{ (item.stdout | from_json).name }}"
     #   run_once: true
-    - name: collect resources from bigip
-      bigip_device_info:
-        gather_subset:
-          # - profiles
-          # - tcp-profiles
-          # - fastl4-profiles
-          - virtual-servers
-          - virtual-addresses
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
-      run_once: true
+    # - name: collect resources from bigip
+    #   bigip_device_info:
+    #     gather_subset:
+    #       # - profiles
+    #       # - tcp-profiles
+    #       # - fastl4-profiles
+    #       - virtual-servers
+    #       - virtual-addresses
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+    #   run_once: true
 
-    - debug: msg={{ bigip_infos }}
-      run_once: true
+    # - debug: msg={{ bigip_infos }}
+    #   run_once: true
 
-    - set_fact:
-        listener_id: b7bdaf51-a792-4eb7-b3c0-35a0adf4f185
-        loadbalancer_id: 9ab06105-df71-4957-b9d6-5887d9c90608
-        vip_address: "2005:db8:cafe:16::c"
-    - assert:
-        that:
-          - item | json_query(virtual_string) | length == 1
-          - (item | json_query(address_string))[0].address == vip_address
-        quiet: yes
-      vars:
-        virtual_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
-        address_string: "virtual_addresses[?name == '{{ environment_prefix }}_{{ loadbalancer_id}}']"
-      with_items: "{{ bigip_infos.results }}"
-      run_once: true
+    # - set_fact:
+    #     listener_id: b7bdaf51-a792-4eb7-b3c0-35a0adf4f185
+    #     loadbalancer_id: 9ab06105-df71-4957-b9d6-5887d9c90608
+    #     vip_address: "2005:db8:cafe:16::c"
+    # - assert:
+    #     that:
+    #       - item | json_query(virtual_string) | length == 1
+    #       - (item | json_query(address_string))[0].address == vip_address
+    #     quiet: yes
+    #   vars:
+    #     virtual_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+    #     address_string: "virtual_addresses[?name == '{{ environment_prefix }}_{{ loadbalancer_id}}']"
+    #   with_items: "{{ bigip_infos.results }}"
+    #   run_once: true
     # - set_fact:
     #     listener_id: 4fabe4cb-012e-4eb9-beeb-167edbb7785f
     #   run_once: true

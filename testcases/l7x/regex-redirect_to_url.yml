@@ -31,5 +31,6 @@
     source {{ openrc }} && \
     bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
     neutron lbaas-l7policy-delete {{ l7policy }}
+  when: nodelete is not defined
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

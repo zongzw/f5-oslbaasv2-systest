@@ -17,6 +17,31 @@
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-pool-update --session-persistence type=APP_COOKIE,cookie_name=JSESSIONID {{ pool }}
 
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has app_cookie persistence profile attached
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0].persistence_profile == '/{{ environment_prefix }}_{{ project_id }}/app_cookie_{{ environment_prefix }}_{{ listener_id }}'"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix}}_{{ listener_id }}"
+
 - name: "TODO: check app_cookie persistence"
   shell: echo
 
@@ -24,6 +49,31 @@
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-pool-update --session-persistence type=SOURCE_IP {{ pool }}
+
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has http_cookie persistence with timeout
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0].persistence_profile == '/{{ environment_prefix }}_{{ project_id }}/source_addr_{{ environment_prefix }}_{{ listener_id }}'"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "source_addr_{{ environment_prefix }}_{{ listener_id }}"
 
 - name: "TODO: check source_ip persistence"
   shell: echo
@@ -33,6 +83,31 @@
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron lbaas-pool-update --session-persistence type=HTTP_COOKIE,persistence_timeout=2236 {{ pool }}
 
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has http_cookie persistence with timeout
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0].persistence_profile == '/{{ environment_prefix }}_{{ project_id }}/http_cookie_{{ environment_prefix }}_{{ listener_id }}'"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "http_cookie_{{ environment_prefix }}_{{ listener_id }}"
+
 - name: "TODO: check http_cookie persistence with timeout"
   shell: echo
 
@@ -41,25 +116,5 @@
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == 'osp'
-
-# - name: check configuration is placed on bigips
-#   bigip_device_info:
-#     gather_subset:
-#       - virtual-servers
-#       - profiles
-#       - irules
-#     provider:
-#       user: admin
-#       server: "{{ item }}"
-#       password: "{{ hostvars[item]['admin_password'] }}"
-#       validate_certs: False
-#   delegate_to: "{{ item }}"
-#   with_items: "{{ groups['bigips'] }}"
-#   register: check_persistence
-#   tags: checkconfig
-
-# - name: "TODO: check more"
-#   debug: var=check_persistence
-#   tags: checkconfig
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

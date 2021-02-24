@@ -20,6 +20,39 @@
       --action redirect_to_url --redirect-url http://{{ groups['backend_servers'][0]}} --position 1 && \
     neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type regex --value "/*"
 
+- name: get redirect_to_url irule id
+  shell: |
+    source {{ openrc }} && neutron lbaas-l7rule-list {{ l7policy }} --format value --column id
+  register: irule_ids
+  run_once: true
+
+- debug: msg="irule id => {{ irule_ids.stdout }}"
+  run_once: true
+
+- bigip_device_info:
+    gather_subset:
+      - irules
+      - virtual-servers  # TODO: Check virtual server contains irule reference
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert redirect_to_url irules created
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+    quiet: yes
+  vars:
+    query_string: "irules[?name == 'irule_{{ irule_ids.stdout }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "irule_{{ irule_ids.stdout }}"
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"

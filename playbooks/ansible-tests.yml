@@ -4,11 +4,19 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - set_fact:
+        l7policy: l7-1614158148
+    - name: get irule id
+      shell: |
+        source {{ openrc }} && neutron lbaas-l7rule-list {{ l7policy }} --format value --column id
+      register: irule_ids
+      run_once: true
+    - debug: msg="{{ irule_ids.stdout }}"
+      run_once: true
     # - bigip_device_info:
     #     gather_subset:
-    #       # - profiles
-    #       # - tcp-profiles
-    #       # - fastl4-profiles
+    #       - irules
+    #       - ltm-policies
     #       - virtual-servers
     #       - virtual-addresses
     #     provider:
@@ -20,7 +28,8 @@
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
     #   run_once: true
-    
+
+    # - debug: msg="{{ bigip_infos.results }}"
     # - debug: msg="{{ download_prefix }}"
     # - debug: msg="{{ download_prefix | regex_search("^https://github.com") }}"
     # # - debug: msg="{{ download_prefix | regex_search("^https://github.com") | length }}"

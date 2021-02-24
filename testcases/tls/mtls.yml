@@ -74,46 +74,50 @@
 
 - import_tasks: ../../playbooks/task-create-resources.yml
 
-- set_fact:
-    domain_name: "test{{ test_timestamp.stdout }}.com"  
-    lb_ip_address: "{{ vip_address.stdout }}"
+- import_tasks: ../../playbooks/task-get-resourceids.yml
 
-- name: configure /etc/hosts for tls curl test
-  shell: | 
-    echo "{{ lb_ip_address }}    {{ domain_name }}" >> /etc/hosts 
+# TODO: setup mtls and check it.
 
-- name: ensure nginx conf.d directories
-  file:
-    path: /etc/nginx/conf.d
-    state: directory
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups.backend_servers }}"
+# - set_fact:
+#     domain_name: "test{{ test_timestamp.stdout }}.com"  
+#     lb_ip_address: "{{ vip_address.stdout }}"
 
-- name: put nginx tls server configuration to nginx host
-  template: 
-    src: ../../templates/tls/tls_server.j2
-    dest: /etc/nginx/conf.d/test.conf
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups.backend_servers }}"
-  run_once: True
+# - name: configure /etc/hosts for tls curl test
+#   shell: | 
+#     echo "{{ lb_ip_address }}    {{ domain_name }}" >> /etc/hosts 
 
-- name: ensure nginx tls html directories
-  file:
-    path: /usr/share/nginx/tls
-    state: directory
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups.backend_servers }}"
+# - name: ensure nginx conf.d directories
+#   file:
+#     path: /etc/nginx/conf.d
+#     state: directory
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups.backend_servers }}"
 
-- name: put nginx server index.html to nginx host
-  template: 
-    src: ../../templates/tls/index.j2
-    dest: /usr/share/nginx/tls/index.html
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups.backend_servers }}"
-  run_once: True
+# - name: put nginx tls server configuration to nginx host
+#   template: 
+#     src: ../../templates/tls/tls_server.j2
+#     dest: /etc/nginx/conf.d/test.conf
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups.backend_servers }}"
+#   run_once: True
 
-- name: restart ngnix service on hosts
-  shell: nginx -s reload
-  delegate_to: "{{ item }}"
-  with_items: "{{ groups.backend_servers }}"
-  run_once: True
+# - name: ensure nginx tls html directories
+#   file:
+#     path: /usr/share/nginx/tls
+#     state: directory
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups.backend_servers }}"
+
+# - name: put nginx server index.html to nginx host
+#   template: 
+#     src: ../../templates/tls/index.j2
+#     dest: /usr/share/nginx/tls/index.html
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups.backend_servers }}"
+#   run_once: True
+
+# - name: restart ngnix service on hosts
+#   shell: nginx -s reload
+#   delegate_to: "{{ item }}"
+#   with_items: "{{ groups.backend_servers }}"
+#   run_once: True

@@ -1,13 +1,13 @@
-- name: "get secret container TODO: create and get from barbican"
-  shell: echo http://localhost:9311/v1/containers/ded30a46-b6c4-4e0f-936c-f02ac23bf391
-  register: tls_container
+# - name: "get secret container TODO: create and get from barbican"
+#   shell: echo http://localhost:9311/v1/containers/ded30a46-b6c4-4e0f-936c-f02ac23bf391
+#   register: tls_container
 
 - set_fact:
     test_casename: "TERMINATED_HTTPS test"
     test_pool_protocol: HTTP
     test_listener_protocol: TERMINATED_HTTPS
     test_listener_tcpport: 443
-    test_listener_additional_options: --default-tls-container={{ tls_container.stdout }}
+    test_listener_additional_options: --default-tls-container={{ test_server_cert }}
     test_healthmonitor_protocol: HTTP
 
 - import_tasks: ../../playbooks/task-define-resources.yml
@@ -17,7 +17,7 @@
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
+  shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == 'osp'

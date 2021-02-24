@@ -4,22 +4,23 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - f5networks.f5_modules.bigip_device_info:
-        gather_subset:
-          # - profiles
-          # - tcp-profiles
-          # - fastl4-profiles
-          - virtual-servers
-          - virtual-addresses
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
-      run_once: true
+    # - bigip_device_info:
+    #     gather_subset:
+    #       # - profiles
+    #       # - tcp-profiles
+    #       # - fastl4-profiles
+    #       - virtual-servers
+    #       - virtual-addresses
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+    #   run_once: true
+    
     # - debug: msg="{{ download_prefix }}"
     # - debug: msg="{{ download_prefix | regex_search("^https://github.com") }}"
     # # - debug: msg="{{ download_prefix | regex_search("^https://github.com") | length }}"

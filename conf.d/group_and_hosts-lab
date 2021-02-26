@@ -26,7 +26,7 @@ root_password = P@ssw0rd123
 
 [backend_servers:children]
 servers_vlan28
-# servers_vlan26
+servers_vlan26
 
 [servers_vlan26]
 10.250.26.13
@@ -41,8 +41,8 @@ subnet = vlan26_subnet
 
 [servers_vlan28]
 10.250.28.14
-# 10.250.28.5
-# 10.250.28.6
+10.250.28.5
+10.250.28.6
 
 [servers_vlan28:vars]
 subnet = vlan28_subnet

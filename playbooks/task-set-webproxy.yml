@@ -2,7 +2,8 @@
 #   shell: ping
 #   delegate_to: localhost
 
-- wait_for: host="{{ webproxy }}" port=3128 timeout=1
+- name: check webproxy is reachable
+  wait_for: host="{{ webproxy }}" port=3128 timeout=1
 
 - set_fact:
     proxy_env:

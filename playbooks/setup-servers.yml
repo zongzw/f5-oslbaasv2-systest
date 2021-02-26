@@ -1,0 +1,37 @@
+# TODO setup client and backend servers.
+
+---
+
+- hosts: backend_servers
+  gather_facts: false
+  remote_user: root
+  tasks:
+    - import_tasks: ./task-set-webproxy.yml
+      when: webproxy is defined
+      run_once: true
+
+    - name: check backend_servers are reachable
+      ping:
+      delegate_to: localhost
+
+    # - name: make sure yum packages installed
+    #   yum:
+    #     name: 
+    #       - wget
+    #       - curl
+    #       - vim
+    #       - nginx
+    #   environment: "{{ proxy_env | default({}) }}"
+  
+    - name: copy certificate files to servers
+      copy:
+        src: ../conf.d/kps
+        dest: /etc/nginx
+        force: yes
+
+    - name: configure nginx http and https
+      template:
+        backup: yes
+        src: ../conf.d/templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        validate: /usr/sbin/nginx -s reload -c %s

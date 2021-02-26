@@ -95,7 +95,7 @@
 
 # - name: put nginx tls server configuration to nginx host
 #   template: 
-#     src: ../../templates/tls/tls_server.j2
+#     src: ../../conf.d/templates/tls/tls_server.j2
 #     dest: /etc/nginx/conf.d/test.conf
 #   delegate_to: "{{ item }}"
 #   with_items: "{{ groups.backend_servers }}"
@@ -110,7 +110,7 @@
 
 # - name: put nginx server index.html to nginx host
 #   template: 
-#     src: ../../templates/tls/index.j2
+#     src: ../../conf.d/templates/tls/index.j2
 #     dest: /usr/share/nginx/tls/index.html
 #   delegate_to: "{{ item }}"
 #   with_items: "{{ groups.backend_servers }}"

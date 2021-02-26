@@ -18,25 +18,25 @@ while retries > 0:
     time.sleep(delay)
     retries = retries - 1
 
-    # TODO: possible to find multiple agent. handle this exception.
     agents = l.get_agents(binary='f5-oslbaasv2-agent')
-    if len(agents['agents']) == 0:
-        print('agents found: 0')
+    live_agents = filter(lambda a: a['alive'], agents['agents'])
+    if len(live_agents) == 0:
+        print('live agents found: 0')
         continue
 
     done = True
-    for a in agents['agents']:
+    for a in live_agents:
         id = a['id']
-        print("agent %s timestamp: %s" % (id, a['heartbeat_timestamp']))
+        print("agent %s timestamp: %s, alive: %s, admin_state_up: %s"
+            % (id, a['heartbeat_timestamp'], a['alive'], a['admin_state_up']))
         if not id in origdt:
             origdt[id] = a['heartbeat_timestamp']
-        if a['heartbeat_timestamp'] <= origdt[id]: 
+        if a['heartbeat_timestamp'] <= origdt[id]:
             done = False
-    
+
     if done:
         print("agents meet the heartbeat_timestamp.")
         sys.exit(0)
 
 print("timeout for waiting for new heartbeat.")
 sys.exit(1)
-

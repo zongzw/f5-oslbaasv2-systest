@@ -7,7 +7,9 @@
   tags: copyfile
   run_once: True
 
-# TODO: check if there is new code change in pipeline.
+# TODO: check if there is new patch code change in pipeline.
+# consider using separate repo for storing patch files.
+
 - name: customize neutron* code
   copy: src=../patches/{{ item }} dest=/ force=yes
   with_items: "{{ patch_files.stdout_lines }}"

@@ -107,7 +107,8 @@
         - copyospruntimefiles
         - configureneutron
 
-    - name: "copy osp runtime files TODO: using configparser to create config files."
+    # TODO: using configparser to create config files for osp.
+    - name: "copy osp runtime files "
       copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
       with_items: "{{ runtime_files.stdout_lines }}"
       when: test_env == "osp"

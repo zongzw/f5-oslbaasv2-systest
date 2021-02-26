@@ -43,8 +43,9 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "wrapper_policy_{{ listener_id }}"
-  
-- name: "TODO: test l7policy's reditecting function -- redirect to the second pool."
+
+# TODO: test l7policy's reditecting function -- redirect to the second pool.
+- name: "test l7policy's reditecting function -- redirect to the second pool."
   shell: echo
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"

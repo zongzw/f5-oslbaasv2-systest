@@ -37,8 +37,9 @@
   loop_control:
     label: "bwc_irule_{{ loadbalancer_id }}"
 
-- name: "TODO: more check on bwc policy, vs irule binding, there is no way to get acceleration -> bwc controller policy through bigip_device_info."
-  debug: msg="listener_id {{ listener_id }}"
+# TODO: more check on bwc policy, vs irule binding
+# - name: "there is no way to get acceleration -> bwc controller policy through bigip_device_info."
+#   debug: msg="listener_id {{ listener_id }}"
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false

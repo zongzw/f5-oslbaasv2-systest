@@ -42,7 +42,8 @@
   loop_control:
     label: "{{ environment_prefix}}_{{ listener_id }}"
 
-- name: "TODO: check app_cookie persistence"
+# TODO: check app_cookie persistence effect.
+- name: "check app_cookie persistence"
   shell: echo
 
 - name: update pool with session persistence of source_ip
@@ -75,7 +76,8 @@
   loop_control:
     label: "source_addr_{{ environment_prefix }}_{{ listener_id }}"
 
-- name: "TODO: check source_ip persistence"
+# TODO: check source_ip persistence effect
+- name: "check source_ip persistence effect"
   shell: echo
 
 - name: update pool with session persistence of http_cookie,persistence_timeout
@@ -108,7 +110,8 @@
   loop_control:
     label: "http_cookie_{{ environment_prefix }}_{{ listener_id }}"
 
-- name: "TODO: check http_cookie persistence with timeout"
+# TODO: check http_cookie persistence with timeout effect
+- name: "check http_cookie persistence with timeout effect"
   shell: echo
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"

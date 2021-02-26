@@ -12,7 +12,7 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-# TODO: seup https service on backend_servers.
+# TODO: setup https service on backend_servers and check https connection.
 # - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
 #   shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
 #   delegate_to: "{{ item }}"

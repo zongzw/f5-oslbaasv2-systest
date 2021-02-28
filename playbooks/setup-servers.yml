@@ -21,6 +21,7 @@
     #       - curl
     #       - vim
     #       - nginx
+    #       - tcpdump
     #   environment: "{{ proxy_env | default({}) }}"
   
     - name: copy certificate files to servers

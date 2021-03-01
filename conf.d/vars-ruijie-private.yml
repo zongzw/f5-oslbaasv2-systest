@@ -1,0 +1,20 @@
+versions:
+  agent: 9.8.45
+  driver: 212.5.2
+  icontrol: 1.3.9
+  f5sdk: 3.0.11
+
+testcases:
+  - name: basic
+  - name: tls
+    client_ca_path: ../kps/client-ca.cert
+  - name: tcphttps
+  - name: persist
+  - name: l7x
+  - name: customized
+  - name: ftp
+  - name: udp
+  - name: ipv6
+  # - name: toa
+  # - name: esd
+  

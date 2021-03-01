@@ -13,7 +13,6 @@ testcases:
   - name: l7x
   - name: customized
   - name: ftp
-  - name: bwc
   - name: udp
   - name: ipv6
   # - name: toa

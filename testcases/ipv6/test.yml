@@ -5,7 +5,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -44,6 +44,7 @@
     label: "{{ item.item }} - listener:{{listener_id}} - loadbalancer:{{loadbalancer_id}}"
   run_once: true
 
+# TODO: ipv6 connection assert tests, including 6-6 6-4 testcases.
 # - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
 #   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }} warn=false
 #   delegate_to: "{{ item }}"

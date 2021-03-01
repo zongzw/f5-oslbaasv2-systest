@@ -4,6 +4,7 @@
     test_listener_protocol: HTTPS
     test_pool_protocol: HTTPS
     test_listener_tcpport: 443
+    # TODO: https pool's healthmonitor type rather then PING
     test_healthmonitor_protocol: PING
     test_member_tcpport: 443
 

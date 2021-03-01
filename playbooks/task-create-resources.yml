@@ -2,7 +2,9 @@
 
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |
-    source {{ openrc }} && neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
+    source {{ openrc }} && {{ item }}
+  with_items:
+    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |
@@ -19,3 +21,8 @@
       neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers'] }}"
+
+- name: "{{ testcasename }}: waiting for resource created"
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}

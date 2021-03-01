@@ -15,10 +15,10 @@
 - name: create l7policy and l7rule with {{ listener }}
   shell: |
     source {{ openrc }} && \
-    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
-    neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} \
-      --action redirect_to_url --redirect-url http://{{ groups['backend_servers'][0]}} --position 1 && \
-    neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type regex --value "/*"
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_url --redirect-url http://{{ groups['backend_servers'][0]}} --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type regex --value "/*"
+    - echo
 
 - name: get redirect_to_url irule id
   shell: |

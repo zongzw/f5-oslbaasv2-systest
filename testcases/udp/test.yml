@@ -9,13 +9,16 @@
 
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |
-    source {{ openrc }} && neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
+    source {{ openrc }} && {{ item }}
+  with_items:
+    - neutron lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
     - neutron lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
+    - echo
 
 - name: "{{ testcasename }}: get listener_id"
   shell: |

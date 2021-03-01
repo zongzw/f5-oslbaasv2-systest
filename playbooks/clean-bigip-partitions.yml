@@ -33,10 +33,10 @@
       register: bigip_infos
       tags: getbigipinfo
 
-    - name: show all partitions
-      debug: var=bigip_infos
-      run_once: true
-      tags: getbigipinfo
+    # - name: show all partitions
+    #   debug: var=bigip_infos
+    #   run_once: true
+    #   tags: getbigipinfo
 
     - name: remove objects under partitions
       file: path=/config/partitions/{{ item.name }} state=absent

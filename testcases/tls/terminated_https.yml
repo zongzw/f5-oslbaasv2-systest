@@ -23,6 +23,8 @@
   with_items: "{{groups['clients']}}"
   when: test_env == 'osp'
 
+# TODO: update certificate testing.
+
 - import_tasks: ../../playbooks/task-remove-resources.yml
 
 # # create a listener (BIGIP virtual server) with a certificate

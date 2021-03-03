@@ -87,3 +87,5 @@
       loop_control:
         label: "{{ item.name }}"
       when: (item.description | default('') | regex_search('^[0-9a-f\-]{36}$'))
+
+# TODO: clear certificates and kinds of profiles under Common

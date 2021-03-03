@@ -1,5 +1,18 @@
 - name: check barbican is available
   shell: source {{ openrc }} && barbican secret container list
 
+- import_tasks: ../../playbooks/task-prepare-keypairs.yml
+  delegate_to: localhost
+  tags:
+    - mtls
+    - terminated_https
+
+- import_tasks: ../../playbooks/task-create-secret-container-hrefs.yml
+  tags:
+    - mtls
+    - terminated_https
+
 - import_tasks: ./mtls.yml
+  tags: mtls
 - import_tasks: ./terminated_https.yml
+  tags: terminated_https

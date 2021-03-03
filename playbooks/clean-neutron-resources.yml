@@ -20,3 +20,5 @@
         target: /tmp/scripts/delete-from-db.sql
         state: import
       run_once: True
+    
+    # TODO: clear barbican certificates

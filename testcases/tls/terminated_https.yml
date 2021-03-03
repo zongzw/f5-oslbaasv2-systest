@@ -8,7 +8,7 @@
     test_pool_protocol: HTTP
     test_listener_protocol: TERMINATED_HTTPS
     test_listener_tcpport: 443
-    test_listener_additional_options: --default-tls-container={{ test_server_cert }}
+    test_listener_additional_options: --default-tls-container={{ server_container1_href }}
     test_healthmonitor_protocol: HTTP
 
 - import_tasks: ../../playbooks/task-define-resources.yml
@@ -17,13 +17,26 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
+# TODO: validate terminated_https server certificate
+# - name: Get a cert from an https port
+#   community.crypto.get_certificate:
+#     host: 10.250.29.20
+#     server_name: server.f5.oslbaas.systest
+#     port: 443
+#     ca_cert: ../conf.d/kps/ca.crt
+#   delegate_to: localhost
+#   run_once: true
+#   register: cert
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
+  shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  args:
+    warn: no
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == 'osp'
 
-# TODO: update certificate testing.
+# TODO: tls certificate updating test.
 
 - import_tasks: ../../playbooks/task-remove-resources.yml
 

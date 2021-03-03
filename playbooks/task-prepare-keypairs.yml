@@ -1,0 +1,95 @@
+- set_fact:
+    ca_key: ../conf.d/kps/ca.key
+    ca_csr: ../conf.d/kps/ca.csr
+    ca_crt: ../conf.d/kps/ca.crt
+    client_crt: ../conf.d/kps/client.crt
+    client_key: ../conf.d/kps/client.key
+    client_csr: ../conf.d/kps/client.csr
+    server_key: ../conf.d/kps/server.key
+    server_csr: ../conf.d/kps/server.csr
+    server_crt: ../conf.d/kps/server.crt
+
+- name: Generate private keys
+  community.crypto.openssl_privatekey:
+    path: "{{ item }}"
+    size: 2048
+    force: yes
+  with_items:
+    - "{{ ca_key }}"
+    - "{{ client_key }}"
+    - "{{ server_key }}"
+
+- name: Generate CA CSR
+  community.crypto.openssl_csr:
+    path: "{{ ca_csr }}"
+    privatekey_path: "{{ ca_key }}"
+    country_name: CN
+    organization_name: F5China
+    email_address: a.zong@f5.com
+    extended_key_usage:
+      - clientAuth
+    basic_constraints:
+      - CA:TRUE
+    force: yes
+
+- name: Generate CA certificate
+  community.crypto.x509_certificate:
+    path: "{{ ca_crt }}"
+    privatekey_path: "{{ ca_key }}"
+    csr_path: "{{ ca_csr }}"
+    provider: selfsigned
+    force: yes
+
+- name: Generate client CSR
+  community.crypto.openssl_csr:
+    path: "{{ client_csr }}"
+    privatekey_path: "{{ client_key }}"
+    country_name: CN
+    organization_name: F5China
+    email_address: a.zong@f5.com
+    common_name: client.f5.oslbaas.systest
+    force: yes
+
+- name: Generate client certificate with CA
+  community.crypto.x509_certificate:
+    path: "{{ client_crt }}"
+    csr_path: "{{ client_csr }}"
+    ownca_path: "{{ ca_crt }}"
+    ownca_privatekey_path: "{{ ca_key }}"
+    provider: ownca
+    force: yes
+
+- name: Generate server CSR
+  community.crypto.openssl_csr:
+    path: "{{ server_csr }}"
+    privatekey_path: "{{ server_key }}"
+    common_name: server.f5.oslbaas.systest
+    force: yes
+
+- name: Generate server certificate with CA
+  community.crypto.x509_certificate:
+    path: "{{ server_crt }}"
+    csr_path: "{{ server_csr }}"
+    ownca_path: "{{ ca_crt }}"
+    ownca_privatekey_path: "{{ ca_key }}"
+    provider: ownca
+    force: yes
+# - name: Generate server selfsigned certificate
+#   community.crypto.x509_certificate:
+#     path: "{{ server_crt }}"
+#     privatekey_path: "{{ server_key }}"
+#     csr_path: "{{ server_csr }}"
+#     provider: selfsigned
+
+# - name: Get information on generated certificate
+#   community.crypto.x509_certificate_info:
+#     path: "{{ item }}"
+#   with_items:
+#     - "{{ server_crt }}"
+#     - "{{ client_crt }}"
+#     - "{{ ca_crt }}"
+#   register: certs
+
+# - name: Dump information
+#   ansible.builtin.debug:
+#     var: certs

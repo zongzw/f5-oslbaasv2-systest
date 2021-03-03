@@ -4,21 +4,21 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - bigip_device_info:
-        gather_subset:
-          - profiles
-          - virtual-servers
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
-      run_once: true
-    - debug: msg="{{ bigip_infos }}"
-      run_once: true
+    # - bigip_device_info:
+    #     gather_subset:
+    #       - profiles
+    #       - virtual-servers
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+    #   run_once: true
+    # - debug: msg="{{ bigip_infos }}"
+    #   run_once: true
     # - set_fact:
     #     l7policy: l7-1614158148
     # - name: get irule id

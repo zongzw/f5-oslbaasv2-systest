@@ -46,7 +46,7 @@
 
 # TODO: ipv6 connection assert tests, including 6-6 6-4 testcases.
 # - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-#   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }} warn=false
+#   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}
 #   delegate_to: "{{ item }}"
 #   with_items: "{{groups['clients']}}"
 #   when: test_env == 'osp'

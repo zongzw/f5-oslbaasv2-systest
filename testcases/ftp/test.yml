@@ -21,6 +21,8 @@
       "https://{{ item }}/mgmt/tm/ltm/profile/ftp/$full_path" \
       --header 'content-type: application/json' \
       --header "Authorization: Basic $b64credential"
+  args:
+    warn: no
   with_items: "{{ groups.bigips }}"
   register: bigip_infos
   run_once: true

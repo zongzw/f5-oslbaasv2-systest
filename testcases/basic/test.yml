@@ -15,7 +15,9 @@
 - import_tasks: ../../playbooks/task-check-resources-created.yml
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} warn=false
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  args:
+    warn: no # TODO: Consider using the get_url or uri module rather than running 'curl'
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients']}}"
   when: test_env == 'osp'

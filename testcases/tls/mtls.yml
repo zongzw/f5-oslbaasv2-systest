@@ -25,8 +25,7 @@
     path: ../conf.d/kps/server.crt
   register: server_cert_info
   delegate_to: localhost
-
-- debug: msg="{{ server_cert_info }}"
+# - debug: msg="{{ server_cert_info }}"
 
 - name: Validate server certificate via openssl s_client
   shell: openssl s_client -connect {{ vip_address.stdout }}:{{ test_listener_tcpport }} || true
@@ -38,19 +37,19 @@
       - "server_handshake_info.stdout | regex_search(server_cert_info['subject']['commonName']) != None"
       # find the above debug:server_cert_info and openssl s_client to validate more.
 
-# there is an error need to locate:
 # * NSS error -12227 (SSL_ERROR_HANDSHAKE_FAILURE_ALERT)
 # * SSL peer was unable to negotiate an acceptable set of security parameters.
 # it will turn to normal later(several minutes)
+# Reason: make sure bigip time is correct, or the certificate be validated as error because of crt.not_before or crt.not_after.
 
 # use -k to ignore server certificate.
 # for server certificate validation, use 'openssl s_client -connect' as above
-# - name: "Check mtls {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-#   shell: curl -k --cert /tmp/kps/client.crt --key /tmp/kps/client.key --cacert /tmp/kps/ca.crt https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -sv
-#   args:
-#     warn: no
-#   delegate_to: "{{ item }}"
-#   with_items: "{{groups['clients']}}"
-#   when: test_env == "osp"
+- name: "Check mtls {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl -k --cert /tmp/kps/client.crt --key /tmp/kps/client.key --cacert /tmp/kps/ca.crt https://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -sv
+  args:
+    warn: no
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients']}}"
+  when: test_env == "osp"
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

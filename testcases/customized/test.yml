@@ -4,7 +4,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
     test_listener_additional_options: "--customized '{\"http_profile\": {\"insertXforwardedFor\": \"disabled\"}}'"
 
 - import_tasks: ../../playbooks/task-define-resources.yml

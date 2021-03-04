@@ -88,5 +88,6 @@
   with_items:
     - neutron --debug lbaas-healthmonitor-delete {{ healthmonitor }}-ipv6
     - neutron --debug lbaas-pool-delete {{ pool }}-ipv6
+  when: nodelete is not defined
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

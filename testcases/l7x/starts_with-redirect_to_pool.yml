@@ -4,7 +4,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -12,13 +12,42 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-- name: create l7policy and l7rule with {{ listener }}
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable without l7policy redirect_to_pool"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}/api
+  args:
+    warn: no
+  register: curl_results
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients_ipv4']}}"
+  when: test_env == 'osp'
+
+# - debug: msg="{{ curl_results }}"
+
+# assert the response is from pool1
+- name: "assert the response is from pool1"
+  assert:
+    that:
+      - "({{ item }}.stdout |  regex_search('pool1')) != None"
+    quiet: yes
+  loop_control:
+    label: "{{ item.item }}"
+  with_items: "{{ curl_results.results }}"
+
+- name: "{{ testcasename }}: create pool2 l7policy, bind it to {{ listener }} via l7policy"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron --debug lbaas-pool-create --name {{ pool }}-pool2 --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-pool2 --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}-pool2
+    - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_pool --redirect-pool {{ pool }}-pool2 --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type starts_with --value "/api"
+
+- name: "{{ testcasename }}: create members under pool {{ pool }}-pool2"
   shell: |
     source {{ openrc }} && \
-    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}-pool2
   with_items:
-    - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_pool --redirect-pool {{ pool }} --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type starts_with --value "/api"
-    - echo
+    - "{{ hostvars[inventory_hostname]['groups']['pool2'] }}"
 
 - bigip_device_info:
     gather_subset:
@@ -44,23 +73,34 @@
   loop_control:
     label: "wrapper_policy_{{ listener_id }}"
 
-# TODO: test l7policy's reditecting function -- redirect to the second pool.
-- name: "test l7policy's reditecting function -- redirect to the second pool."
-  shell: echo
-
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}/api
   args:
     warn: no
+  register: curl_results
   delegate_to: "{{ item }}"
-  with_items: "{{groups['clients_ipv4']}}"
+  with_items: "{{ groups['clients_ipv4'] }}"
   when: test_env == 'osp'
 
-- name: delete l7policy and l7rule
+# - debug: msg="{{ curl_results }}"
+
+- name: "assert the response is from pool2"
+  assert:
+    that:
+      - "({{ item }}.stdout |  regex_search('pool2')) != None"
+    quiet: yes
+  loop_control:
+    label: "{{ item.item }}"
+  with_items: "{{ curl_results.results }}"
+
+- name: remove {{ pool }}-pool2 and its healthmonitor, l7policy and l7rule
   shell: |
     source {{ openrc }} && \
-    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
-    neutron lbaas-l7policy-delete {{ l7policy }}
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-l7policy-delete {{ l7policy }}
+    - neutron --debug lbaas-healthmonitor-delete {{ healthmonitor }}-pool2
+    - neutron --debug lbaas-pool-delete {{ pool }}-pool2
   when: nodelete is not defined
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

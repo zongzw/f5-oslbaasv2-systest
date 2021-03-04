@@ -35,7 +35,10 @@
         backup: yes
         src: ../conf.d/templates/nginx.conf.j2
         dest: /etc/nginx/nginx.conf
-        validate: /usr/sbin/nginx -s reload -c %s
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
+    - name: reload nginx to apply new nginx.conf
+      shell: nginx -s reload
       when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
 
     - name: make sure yum packages installed - for customized image only
@@ -44,3 +47,4 @@
         - "对于用作ipv6测试的虚机，因为其采用的image是定制化的，非原生centos，yum工作并不正常，请手工安装。"
         - "====== Please install them and setup nginx manually ======"
       delegate_to: localhost
+      run_once: true

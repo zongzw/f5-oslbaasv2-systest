@@ -63,7 +63,7 @@ backend_servers_ipv6
 
 [backend_servers_ipv4:children]
 pool1
-# pool2
+pool2
 
 [pool1:children]
 servers_vlan26
@@ -76,8 +76,8 @@ servers_vlan29
 
 [servers_vlan26]
 10.250.26.13
-#10.250.26.7
-#10.250.26.8
+10.250.26.7
+10.250.26.8
 
 [servers_vlan29]
 10.250.29.5
@@ -87,8 +87,8 @@ ipv6 = 2005:db8:cafe:16::7
 
 [servers_vlan28]
 10.250.28.14
-# 10.250.28.5
-# 10.250.28.6
+10.250.28.5
+10.250.28.6
 
 [servers_vlan26:vars]
 subnet = vlan26_subnet

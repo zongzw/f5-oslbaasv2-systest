@@ -31,7 +31,7 @@ http {
         server_name  _;
 
         location / {
-            return 200 "Response from HTTP Server: $server_addr.\n";
+            return 200 "Response from HTTP Server: $server_addr: {{ hostvars[inventory_hostname]['group_names'] | join(' ') }}\n";
         }
 
        location /api/ {
@@ -45,7 +45,7 @@ http {
         ssl_certificate_key /etc/nginx/kps/server.key;
 
         location / {
-            return 200 "Response from HTTPS Server: $server_addr\n";
+            return 200 "Response from HTTPS Server: $server_addr: {{ hostvars[inventory_hostname]['group_names'] | join(' ') }}\n";
         }
     }
 }

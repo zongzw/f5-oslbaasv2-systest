@@ -4,6 +4,25 @@
   gather_facts: False
   remote_user: root
   tasks:
+
+    # - name: "Check  is reachable"
+    #   shell: curl http://10.250.29.22:80 -v
+    #   args:
+    #     warn: no
+    #   register: curl_results
+    #   delegate_to: "{{ item }}"
+    #   with_items: "{{groups['clients_ipv4']}}"
+    #   when: test_env == 'osp'
+
+    # - debug: msg="{{ curl_results }}"
+    #   run_once: true
+    # - name: "check curl response contains '{{ groups['pool2'][0]}}'"
+    #   assert:
+    #     that:
+    #       - "{{item}}.stderr | regex_search('{{ groups['pool2'][0]}}') != None"
+    #       # - "({{item}}.stderr | regex_search('302 Moved Temporarily')) != None"
+    #   with_items: "{{curl_results.results}}"
+    #   run_once: true
     # - bigip_device_info:
     #     gather_subset:
     #       - profiles

@@ -1,2 +1,5 @@
 - import_tasks: ./regex-redirect_to_url.yml
+  tags: redirect_to_url
+
 - import_tasks: ./starts_with-redirect_to_pool.yml
+  tags: redirect_to_url

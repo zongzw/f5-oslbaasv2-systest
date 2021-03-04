@@ -4,7 +4,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -17,7 +17,7 @@
     source {{ openrc }} && \
     bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
-    - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_url --redirect-url http://{{ groups['backend_servers'][0]}} --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type regex --value "/*"
+    - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_url --redirect-url http://{{ groups['pool2'][0]}} --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type regex --value "/*"
     - echo
 
 - name: get redirect_to_url irule id
@@ -54,12 +54,24 @@
     label: "irule_{{ irule_ids.stdout }}"
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -v
   args:
     warn: no
+  register: curl_results
   delegate_to: "{{ item }}"
   with_items: "{{groups['clients_ipv4']}}"
   when: test_env == 'osp'
+
+# - debug: msg="{{ curl_results }}"
+- name: "check curl response contains '{{ groups['pool2'][0]}}' and 302"
+  assert:
+    that:
+      - "{{ item }}.stderr | regex_search('{{ groups['pool2'][0]}}') != None"
+      - "{{ item }}.stderr | regex_search('302 Moved Temporarily') != None"
+    quiet: yes
+  loop_control:
+    label: "{{ item.item }}"
+  with_items: "{{ curl_results.results }}"
 
 - name: delete l7policy and l7rule
   shell: |

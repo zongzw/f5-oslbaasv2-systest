@@ -14,21 +14,21 @@
       ping:
       delegate_to: localhost
 
-    # - name: make sure yum packages installed
-    #   yum:
-    #     name: 
-    #       - wget
-    #       - curl
-    #       - vim
-    #       - nginx
-    #       - tcpdump
-    #   environment: "{{ proxy_env | default({}) }}"
-  
-    - name: copy certificate files to servers
-      copy:
-        src: ../conf.d/kps
-        dest: /etc/nginx
-        force: yes
+    - name: make sure yum packages installed - for centos only
+      yum:
+        state: present
+        name: 
+          - wget
+          - curl
+          - vim
+          - nginx
+          - tcpdump
+          - tree
+      environment: "{{ proxy_env | default({}) }}"
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
+    - name: copy certificate files to servers for https setup
+      copy: src=../conf.d/kps dest=/etc/nginx force=yes
 
     - name: configure nginx http and https
       template:
@@ -36,3 +36,11 @@
         src: ../conf.d/templates/nginx.conf.j2
         dest: /etc/nginx/nginx.conf
         validate: /usr/sbin/nginx -s reload -c %s
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
+    - name: make sure yum packages installed - for customized image only
+      shell: echo {{ item }}
+      with_items:
+        - "对于用作ipv6测试的虚机，因为其采用的image是定制化的，非原生centos，yum工作并不正常，请手工安装。"
+        - "====== Please install them and setup nginx manually ======"
+      delegate_to: localhost

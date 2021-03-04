@@ -44,11 +44,49 @@
     label: "{{ item.item }} - listener:{{listener_id}} - loadbalancer:{{loadbalancer_id}}"
   run_once: true
 
-# TODO: ipv6 connection assert tests, including 6-6 6-4 testcases.
-# - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
-#   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}
-#   delegate_to: "{{ item }}"
-#   with_items: "{{groups['clients']}}"
-#   when: test_env == 'osp'
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}
+  args:
+    warn: no
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients_ipv6']}}"
+  when: test_env == 'osp'
+
+- name: "{{ testcasename }}: create pool of ipv6, bind it to {{ listener }}"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron --debug lbaas-pool-create --name {{ pool }}-ipv6 --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-ipv6 --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}-ipv6
+    - neutron --debug lbaas-listener-update --default-pool {{ pool }}-ipv6 {{ listener }}
+
+- name: "{{ testcasename }}: create members under pool {{ pool }}-ipv6"
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}-ipv6
+  with_items:
+    - "{{ hostvars[inventory_hostname]['groups']['backend_servers_ipv6'] }}"
+
+- name: "{{ testcasename }}: waiting for ipv6 resource created/updated"
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
+
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}
+  args:
+    warn: no
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients_ipv6']}}"
+  when: test_env == 'osp'
+
+- name: remove {{ pool }}-ipv6 and its healthmonitor
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron --debug lbaas-healthmonitor-delete {{ healthmonitor }}-ipv6
+    - neutron --debug lbaas-pool-delete {{ pool }}-ipv6
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

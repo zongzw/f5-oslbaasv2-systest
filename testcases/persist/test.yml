@@ -125,7 +125,7 @@
   args:
     warn: no
   delegate_to: "{{ item }}"
-  with_items: "{{groups['clients']}}"
+  with_items: "{{groups['clients_ipv4']}}"
   when: test_env == 'osp'
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

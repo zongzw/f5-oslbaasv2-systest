@@ -18,7 +18,7 @@
 - name: copy certificate files to clients
   copy: src="../conf.d/kps" dest="/tmp" force="yes"
   delegate_to: "{{ item }}"
-  with_items: "{{groups['clients']}}"
+  with_items: "{{groups['clients_ipv4']}}"
 
 - name: Get information from server certificate
   community.crypto.x509_certificate_info:
@@ -49,7 +49,7 @@
   args:
     warn: no
   delegate_to: "{{ item }}"
-  with_items: "{{groups['clients']}}"
+  with_items: "{{groups['clients_ipv4']}}"
   when: test_env == "osp"
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

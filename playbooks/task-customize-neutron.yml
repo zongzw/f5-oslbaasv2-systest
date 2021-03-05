@@ -1,17 +1,23 @@
 ---
 
-- name: list the files of patches directory
-  shell: ls chdir=../patches
-  register: patch_files
+# using separate repo for storing patch files.
+- name: checkout patches for setup neutron env
+  git:
+    repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
+    dest: ../conf.d/patches/pike
   delegate_to: localhost
+  run_once: true
+  tags: copyfile
+
+- name: list the files of patches directory
+  shell: ls chdir=../conf.d/patches/pike/patches
+  delegate_to: localhost
+  register: patch_files
   tags: copyfile
   run_once: True
 
-# TODO: check if there is new patch code change in pipeline.
-# consider using separate repo for storing patch files.
-
 - name: customize neutron* code
-  copy: src=../patches/{{ item }} dest=/ force=yes
+  copy: src=../conf.d/patches/pike/patches/{{ item }} dest=/ force=yes
   with_items: "{{ patch_files.stdout_lines }}"
   tags: copyfile
 

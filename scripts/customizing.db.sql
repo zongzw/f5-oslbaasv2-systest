@@ -1,5 +1,6 @@
 ALTER TABLE lbaas_listeners MODIFY COLUMN protocol enum('HTTP','HTTPS','TCP','UDP','TERMINATED_HTTPS','FTP');
 ALTER TABLE lbaas_pools MODIFY COLUMN protocol enum('HTTP','HTTPS','TCP','UDP','FTP');
+ALTER TABLE lbaas_l7policies MODIFY column action enum('REJECT','REDIRECT_TO_URL','REDIRECT_TO_HOST','REDIRECT_TO_POOL');
 
 -- ****** NOT WORK IN 21V LAB ******
 -- ALTER TABLE lbaas_listeners ADD COLUMN IF NOT EXISTS mutual_authentication_up tinyint(1) AFTER default_tls_container_id;
@@ -46,5 +47,6 @@ DELIMITER ;
 call AddCol(DATABASE(), 'lbaas_listeners', 'mutual_authentication_up', 'tinyint(1) AFTER default_tls_container_id');
 call AddCol(DATABASE(), 'lbaas_listeners', 'ca_container_id', 'varchar(128) AFTER mutual_authentication_up');
 call AddCol(DATABASE(), 'lbaas_listeners', 'customized', 'varchar(1024)');
+call AddCol(DATABASE(), 'lbaas_listeners', 'transparent', 'bool');
 call AddCol(DATABASE(), 'lbaas_sessionpersistences', 'persistence_timeout', 'int AFTER type');
 call AddCol(DATABASE(), 'lbaas_loadbalancers', 'bandwidth', 'integer');

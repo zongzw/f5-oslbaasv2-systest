@@ -4,6 +4,10 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - name: checkout patches for setup neutron env
+      git:
+        repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
+        dest: /tmp/neutron_lbaas_pike-patches
 
     # - name: "Check  is reachable"
     #   shell: curl http://10.250.29.22:80 -v

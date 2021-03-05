@@ -17,16 +17,21 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-# TODO: validate terminated_https server certificate
-# - name: Get a cert from an https port
-#   community.crypto.get_certificate:
-#     host: 10.250.29.20
-#     server_name: server.f5.oslbaas.systest
-#     port: 443
-#     ca_cert: ../conf.d/kps/ca.crt
-#   delegate_to: localhost
-#   run_once: true
-#   register: cert
+- name: Get a cert from an https port
+  community.crypto.get_certificate:
+    host: "{{ vip_address.stdout }}"
+    server_name: server.f5.oslbaas.systest
+    port: "{{ test_listener_tcpport }}"
+    ca_cert: /tmp/kps/ca.crt
+  register: cert
+
+- name: assert server certificate is valid
+  assert:
+    that:
+      - cert.issuer.C == 'CN'
+      - cert.issuer.O == 'F5China'
+      - cert.issuer.emailAddress == 'a.zong@f5.com'
+      - cert.subject.CN == 'server.f5.oslbaas.systest'
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
@@ -39,10 +44,3 @@
 # TODO: tls certificate updating test.
 
 - import_tasks: ../../playbooks/task-remove-resources.yml
-
-# # create a listener (BIGIP virtual server) with a certificate
-# neutron lbaas-listener-create --loadbalancer lb25ftp --protocol-port 443 --protocol TERMINATED_HTTPS --name listenerth --default-tls-container=http://10.250.23.52:9311/v1/containers/cf886fb2-bb89-43c4-805f-96e2cd62a6db
-# # create a pool 
-# neutron lbaas-pool-create --name 251vlan26th-pool --lb-algorithm ROUND_ROBIN --listener listener0-0 --protocol HTTP
-# neutron lbaas-healthmonitor-create --name vlan26thhm --pool 251vlan26th-pool --type PING --delay 15 --timeout 15 --max-retries 5
-# neutron lbaas-member-create --name THVLAN26Server-3 --subnet 10.251.26.0/24 --address 10.251.26.108 --protocol-port 80 --weight 5 251vlan26th-pool

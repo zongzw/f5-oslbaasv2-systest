@@ -24,5 +24,6 @@
 
 - import_tasks: ../../playbooks/task-remove-resources.yml
 
+# TODO: support manual configuration from bigip. 
 - import_tasks: ../../playbooks/task-check-resources-removed.yml
   when: nodelete is not defined

@@ -1,0 +1,53 @@
+
+- name: update pool with session persistence of app_cookie
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-pool-update --session-persistence type=APP_COOKIE,cookie_name=JSESSIONID {{ pool }}
+    - echo
+
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has app_cookie persistence profile attached
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0]['persistence_profile'] == '/{{ environment_prefix }}_{{ project_id }}/app_cookie_{{ environment_prefix }}_{{ listener_id }}'"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix}}_{{ listener_id }}"
+
+- name: "now, the response is unique from {{ groups['pool1'][0] }}"
+  shell: |
+    curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H "Cookie: JSESSIONID={{ jsession_id }}"
+  args:
+    warn: no
+  loop_control:
+    label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: JSESSIONID={{ jsession_id }}'"
+  register: curl_results
+  with_items: "{{ range(0, 10, 1) | list }}"
+
+- set_fact:
+    unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
+- debug: msg="{{unique_responses}}"
+- assert:
+    that: 
+      - unique_responses | length == 1
+      ## it's not surely that unique_responses contain the jsessionid!
+      ## app_cookie just make sure only one server responses to one jsessionid
+      # - unique_responses[0] | regex_search('{{ jsession_id }}') != None
+  when: groups['pool1'] | length > 1

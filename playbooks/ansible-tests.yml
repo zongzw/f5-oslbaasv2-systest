@@ -4,10 +4,31 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: checkout patches for setup neutron env
-      git:
-        repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
-        dest: /tmp/neutron_lbaas_pike-patches
+    - name: get from uri
+      uri:
+        url: http://10.250.29.14:80
+      register: uri_responses
+      run_once: true
+    - debug: msg="{{ uri_responses }}"
+    # - name: "now, the response is randomly from {{ groups['pool1'] | join(' ') }}"
+    #   shell: |
+    #     curl -I -v http://10.250.29.36:80 -H "Cookie: JSESSIONID={{ groups['pool1'][0] | hash('sha1') }}" | grep "Set-Cookie: "
+    #   args:
+    #     warn: no
+    #   register: curl_results
+    #   with_items: "{{ range(0, 10, 1) | list }}"
+    #   run_once: true
+
+    # - set_fact:
+    #     unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
+    # - debug: msg="{{ unique_responses }}"
+    # - name: md5
+    #   debug:
+    #     var: "{{ 'test' | hash('sha1') }}"
+    # - name: checkout patches for setup neutron env
+    #   git:
+    #     repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
+    #     dest: /tmp/neutron_lbaas_pike-patches
 
     # - name: "Check  is reachable"
     #   shell: curl http://10.250.29.22:80 -v

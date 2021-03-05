@@ -1,0 +1,73 @@
+- name: update pool with session persistence of http_cookie,persistence_timeout
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-pool-update --session-persistence type=HTTP_COOKIE,persistence_timeout=2236 {{ pool }}
+    - echo
+
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has http_cookie persistence with timeout
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0]['persistence_profile'] == '/{{ environment_prefix }}_{{ project_id }}/http_cookie_{{ environment_prefix }}_{{ listener_id }}'"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "http_cookie_{{ environment_prefix }}_{{ listener_id }}"
+
+- name: "now, without http_cookie, the responses are from anyone of {{ groups['pool1'] | join(' ') }}"
+  shell: |
+    curl -I -v http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H "Cookie: JSESSIONID={{ jsession_id }}" | grep "Set-Cookie: "
+  args:
+    warn: no
+  loop_control:
+    label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: JSESSIONID={{ jsession_id }}'"
+  register: curl_results
+  with_items: "{{ range(0, 10, 1) | list }}"
+
+- set_fact:
+    unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
+- debug: msg="{{unique_responses}}"
+- assert:
+    that: 
+      - unique_responses | length > 1
+  when: groups['pool1'] | length > 1
+
+- name: get from uri
+  uri:
+    url: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  register: uri_responses
+- debug: msg="{{ uri_responses }}"
+
+- name: "now, the response is unique from one of {{ groups['pool1'] | join(' ') }}"
+  shell: |
+    curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H "Cookie: {{ uri_responses.cookies_string }}"
+  args:
+    warn: no
+  loop_control:
+    label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: {{ uri_responses.cookies_string }}'"
+  register: curl_results
+  with_items: "{{ range(0, 10, 1) | list }}"
+
+- set_fact:
+    unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
+- debug: msg="{{unique_responses}}"
+- assert:
+    that: 
+      - unique_responses | length == 1
+  when: groups['pool1'] | length > 1

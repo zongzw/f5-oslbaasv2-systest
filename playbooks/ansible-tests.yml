@@ -4,12 +4,79 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: get from uri
-      uri:
-        url: http://10.250.29.14:80
-      register: uri_responses
+    - name: set insert_xforwarded_for
+      set_fact:
+        insert_xforwarded_for: no
+
+    - name: update http_profile insert_x_forwarded_for to {{ insert_xforwarded_for }}
+      bigip_profile_http:
+        partition: CORE_94f2338bf383405db151c4784c0e358c
+        insert_xforwarded_for: "{{ insert_xforwarded_for }}"
+        name: http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1
+        provider:
+          user: admin
+          server: "{{ item }}"
+          password: "{{ hostvars[item].admin_password }}"
+          validate_certs: False
+      with_items: "{{ groups['bigips'] }}"
+      no_log: yes # avoid the false positive [WARNING]: Module did not set no_log for update_password
+      register: updated_bigip_info
+      delegate_to: localhost
       run_once: true
-    - debug: msg="{{ uri_responses }}"
+
+    - name: debug updated_bigip_info
+      debug: msg="{{ updated_bigip_info }}"
+      run_once: true
+
+    - name: check http_profile insert_x_forwarded_for is {{ insert_xforwarded_for }}
+      bigip_device_info:
+        gather_subset:
+          - http-profiles
+        provider:
+          user: admin
+          server: "{{ item }}"
+          password: "{{ hostvars[item].admin_password }}"
+          validate_certs: False
+      register: bigip_http_profiles
+      with_items: "{{ groups['bigips'] }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: debug http_profiles
+      debug: msg="{{ item | json_query(query_string) }}"
+      vars:
+        query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
+      with_items: "{{ bigip_http_profiles.results }}"
+      run_once: true
+
+    - set_fact:
+        profiles: "{{ item | json_query(query_string) }}"
+      vars:
+        query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
+      with_items: "{{ bigip_http_profiles.results }}"
+      run_once: true
+
+    - name: debug profiles
+      debug: 
+        var: profiles
+      
+    - name: assert xxf is changed
+      assert:
+        that:
+          - "item['insert_x_forwarded_for'] == 'no'"
+      with_items: "{{ profiles }}"
+
+    # - debug: msg="{{ profile }}"
+    #   vars:
+    #     query_string: ""
+    #   with
+
+    # - name: get from uri
+    #   uri:
+    #     url: http://10.250.29.14:80
+    #   register: uri_responses
+    #   run_once: true
+    # - debug: msg="{{ uri_responses }}"
     # - name: "now, the response is randomly from {{ groups['pool1'] | join(' ') }}"
     #   shell: |
     #     curl -I -v http://10.250.29.36:80 -H "Cookie: JSESSIONID={{ groups['pool1'][0] | hash('sha1') }}" | grep "Set-Cookie: "
@@ -57,11 +124,11 @@
     #       server: "{{ item }}"
     #       password: "{{ hostvars[item].admin_password }}"
     #       validate_certs: False
-    #   register: bigip_infos
+    #   register: bigip_http_profiles
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
     #   run_once: true
-    # - debug: msg="{{ bigip_infos }}"
+    # - debug: msg="{{ bigip_http_profiles }}"
     #   run_once: true
     # - set_fact:
     #     l7policy: l7-1614158148
@@ -83,12 +150,12 @@
     #       server: "{{ item }}"
     #       password: "{{ hostvars[item].admin_password }}"
     #       validate_certs: False
-    #   register: bigip_infos
+    #   register: bigip_http_profiles
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
     #   run_once: true
 
-    # - debug: msg="{{ bigip_infos.results }}"
+    # - debug: msg="{{ bigip_http_profiles.results }}"
     # - debug: msg="{{ download_prefix }}"
     # - debug: msg="{{ download_prefix | regex_search("^https://github.com") }}"
     # # - debug: msg="{{ download_prefix | regex_search("^https://github.com") | length }}"
@@ -128,11 +195,11 @@
     #       --header 'content-type: application/json' \
     #       --header "Authorization: Basic $b64credential"
     #   with_items: "{{ groups.bigips }}"
-    #   register: bigip_infos
+    #   register: bigip_http_profiles
     #   run_once: true
     
     # # - debug: msg="{{ item.stdout | from_json }}"
-    # #   with_items: "{{ bigip_infos.results }}"
+    # #   with_items: "{{ bigip_http_profiles.results }}"
     # #   run_once: true
 
     # - name: assert ftp is created and associated
@@ -140,7 +207,7 @@
     #     that:
     #       - "{{ (item.stdout | from_json).port }} == 20"
     #     quiet: yes
-    #   with_items: "{{ bigip_infos.results }}"
+    #   with_items: "{{ bigip_http_profiles.results }}"
     #   loop_control:
     #     label: "{{ item.item }} - {{ (item.stdout | from_json).name }}"
     #   run_once: true
@@ -157,12 +224,12 @@
     #       server: "{{ item }}"
     #       password: "{{ hostvars[item].admin_password }}"
     #       validate_certs: False
-    #   register: bigip_infos
+    #   register: bigip_http_profiles
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
     #   run_once: true
 
-    # - debug: msg={{ bigip_infos }}
+    # - debug: msg={{ bigip_http_profiles }}
     #   run_once: true
 
     # - set_fact:
@@ -177,7 +244,7 @@
     #   vars:
     #     virtual_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
     #     address_string: "virtual_addresses[?name == '{{ environment_prefix }}_{{ loadbalancer_id}}']"
-    #   with_items: "{{ bigip_infos.results }}"
+    #   with_items: "{{ bigip_http_profiles.results }}"
     #   run_once: true
     # - set_fact:
     #     listener_id: 4fabe4cb-012e-4eb9-beeb-167edbb7785f
@@ -190,7 +257,7 @@
     #       - "(item | json_query(query_string))[0].insert_x_forwarded_for == 'no'"
     #   vars:
     #     query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
-    #   with_items: "{{ bigip_infos.results }}"
+    #   with_items: "{{ bigip_http_profiles.results }}"
     #   loop_control:
     #     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
     #   run_once: true
@@ -232,25 +299,25 @@
     #       server: "{{ item }}"
     #       password: "{{ hostvars[item].admin_password }}"
     #       validate_certs: False
-    #   register: bigip_infos
+    #   register: bigip_http_profiles
     #   with_items: "{{ groups['bigips'] }}"
     #   delegate_to: localhost
 
     # - name: show everything
-    #   debug: msg="{{bigip_infos}}"
+    #   debug: msg="{{bigip_http_profiles}}"
     # - set_fact:
     #     loadbalancer_id: 4e57a075-b836-4c91-b785-615dc65ef5cc
 
     # - name: show bigip infor
     #   debug:
-    #     msg: "{{ bigip_infos.results[0] | json_query(querystring) }}"
+    #     msg: "{{ bigip_http_profiles.results[0] | json_query(querystring) }}"
     #   vars:
     #       querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
 
     # - name: assert irule body
     #   assert:
     #     that:
-    #       - "{{ bigip_infos.results[0] | json_query(querystring) | length }} == 1"
+    #       - "{{ bigip_http_profiles.results[0] | json_query(querystring) | length }} == 1"
     #   vars:
     #     querystring: "irules[?name=='bwc_irule_{{loadbalancer_id}}'].full_path"
     # - set_fact:
@@ -259,7 +326,7 @@
     #   assert:
     #     that:
     #       - "'bwc_irule_{{ loadbalancer_id }}' in '{{item.irules | map(attribute='name') | list | join(' ') }}'"
-    #   with_items: "{{bigip_infos.results}}"
+    #   with_items: "{{bigip_http_profiles.results}}"
     #   loop_control:
     #     label: "{{item.item}}"
 

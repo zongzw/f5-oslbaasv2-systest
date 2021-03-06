@@ -1,0 +1,81 @@
+
+- name: update http_profile insert_x_forwarded_for to disabled
+  bigip_profile_http:
+    partition: "{{ environment_prefix }}_{{ project_id }}"
+    insert_xforwarded_for: no
+    name: http_profile_{{ environment_prefix }}_{{ listener_id }}
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  with_items: "{{ groups['bigips'] }}"
+  no_log: yes # avoid the false positive [WARNING]: Module did not set no_log for update_password
+  register: updated_bigip_info
+  delegate_to: localhost
+
+- name: update listener description to {{ listener }}-updated manually on bigip
+  bigip_virtual_server:
+    state: present
+    partition: "{{ environment_prefix }}_{{ project_id }}"
+    name: "{{ environment_prefix }}_{{ listener_id }}"
+    description: "{{ listener }}-updated"
+    provider:
+      server: "{{ item }}"
+      user: admin
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: update listener --connection-limit with neutron command line
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-listener-update {{ listener_id }} --connection-limit  200
+    - echo
+
+- name: get virtual_server and http_profile info after neutron update
+  bigip_device_info:
+    gather_subset:
+      - http-profiles
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: debug bigip_infos
+  debug: msg="{{ (item | json_query(query_string))[0]['insert_x_forwarded_for'] }}"
+  vars:
+    query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: assert insert_x_forwarded_for is still no after neutron listener update
+  assert:
+    that:
+      - (item | json_query(query_string))[0]['insert_x_forwarded_for'] == 'no'
+    quiet: yes
+  vars:
+    query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: assert virtual_server's description is kept updated
+  assert:
+    that:
+      - (item | json_query(query_string))[0]['description'] == listener + "-updated"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }}"

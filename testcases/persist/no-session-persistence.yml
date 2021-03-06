@@ -1,0 +1,49 @@
+- name: update pool with no session persistence
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron lbaas-pool-update --no-session-persistence {{ pool }}
+    - echo
+
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: assert virtual server has no persistence profile attached
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "'persistence_profile' not in (item | json_query(query_string))[0]"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix}}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix}}_{{ listener_id }}"
+
+- name: "now, the response is randomly from {{ groups['pool1'] | join(' ') }}"
+  shell: |
+    curl -I -v http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H "Cookie: JSESSIONID={{ jsession_id }}" | grep "Set-Cookie: "
+  args:
+    warn: no
+  register: curl_results
+  loop_control:
+    label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: JSESSIONID={{ jsession_id }}'"
+  with_items: "{{ range(0, 10, 1) | list }}"
+
+- set_fact:
+    unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
+- debug: msg="{{unique_responses}}"
+- assert:
+    that: 
+      - unique_responses | length > 1
+  when: groups['pool1'] | length > 1

@@ -40,4 +40,6 @@
 
 - import_tasks: ./source_ip.yml
 
+- import_tasks: ./no-session-persistence.yml
+
 - import_tasks: ../../playbooks/task-remove-resources.yml

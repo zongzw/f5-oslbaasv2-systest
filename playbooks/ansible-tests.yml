@@ -4,24 +4,36 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: Collect BIG-IP information
-      # use f5networks.f5_modules.bigip_device_info to handle error ipv6 netmask
-      # in to_netmask ValueError: invalid value for masklen
-      f5networks.f5_modules.bigip_device_info:
-        gather_subset:
-          - self-ips
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
+    - import_tasks: ./task-set-webproxy.yml
+      when: webproxy is defined
       run_once: true
 
-    - name: debug self-ips
-      debug: msg="{{ bigip_infos }}"
-      run_once: true
+    - name: test yum on osp
+      yum:
+        name:
+          - tree
+          - wget
+          - git
+        state: present
+      environment: "{{ proxy_env | default({}) }}"
+    # - name: Collect BIG-IP information
+    #   # use f5networks.f5_modules.bigip_device_info to handle error ipv6 netmask
+    #   # in to_netmask ValueError: invalid value for masklen
+    #   f5networks.f5_modules.bigip_device_info:
+    #     gather_subset:
+    #       - self-ips
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   run_once: true
+
+    # - name: debug self-ips
+    #   debug: msg="{{ bigip_infos }}"
+    #   run_once: true
     # - name: set insert_xforwarded_for
     #   set_fact:
     #     insert_xforwarded_for: no

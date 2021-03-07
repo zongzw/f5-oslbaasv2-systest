@@ -4,67 +4,85 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: set insert_xforwarded_for
-      set_fact:
-        insert_xforwarded_for: no
-
-    - name: update http_profile insert_x_forwarded_for to {{ insert_xforwarded_for }}
-      bigip_profile_http:
-        partition: CORE_94f2338bf383405db151c4784c0e358c
-        insert_xforwarded_for: "{{ insert_xforwarded_for }}"
-        name: http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      with_items: "{{ groups['bigips'] }}"
-      no_log: yes # avoid the false positive [WARNING]: Module did not set no_log for update_password
-      register: updated_bigip_info
-      delegate_to: localhost
-      run_once: true
-
-    - name: debug updated_bigip_info
-      debug: msg="{{ updated_bigip_info }}"
-      run_once: true
-
-    - name: check http_profile insert_x_forwarded_for is {{ insert_xforwarded_for }}
-      bigip_device_info:
+    - name: Collect BIG-IP information
+      # use f5networks.f5_modules.bigip_device_info to handle error ipv6 netmask
+      # in to_netmask ValueError: invalid value for masklen
+      f5networks.f5_modules.bigip_device_info:
         gather_subset:
-          - http-profiles
+          - self-ips
         provider:
           user: admin
           server: "{{ item }}"
           password: "{{ hostvars[item].admin_password }}"
           validate_certs: False
-      register: bigip_http_profiles
+      register: bigip_infos
       with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
       run_once: true
 
-    - name: debug http_profiles
-      debug: msg="{{ item | json_query(query_string) }}"
-      vars:
-        query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
-      with_items: "{{ bigip_http_profiles.results }}"
+    - name: debug self-ips
+      debug: msg="{{ bigip_infos }}"
       run_once: true
+    # - name: set insert_xforwarded_for
+    #   set_fact:
+    #     insert_xforwarded_for: no
 
-    - set_fact:
-        profiles: "{{ item | json_query(query_string) }}"
-      vars:
-        query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
-      with_items: "{{ bigip_http_profiles.results }}"
-      run_once: true
+    # - name: update http_profile insert_x_forwarded_for to {{ insert_xforwarded_for }}
+    #   bigip_profile_http:
+    #     partition: CORE_94f2338bf383405db151c4784c0e358c
+    #     insert_xforwarded_for: "{{ insert_xforwarded_for }}"
+    #     name: http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   with_items: "{{ groups['bigips'] }}"
+    #   no_log: yes # avoid the false positive [WARNING]: Module did not set no_log for update_password
+    #   register: updated_bigip_info
+    #   delegate_to: localhost
+    #   run_once: true
 
-    - name: debug profiles
-      debug: 
-        var: profiles
+    # - name: debug updated_bigip_info
+    #   debug: msg="{{ updated_bigip_info }}"
+    #   run_once: true
+
+    # - name: check http_profile insert_x_forwarded_for is {{ insert_xforwarded_for }}
+    #   bigip_device_info:
+    #     gather_subset:
+    #       - http-profiles
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_http_profiles
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+    #   run_once: true
+
+    # - name: debug http_profiles
+    #   debug: msg="{{ item | json_query(query_string) }}"
+    #   vars:
+    #     query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
+    #   with_items: "{{ bigip_http_profiles.results }}"
+    #   run_once: true
+
+    # - set_fact:
+    #     profiles: "{{ item | json_query(query_string) }}"
+    #   vars:
+    #     query_string: "http_profiles[?name == 'http_profile_CORE_0b414009-b0f5-41e5-abf2-f67dc9225fc1']"
+    #   with_items: "{{ bigip_http_profiles.results }}"
+    #   run_once: true
+
+    # - name: debug profiles
+    #   debug: 
+    #     var: profiles
       
-    - name: assert xxf is changed
-      assert:
-        that:
-          - "item['insert_x_forwarded_for'] == 'no'"
-      with_items: "{{ profiles }}"
+    # - name: assert xxf is changed
+    #   assert:
+    #     that:
+    #       - "item['insert_x_forwarded_for'] == 'no'"
+    #   with_items: "{{ profiles }}"
 
     # - debug: msg="{{ profile }}"
     #   vars:

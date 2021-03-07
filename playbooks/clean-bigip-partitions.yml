@@ -8,19 +8,19 @@
       ping:
       delegate_to: localhost
     
-    # TODO: handle the issue of: ValueError: invalid value for masklen when ipv6
+    # Use f5networks.f5_modules.bigip_device_info to handle the issue of: ValueError: invalid value for masklen when ipv6
     # Update f5networks.f5_modules collection: 
       # $ ansible-galaxy collection install f5networks.f5_modules
       # Process install dependency map
       # Starting collection install process
-      # Installing 'f5networks.f5_modules:1.8.0' to '/Users/zong/.ansible/collections/ansible_collections/f5networks/f5_modules'
-      # Installing 'ansible.netcommon:1.5.0' to '/Users/zong/.ansible/collections/ansible_collections/ansible/netcommon'
+      # Installing 'f5networks.f5_modules:1.8.0' to '~/.ansible/collections/ansible_collections/f5networks/f5_modules'
+      # Installing 'ansible.netcommon:1.5.0' to '~/.ansible/collections/ansible_collections/ansible/netcommon'
     # This can handle the issue of: ValueError: invalid value for masklen
     # It's caused by IPV6 self-ip on bigips.
     # Reported from ansible/modules/network/f5/bigip_device_info.py: def netmask(self)
     # ansible/modules/network/f5/bigip_device_info.py\", line 12355, in netmask\r\n
-    - name: collect bigip partitions
-      bigip_device_info:
+    - name: collect bigip information from partitions
+      f5networks.f5_modules.bigip_device_info:
         gather_subset:
           - partitions
           - self-ips

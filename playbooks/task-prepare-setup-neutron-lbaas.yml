@@ -18,7 +18,6 @@
   environment: "{{ proxy_env | default({}) }}"
   when: test_env != "osp"
 
-# TODO: consider slow network situation.
 - name: install configparser
   shell: |
     installed=`which pip`

@@ -1,7 +1,16 @@
 - name: get date time string
-  shell: date
+  shell: date +%Y%m%d-%H%M%S
   run_once: true
   register: datetime_str
+
+- name: backup original configuration files
+  copy: src="{{ item }}" dest=/tmp/backup-{{ datetime_str.stdout }}/ force=yes remote_src=yes
+  with_items:
+    - /etc/neutron/neutron.conf
+    - /etc/neutron/neutron_lbaas.conf
+    - /etc/neutron/services/f5/f5-openstack-agent-CORE.ini
+    - /usr/lib/systemd/system/neutron-server.service
+    - /usr/lib/systemd/system/f5-openstack-agent-CORE.service
 
 - name: get os_ environment
   shell: source {{ openrc }} && echo $OS_AUTH_URL && echo $OS_PASSWORD

@@ -25,7 +25,6 @@
     - import_tasks: ./task-reinstall-f5-packages.yml
       tags: reinstallf5packages
 
-    # TODO: backup original configuration files.
     - import_tasks: ./task-reconfigure-services.yml
       tags: configureservices
   

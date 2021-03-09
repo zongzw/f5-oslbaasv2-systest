@@ -4,9 +4,9 @@
 [neutron_servers:vars]
 test_env = rdo
 openrc = /root/keystonerc_admin
-agent_services = f5-openstack-agent
+service_providers = CORE
 test_subnet = public_subnet
-environment_prefix = Project
+environment_prefix = CORE
 download_prefix = https://github.com
 
 [bigips]

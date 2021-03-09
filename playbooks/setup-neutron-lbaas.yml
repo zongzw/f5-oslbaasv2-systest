@@ -4,151 +4,30 @@
   gather_facts: False
   remote_user: root
   tasks:
+
+    - import_tasks: ./task-set-webproxy.yml
+      when: webproxy is defined
+      run_once: true
+      
     - name: check the host is reachable
       ping:
       delegate_to: localhost
 
-    - name: check neutron is installed
-      yum:
-        name: 
-          - python-neutron.noarch
-          - python-neutron-lbaas.noarch
-
-    - import_tasks: ./task-download-scripts.yml
+    - import_tasks: ./task-prepare-setup-neutron-lbaas.yml
       tags:
-        - configureneutron
-
-    # Make sure wget installed
-    - name: make sure yum packages are installed
-      yum:
-        name:
-          - wget
-        state: present
-      when: test_env != "osp"
-
-    # TODO: consider slow network situation.
-    - name: install configparser
-      shell: |
-        installed=`which pip`
-        if [ -z "$installed" ]; then 
-          wget https://bootstrap.pypa.io/2.7/get-pip.py -O /tmp/get-pip.py && \
-          python /tmp/get-pip.py
-        fi
-        pip install configparser
-      tags: 
-        - migratedb
         - customizeneutron
+        - reinstallf5packages
+        - configureservices
 
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
 
-    - name: download f5-* packages
-      get_url: url={{ item }} dest=/tmp timeout=30
-      with_items:
-        - "{{ download_prefix }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm"
-        - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
-      tags: reinstallf5packages
-      when: (download_prefix | regex_search("^https://github.com")) == None
-
-    - name: download f5-* packages
-      get_url: url={{ item }} dest=/tmp timeout=30
-      with_items:
-        - https://github.com/F5Networks/f5-common-python/releases/download/v{{ versions.f5sdk }}/f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm
-        - https://github.com/F5Networks/f5-icontrol-rest-python/releases/download/v{{ versions.icontrol }}/f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm
-        - https://github.com/F5Networks/f5-openstack-agent/releases/download/v{{ versions.agent }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
-        - https://github.com/F5Networks/f5-openstack-lbaasv2-driver/releases/download/v{{ versions.driver }}/f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm
-      tags: reinstallf5packages
-      when: (download_prefix | regex_search("^https://github.com")) != None
-
-    # yum uninstall is pretty slow in osp, so use rpm instead.
-    - name: uninstall legacy f5-* using rpm
-      shell: |
-        f5_rpms=`rpm -qa | grep -E "^f5-"`
-        if [ -n "$f5_rpms" ]; then rpm -ev $f5_rpms; fi
-      when: test_env == "osp"
-      tags: reinstallf5packages
-
-    - name: uninstall legacy f5-* using yum
-      yum:
-        name:
-          - f5-openstack-agent.noarch
-          - f5-openstack-lbaasv2-driver.noarch
-          - f5-icontrol-rest.noarch
-          - f5-sdk.noarch
-        state: removed
-      when: test_env != "osp"
-      tags: reinstallf5packages
-
-    - name: install f5-*
-      shell: |
-        rpm -ivh \
-          f5-sdk-{{ versions.f5sdk }}-1.el7.noarch.rpm \
-          f5-icontrol-rest-{{ versions.icontrol }}-1.el7.noarch.rpm \
-          f5-openstack-lbaasv2-driver-{{ versions.driver }}-1.el7.noarch.rpm \
-          f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
-      args:
-        chdir: /tmp
-        removes: f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm
-        warn: False
+    - import_tasks: ./task-reinstall-f5-packages.yml
       tags: reinstallf5packages
 
     # TODO: backup original configuration files.
-    - name: configure neutron_lbaas and f5-agent
-      shell: |
-        export bigip_admin_password={{ hostvars[groups['bigips'][0]].admin_password }} && \
-        export bigip_hostname={{ groups['bigips'] | join(',') }} && \
-        source {{ openrc }} && \
-        python /tmp/scripts/_config-ini-conf.py
-      when: test_env != "osp"
-      tags: configureneutron
-
-    - name: set runing_files variable
-      shell: ls chdir=../conf.d/{{ test_env }}
-      register: runtime_files
-      delegate_to: localhost
-      when: test_env == "osp"
-      run_once: True
-      tags: 
-        - copyospruntimefiles
-        - configureneutron
-
-    # TODO: using configparser to create config files for osp.
-    - name: "copy osp runtime files "
-      copy: src=../conf.d//{{ test_env }}/{{ item }} dest=/ force=yes
-      with_items: "{{ runtime_files.stdout_lines }}"
-      when: test_env == "osp"
-      tags: 
-        - copyospruntimefiles
-        - configureneutron
-
-    - name: execute systemctl daemon-reload
-      shell: systemctl daemon-reload
-
-    - name: restart neutron-server and f5-openstack-agent
-      service:
-        name: "{{ item }}"
-        state: restarted
-      with_items:
-        - neutron-server
-        - "{{agent_services.split(',')}}"
-      tags:
-        - configureneutron
-    
-    - name: waiting for agents to be ready
-      shell: |
-        source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py
-      with_items:
-        - "{{agent_services.split(',')}}"
-      tags: configureneutron
-
-    - set_fact:
-        test_casename: smoking test
-        test_listener_protocol: HTTP
-        test_pool_protocol: HTTP
-        test_listener_tcpport: 80
-      tags: smokingtest
+    - import_tasks: ./task-reconfigure-services.yml
+      tags: configureservices
   
     - import_tasks: ./task-smoking-test.yml
       run_once: True

@@ -19,7 +19,7 @@
 from neutron_lbaas.drivers.f5.driver_v2 import F5LBaaSV2Driver
 
 
-class CORE(F5LBaaSV2Driver):
-    """Plugin Driver for dev1 environment."""
+class {{ provider }}(F5LBaaSV2Driver):
+    """Plugin Driver for {{ provider }} environment."""
     def __init__(self, plugin):
-        super(CORE, self).__init__(plugin, self.__class__.__name__)
+        super({{ provider }}, self).__init__(plugin, self.__class__.__name__)

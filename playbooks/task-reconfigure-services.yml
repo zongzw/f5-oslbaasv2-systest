@@ -1,0 +1,79 @@
+- name: get date time string
+  shell: date
+  run_once: true
+  register: datetime_str
+
+- name: get os_ environment
+  shell: source {{ openrc }} && echo $OS_AUTH_URL && echo $OS_PASSWORD
+  run_once: true
+  register: os_env
+    
+- name: generate neutron related files
+  template:
+    src: ../conf.d/templates/{{ item.src }}
+    dest: "{{ item.dest }}"
+    force: yes
+  with_items:
+    - {"src": "neutron.conf.j2", "dest": "/tmp/neutron.conf"}
+    - {"src": "neutron_lbaas.conf.j2", "dest": "/tmp/neutron_lbaas.conf"}
+    - {"src": "neutron-server.service.j2", "dest": "/usr/lib/systemd/system/neutron-server.service"}
+  vars:
+    config_timestr: "{{ datetime_str.stdout }}"
+    os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
+    os_password: "{{ os_env.stdout_lines[1] }}"
+
+- name: generate f5-openstack-agent-xx.ini
+  template:
+    src: ../conf.d/templates/f5-openstack-agent.ini.j2
+    dest: /tmp/f5-openstack-agent-{{ item }}.ini
+    force: yes
+  vars:
+    bigip_hostnames: "{{ groups['bigips'] | join(',') }}"
+    bigip_admin_password: "{{ hostvars[groups['bigips'][0]].admin_password }}"
+    os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
+    os_password: "{{ os_env.stdout_lines[1] }}"
+  with_items: "{{ service_providers.split(',') }}"
+
+- name: generate f5-openstack-agent-xx.service
+  template:
+    src: ../conf.d/templates/f5-openstack-agent.service.j2
+    dest: /usr/lib/systemd/system/f5-openstack-agent-{{ item }}.service
+    force: yes
+  vars:
+    provider: "{{ item }}"
+  with_items: "{{ service_providers.split(',') }}"
+
+- name: generate service_provider.py
+  template:
+    src: ../conf.d/templates/service_provider.py.j2
+    dest: /usr/lib/python2.7/site-packages/neutron_lbaas/drivers/f5/v2_{{ item }}.py
+    force: yes
+  vars:
+    provider: "{{ item }}"
+  with_items: "{{ service_providers.split(',') }}"
+
+- name: update configuration files
+  shell: python /tmp/scripts/setup-service-configs.py
+  environment:
+    service_providers: "{{ service_providers }}"
+
+- name: execute systemctl daemon-reload
+  shell: systemctl daemon-reload
+
+- name: restart neutron-server
+  service:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - neutron-server
+
+- name: restart f5-openstack-agent-xx
+  service:
+    name: "f5-openstack-agent-{{ item }}"
+    state: restarted
+  with_items:
+    - "{{service_providers.split(',')}}"
+
+- name: waiting for agents to be ready
+  shell: |
+    source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py

@@ -1,0 +1,21 @@
+[DEFAULT]
+
+f5_agent_mode = lite
+periodic_interval = 120000
+debug = True
+icontrol_hostname = {{ bigip_hostnames }}
+icontrol_password = {{ bigip_admin_password }}
+f5_global_routed_mode = False
+
+auth_version = v3
+os_auth_url = http://{{ os_auth_host }}:5000/v3
+os_username = admin
+os_password = {{ os_password }}
+os_user_domain_name = default
+os_project_name = admin
+os_project_domain_name = default
+
+cert_manager = f5_openstack_agent.lbaasv2.drivers.bigip.barbican_cert.BarbicanCertManager
+
+f5_vtep_folder = DELETE_ME
+f5_vtep_selfip_name = DELETE_ME

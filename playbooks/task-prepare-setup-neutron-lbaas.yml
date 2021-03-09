@@ -1,0 +1,33 @@
+
+- name: check neutron is installed
+  yum:
+    name: 
+      - python-neutron.noarch
+      - python-neutron-lbaas.noarch
+  environment: "{{ proxy_env | default({}) }}"
+
+- import_tasks: ./task-download-scripts.yml
+  tags: configureneutron
+
+# Make sure wget installed
+- name: make sure yum packages are installed
+  yum:
+    name:
+      - wget
+    state: present
+  environment: "{{ proxy_env | default({}) }}"
+  when: test_env != "osp"
+
+# TODO: consider slow network situation.
+- name: install configparser
+  shell: |
+    installed=`which pip`
+    if [ -z "$installed" ]; then 
+      wget https://bootstrap.pypa.io/2.7/get-pip.py -O /tmp/get-pip.py && \
+      python /tmp/get-pip.py
+    fi
+    pip install configparser
+  environment: "{{ proxy_env | default({}) }}"
+  tags: 
+    - migratedb
+    - customizeneutron

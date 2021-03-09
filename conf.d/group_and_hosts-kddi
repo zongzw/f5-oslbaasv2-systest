@@ -6,11 +6,11 @@
 [neutron_servers:vars]
 test_env = osp
 openrc = /home/heat-admin/overcloudrc
-agent_services = f5-openstack-agent-CORE,f5-openstack-agent-DMZ
 test_subnet = 10.251.27.0/24
 #test_ipv6_subnet = ipv6-pd-sub
 environment_prefix = CORE
 download_prefix = http://10.250.11.185/f5-packages
+service_providers = CORE,DMZ
 
 [bigips]
 10.250.11.193

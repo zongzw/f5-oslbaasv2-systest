@@ -6,6 +6,7 @@
     repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
     dest: ../conf.d/patches/pike
   delegate_to: localhost
+  environment: "{{ proxy_env | default({}) }}"
   run_once: true
   tags: copyfile
 

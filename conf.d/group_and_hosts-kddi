@@ -1,3 +1,6 @@
+[all:vars]
+webproxy = 10.250.64.99
+
 [neutron_servers]
 10.251.13.58
 10.251.13.56

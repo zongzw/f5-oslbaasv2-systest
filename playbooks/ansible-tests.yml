@@ -4,74 +4,96 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: get date time string
-      shell: date
-      register: datetime_str
+    # - name: pretend to create instance
+    #   shell: sleep {{ item }} && exit 1
+    #   with_items: "{{ range(1, 10, 1) | list }}"
+    #   register: _create_instances
+    #   async: 600
+    #   poll: 0
+
+    # - name: wait for creation to finished
+    #   async_status:
+    #     jid: "{{ item.ansible_job_id }}"
+    #   register: _jobs
+    #   until: _jobs.finished
+    #   delay: 5
+    #   retries: 10
+    #   with_items: "{{ _create_instances.results }}"
+
+    # - include_tasks: ./task-set-webproxy.yml
+    #   with_items: "{{ range(0, 10, 1) | list }}"
+    #   async: 600
+    #   poll: 0
+
     
-    - name: get os_ environment
-      shell: source {{ openrc }} && echo $OS_AUTH_URL && echo $OS_PASSWORD
-      register: os_env
-    # - name: debug timestamp
-    #   debug: msg="{{ datetime_str.stdout }}"
+    # - name: get date time string
+    #   shell: date
+    #   register: datetime_str
+    
+    # - name: get os_ environment
+    #   shell: source {{ openrc }} && echo $OS_AUTH_URL && echo $OS_PASSWORD
+    #   register: os_env
+    # # - name: debug timestamp
+    # #   debug: msg="{{ datetime_str.stdout }}"
 
-    # - name: debug os_
-    #   debug: msg="{{ os_env }}"
+    # # - name: debug os_
+    # #   debug: msg="{{ os_env }}"
 
-    # - set_fact:
+    # # - set_fact:
+    # #     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
+    # #     os_password: "{{ os_env.stdout_lines[1] }}"
+
+    # # - name: debug os_auth_host
+    # #   debug: msg="{{ os_auth_host }}, {{ os_password }}"
+        
+    # - name: generate neutron.conf
+    #   template:
+    #     src: ../conf.d/templates/{{ item.src }}
+    #     dest: "{{ item.dest }}"
+    #     force: yes
+    #   with_items:
+    #     - {"src": "neutron.conf.j2", "dest": "/tmp/neutron.conf"}
+    #     - {"src": "neutron_lbaas.conf.j2", "dest": "/tmp/neutron_lbaas.conf"}
+    #     - {"src": "neutron-server.service.j2", "dest": "/usr/lib/systemd/system/neutron-server.service"}
+    #   vars:
+    #     config_timestr: "{{ datetime_str.stdout }}"
     #     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
     #     os_password: "{{ os_env.stdout_lines[1] }}"
 
-    # - name: debug os_auth_host
-    #   debug: msg="{{ os_auth_host }}, {{ os_password }}"
-        
-    - name: generate neutron.conf
-      template:
-        src: ../conf.d/templates/{{ item.src }}
-        dest: "{{ item.dest }}"
-        force: yes
-      with_items:
-        - {"src": "neutron.conf.j2", "dest": "/tmp/neutron.conf"}
-        - {"src": "neutron_lbaas.conf.j2", "dest": "/tmp/neutron_lbaas.conf"}
-        - {"src": "neutron-server.service.j2", "dest": "/usr/lib/systemd/system/neutron-server.service"}
-      vars:
-        config_timestr: "{{ datetime_str.stdout }}"
-        os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
-        os_password: "{{ os_env.stdout_lines[1] }}"
+    # - name: generate f5-openstack-agent-xx.ini
+    #   template:
+    #     src: ../conf.d/templates/f5-openstack-agent.ini.j2
+    #     dest: /tmp/f5-openstack-agent-{{ item }}.ini
+    #     force: yes
+    #   vars:
+    #     bigip_hostnames: "{{ groups['bigips'] | join(',') }}"
+    #     bigip_admin_password: "{{ hostvars[groups['bigips'][0]].admin_password }}"
+    #     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
+    #     os_password: "{{ os_env.stdout_lines[1] }}"
+    #   with_items: "{{ service_providers.split(',') }}"
 
-    - name: generate f5-openstack-agent-xx.ini
-      template:
-        src: ../conf.d/templates/f5-openstack-agent.ini.j2
-        dest: /tmp/f5-openstack-agent-{{ item }}.ini
-        force: yes
-      vars:
-        bigip_hostnames: "{{ groups['bigips'] | join(',') }}"
-        bigip_admin_password: "{{ hostvars[groups['bigips'][0]].admin_password }}"
-        os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
-        os_password: "{{ os_env.stdout_lines[1] }}"
-      with_items: "{{ service_providers.split(',') }}"
+    # - name: generate f5-openstack-agent-xx.service
+    #   template:
+    #     src: ../conf.d/templates/f5-openstack-agent.service.j2
+    #     dest: /usr/lib/systemd/system/f5-openstack-agent-{{ item }}.service
+    #     force: yes
+    #   vars:
+    #     provider: "{{ item }}"
+    #   with_items: "{{ service_providers.split(',') }}"
 
-    - name: generate f5-openstack-agent-xx.service
-      template:
-        src: ../conf.d/templates/f5-openstack-agent.service.j2
-        dest: /usr/lib/systemd/system/f5-openstack-agent-{{ item }}.service
-        force: yes
-      vars:
-        provider: "{{ item }}"
-      with_items: "{{ service_providers.split(',') }}"
+    # - name: generate service_provider.py
+    #   template:
+    #     src: ../conf.d/templates/service_provider.py.j2
+    #     dest: /usr/lib/python2.7/site-packages/neutron_lbaas/drivers/f5/v2_{{ item }}.py
+    #     force: yes
+    #   vars:
+    #     provider: "{{ item }}"
+    #   with_items: "{{ service_providers.split(',') }}"
 
-    - name: generate service_provider.py
-      template:
-        src: ../conf.d/templates/service_provider.py.j2
-        dest: /usr/lib/python2.7/site-packages/neutron_lbaas/drivers/f5/v2_{{ item }}.py
-        force: yes
-      vars:
-        provider: "{{ item }}"
-      with_items: "{{ service_providers.split(',') }}"
-
-    - name: update configuration files
-      shell: python /tmp/scripts/setup-service-configs.py
-      environment:
-        service_providers: "{{ service_providers }}"
+    # - name: update configuration files
+    #   shell: python /tmp/scripts/setup-service-configs.py
+    #   environment:
+    #     service_providers: "{{ service_providers }}"
 
     # - import_tasks: ./task-set-webproxy.yml
     #   when: webproxy is defined

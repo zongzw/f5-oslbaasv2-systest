@@ -1,0 +1,70 @@
+---
+
+- hosts: 127.0.0.1
+  gather_facts: false
+  tasks:
+    - name: get timestamp
+      shell: date +%s
+      register: timestamp
+
+    - name: list all test environments
+      shell: (cd ../conf.d; ls group_and_hosts-*;)
+      register: testenvs
+    - debug: msg="{{ testenvs.stdout_lines }}"
+
+    - pause:
+        prompt: Which environment to run the testcases?
+        echo: yes
+      register: input_env
+
+    - name: list all test suites
+      shell: (cd ../conf.d; ls vars-*;)
+      register: testsuites
+    - debug: msg="{{ testsuites.stdout_lines }}"
+
+    - pause:
+        prompt: Which testsuite to run?
+        echo: yes
+      register: input_suite
+
+    - debug: msg="{{ input_env.user_input }}"
+    - debug: msg="{{ input_suite.user_input }}"
+
+    - name: read from {{ input_suite.user_input }}
+      set_fact:
+        test_cases: "{{ (suite_content | from_yaml).testcases | map(attribute='name') | list}}"
+        test_logpath: ../logs/{{ timestamp.stdout }}--{{ input_env.user_input }}--{{ input_suite.user_input }}
+        test_env: "{{ input_env.user_input }}"
+        test_suite: "{{ input_suite.user_input }}"
+      vars:
+        suite_content: "{{ lookup('file', '../conf.d/{{ input_suite.user_input }}') }}"
+    
+    - name: going to test the following cases
+      debug: msg="{{ test_cases }}"
+
+    - name: create log directory {{ test_logpath }}
+      file: path="{{ test_logpath }}" state=directory
+
+    - name: run test_cases in parallel.
+      shell: | 
+        start=`date +%s`
+        ansible-playbook \
+          -i ../conf.d/{{ test_env }}  \
+          -e @../conf.d/{{ test_suite }} \
+          ../testcases/dev_test.yml \
+          -t {{ item }} > {{ test_logpath }}/{{ item }}.log 
+        end=`date +%s`
+        echo $(($end - $start)) >> {{ test_logpath }}/{{ item }}.log
+      with_items: "{{ test_cases }}"
+      async: 900
+      poll: 0
+      register: test_processes
+
+    - name: waiting for tests to be finished
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: inst
+      until: inst.finished
+      delay: 5
+      retries: 120
+      with_items: "{{ test_processes.results }}"

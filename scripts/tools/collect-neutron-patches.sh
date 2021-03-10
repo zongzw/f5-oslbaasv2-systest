@@ -17,3 +17,16 @@ for n in $changed_list; do
 done
 
 find $target_dir -type f
+
+which git
+if [ $? -ne 0 ]; then
+    echo "==>> git clone https://github.com/zongzw/neutron_lbaas_pike-devops-bed patches-to-repo"
+    exit 0
+fi
+
+git clone https://github.com/zongzw/neutron_lbaas_pike-devops-bed patches-to-repo
+
+echo "cp -r $target_dir/* patches-to-repo/patches/"
+cp -r $target_dir/* patches-to-repo/patches/
+
+echo "==>> git add . && git commit -m 'patches update at `date`' && git push"

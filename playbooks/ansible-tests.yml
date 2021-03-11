@@ -4,6 +4,25 @@
   gather_facts: False
   remote_user: root
   tasks:
+    - name: get mysql root password
+      shell: |
+        hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
+      register: root_db_password
+
+    - debug: msg="{{ root_db_password.stdout }}"
+
+    - import_tasks: ./task-download-scripts.yml
+
+    - name: clean data from barbican db tables
+      mysql_db:
+        name: barbican
+        login_user: root
+        login_password: "{{ root_db_password.stdout }}"
+        login_host: 10.250.22.53
+        target: /tmp/scripts/delete-from-barbican-db.sql
+        state: import
+      run_once: True
+
     # - name: pretend to create instance
     #   shell: sleep {{ item }} && exit 1
     #   with_items: "{{ range(1, 10, 1) | list }}"

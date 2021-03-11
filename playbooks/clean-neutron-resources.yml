@@ -17,8 +17,44 @@
         login_user: "{{neutron_db_info.results[0].stdout}}"
         login_password: "{{neutron_db_info.results[1].stdout}}"
         login_host: "{{neutron_db_info.results[2].stdout}}"
-        target: /tmp/scripts/delete-from-db.sql
+        target: /tmp/scripts/delete-from-neutron-db.sql
         state: import
       run_once: True
+
+    - name: get mysql root password
+      shell: |
+        hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
+      register: hiera_root_db_password
+      run_once: true
+      when: test_env == 'osp'
     
-    # TODO: clear barbican certificates
+    - name: get mysql root password
+      shell: grep wsrep_sst_auth /etc/my.cnf.d/server.cnf | cut -d ':' -f2
+      register: conf_root_db_password
+      run_once: true
+      when: test_env != 'osp'
+
+    - name: get final root db password
+      set_fact:
+        root_db_password: "{{ hiera_root_db_password }}"
+      run_once: true
+      when: test_env == 'osp'
+
+    - name: get final root db password
+      set_fact:
+        root_db_password: "{{ conf_root_db_password }}"
+      when: test_env != 'osp'
+      run_once: true
+
+    - debug: msg="{{ root_db_password }}"
+      run_once: true
+
+    - name: clean data from barbican db tables
+      mysql_db:
+        name: barbican
+        login_user: root
+        login_password: "{{ root_db_password.stdout }}"
+        login_host: "{{neutron_db_info.results[2].stdout}}"  # same host with neutron db
+        target: /tmp/scripts/delete-from-barbican-db.sql
+        state: import
+      run_once: True

@@ -9,6 +9,7 @@
   environment: "{{ proxy_env | default({}) }}"
   run_once: true
   tags: copyfile
+  when: nogit is not defined
 
 - name: list the files of patches directory
   shell: ls chdir=../conf.d/patches/pike/patches

@@ -1,10 +1,10 @@
 ---
 
-- hosts: 127.0.0.1
+- hosts: localhost
   gather_facts: false
   tasks:
     - name: get timestamp
-      shell: date +%s
+      shell: date +%Y%m%d%H%M%S
       register: timestamp
 
     - name: list all test environments

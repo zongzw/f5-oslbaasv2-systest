@@ -46,19 +46,23 @@
       file: path="{{ test_logpath }}" state=directory
 
     - name: run test_cases in parallel.
-      shell: | 
+      shell: |
+        cmd="ansible-playbook -i ../conf.d/{{ test_env }} -e @../conf.d/{{ test_suite }} ../testcases/dev_test.yml -t {{ item }}"
+        echo $cmd > {{ test_logpath }}/{{ item }}.log
+        date >> {{ test_logpath }}/{{ item }}.log
         start=`date +%s`
-        ansible-playbook \
-          -i ../conf.d/{{ test_env }}  \
-          -e @../conf.d/{{ test_suite }} \
-          ../testcases/dev_test.yml \
-          -t {{ item }} > {{ test_logpath }}/{{ item }}.log 
+        $cmd >> {{ test_logpath }}/{{ item }}.log
+        result=$?
         end=`date +%s`
         echo $(($end - $start)) >> {{ test_logpath }}/{{ item }}.log
+        exit $result
       with_items: "{{ test_cases }}"
-      async: 900
+      async: 1800
       poll: 0
       register: test_processes
+
+    # - name: show async processes ids
+    #   debug: msg="{{ test_processes }}"
 
     - name: waiting for tests to be finished
       async_status:

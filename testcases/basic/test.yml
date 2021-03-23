@@ -23,6 +23,12 @@
 #  with_items: "{{groups['clients_ipv4']}}"
 #  when: test_env == 'osp'
 
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  uri:
+    url: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients_ipv4']}}"
+  when: test_env == 'osp'
 
 
 - import_tasks: ./manual-changes.yml

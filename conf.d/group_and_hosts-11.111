@@ -1,0 +1,96 @@
+[all:vars]
+# webproxy = 10.250.64.99
+
+[neutron_servers]
+10.250.11.111
+
+[neutron_servers:vars]
+test_env = rdo
+openrc = /root/keystonerc_admin
+test_subnet = subnet-vlan-70
+test_ipv6_subnet = ipv6-pd-sub
+environment_prefix = CORE
+download_prefix = http://10.250.11.185/f5-packages
+service_providers = CORE
+
+[bigips]
+10.250.70.22
+
+[bigips:vars]
+admin_password = P@ssw0rd123
+root_password = P@ssw0rd123
+
+# ============ clients and backend_servers fix layout! ============
+#
+#                      clients
+#                         |
+#                         +-- clients_ipv4
+#                         |
+#                         \-- clients_ipv6
+#
+#                       backend_servers
+#                         |
+#                         +-- backend_servers_ipv4
+#                         |       |
+#                         |       +-- pool1
+#                         |       |
+#                         |       \-- pool2
+#                         |
+#                         \-- backend_servers_ipv6
+#
+# =================================================================
+
+[clients:children]
+clients_ipv4
+clients_ipv6
+
+[clients_ipv4]
+10.250.27.104
+
+[clients_ipv6]
+10.250.29.16
+
+[clients_ipv6:vars]
+ipv6 = 2005:db8:cafe:16::17
+
+[backend_servers:children]
+backend_servers_ipv4
+backend_servers_ipv6
+
+[backend_servers_ipv4:children]
+pool1
+pool2
+
+[pool1:children]
+servers_vlan26
+
+[pool2:children]
+servers_vlan28
+
+[backend_servers_ipv6:children]
+servers_vlan29
+
+[servers_vlan26]
+10.250.26.13
+10.250.26.7
+10.250.26.8
+
+[servers_vlan29]
+10.250.29.5
+
+[servers_vlan29:vars]
+ipv6 = 2005:db8:cafe:16::7
+
+[servers_vlan28]
+10.250.28.14
+10.250.28.5
+10.250.28.6
+
+[servers_vlan26:vars]
+subnet = vlan26_subnet
+
+[servers_vlan28:vars]
+subnet = vlan28_subnet
+
+[servers_vlan29:vars]
+subnet = vlan29_subnet

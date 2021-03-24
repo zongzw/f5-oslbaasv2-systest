@@ -4,6 +4,7 @@ import configparser
 import os
 import re
 import time
+import shutil
 
 if not 'service_providers' in os.environ:
     raise Exception("No 'service_providers' defined.")
@@ -37,9 +38,11 @@ def update_config(configpath, updatedpath):
                 if conf.has_section(section) and conf.has_option(option):
                     conf.remove_option(section, option)
             else:
+                if not conf.has_section(section):
+                    conf.add_section(section)
                 conf.set(section, option, conf_upd.get(section, option))
 
-    with open(configpath, 'w') as fw:
+    with open(configpath, 'w+') as fw:
         conf.write(fw)
 
 print("Configure /etc/neutron/neutron.conf")
@@ -49,8 +52,13 @@ print("Configure /etc/neutron/neutron_lbaas.conf")
 update_config('/etc/neutron/neutron_lbaas.conf', '/tmp/neutron_lbaas.conf')
 
 for provider in os.environ['service_providers'].split(','):
-    print("Configure /etc/neutron/services/f5/f5-openstack-agent-%s.ini" % provider)
-    update_config('/etc/neutron/services/f5/f5-openstack-agent-%s.ini' % provider, '/tmp/f5-openstack-agent-%s.ini' % provider)
+    f5_conf_path = "/etc/neutron/services/f5/f5-openstack-agent-%s.ini" % provider
+    print("Configure %s" % f5_conf_path)
+
+    if not os.path.exists(f5_conf_path):
+        shutil.copyfile('/etc/neutron/services/f5/f5-openstack-agent.ini', f5_conf_path)
+    
+    update_config(f5_conf_path, '/tmp/f5-openstack-agent-%s.ini' % provider)
 
 providers_strs = ['[service_providers]']
 

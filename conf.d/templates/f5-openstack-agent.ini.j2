@@ -3,6 +3,10 @@
 f5_agent_mode = lite
 periodic_interval = 120000
 debug = True
+
+agent_id = POD_{{ provider }}
+environment_prefix = {{ provider }}
+
 icontrol_hostname = {{ bigip_hostnames }}
 icontrol_password = {{ bigip_admin_password }}
 f5_global_routed_mode = False

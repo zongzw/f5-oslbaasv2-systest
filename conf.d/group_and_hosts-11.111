@@ -62,35 +62,35 @@ pool1
 pool2
 
 [pool1:children]
-servers_vlan26
+servers_vlan74
 
 [pool2:children]
-servers_vlan28
+servers_vlan72
 
 [backend_servers_ipv6:children]
-servers_vlan29
+servers_vlan73
 
-[servers_vlan26]
+[servers_vlan74]
 10.250.26.13
 10.250.26.7
 10.250.26.8
 
-[servers_vlan29]
+[servers_vlan73]
 10.250.29.5
 
-[servers_vlan29:vars]
+[servers_vlan73:vars]
 ipv6 = 2005:db8:cafe:16::7
 
-[servers_vlan28]
+[servers_vlan72]
 10.250.28.14
 10.250.28.5
 10.250.28.6
 
-[servers_vlan26:vars]
-subnet = vlan26_subnet
+[servers_vlan74:vars]
+subnet = subnet-vlan-74
 
-[servers_vlan28:vars]
-subnet = vlan28_subnet
+[servers_vlan72:vars]
+subnet = subnet-vlan-72
 
-[servers_vlan29:vars]
-subnet = vlan29_subnet
+[servers_vlan73:vars]
+subnet = subnet-vlan-73

@@ -7,7 +7,7 @@
 [neutron_servers:vars]
 test_env = rdo
 openrc = /root/keystonerc_admin
-test_subnet = subnet-vlan-70
+test_subnet = subnet-vlan-73
 test_ipv6_subnet = ipv6-pd-sub
 environment_prefix = CORE
 download_prefix = http://10.250.11.185/f5-packages

@@ -23,25 +23,64 @@ service_providers = CORE,DMZ
 admin_password = P@ssw0rd123
 root_password = P@ssw0rd123
 
+# ============ clients and backend_servers fix layout! ============
+#
+#                      clients
+#                         |
+#                         +-- clients_ipv4
+#                         |
+#                         \-- clients_ipv6
+#
+#                       backend_servers
+#                         |
+#                         +-- backend_servers_ipv4
+#                         |       |
+#                         |       +-- pool1
+#                         |       |
+#                         |       \-- pool2
+#                         |
+#                         \-- backend_servers_ipv6
+#
+# =================================================================
+
+[clients:children]
+clients_ipv4
+clients_ipv6
+
+[clients_ipv4]
+10.251.27.114
+
+[clients_ipv6]
+10.250.29.16
+
 [backend_servers:children]
+backend_servers_ipv4
+# backend_servers_ipv6
+
+[backend_servers_ipv4:children]
+pool1
+pool2
+
+[pool1:children]
+servers_vlan26
+
+[pool2:children]
 servers_vlan28
-# servers_vlan26
 
 [servers_vlan26]
-10.250.26.13
-10.250.26.7
-10.250.26.8
+10.251.26.103
+10.251.26.114
+10.251.26.108
 
 [clients]
 10.250.27.104
 
 [servers_vlan26:vars]
-subnet = vlan26_subnet
+subnet = b398a2c3-2330-46ed-9090-6569869b645c
 
 [servers_vlan28]
-10.250.28.14
-# 10.250.28.5
-# 10.250.28.6
+10.251.28.120
+10.251.28.116
 
 [servers_vlan28:vars]
-subnet = vlan28_subnet
+subnet = 7b6211df-f2fa-4047-a381-ef8855195db4

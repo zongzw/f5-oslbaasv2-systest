@@ -10,6 +10,8 @@ import re
 class LBaasV2Helper:
     # TODO auth with v2.0
     def __init__(self):
+
+      
         for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME', 'OS_PROJECT_DOMAIN_NAME']:
             if os.environ.get(n, None) == None:
                 traceback.print_exc()
@@ -28,7 +30,7 @@ class LBaasV2Helper:
         self.timestamp = int(time.time())
     
     def auth_token(self):
-
+        
         auth_url = "%s/auth/tokens" % self.os_auth_url
         payload = {
             "auth": {
@@ -260,3 +262,5 @@ if __name__ == "__main__":
 
     agents = h.get_agents(binary='f5-oslbaasv2-agent')
     print(json.dumps(agents, indent=2))
+
+

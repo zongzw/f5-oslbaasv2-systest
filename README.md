@@ -7,55 +7,59 @@ This is a project holding f5-openstack-lbaasv2 plugin's system test: environment
 * `conf.d/`: 
   * `kps/`: Certificate, keys or ssh keypairs for tls testing.
   * `patches/`: Some cusmization codes to neutron/neutron_lbaas framework. The code changes are organized in another repository: https://github.com/zongzw/neutron_lbaas_pike-devops-bed.
-  * `templates/`: Templates for lbaasv2 configurations, generally we have i.e. 2 providers configured during setting up neutron_lbaas/f5-openstack-agent services.
+  * `templates/`: Templates for lbaasv2 configurations, generally we have i.e. 2 providers configured during setting up neutron_lbaas/f5-openstack-agent services, named 'CORE' and 'DMZ'(optional).
   * `group_and_hosts-*`: Environment information. Find more details about the specific environment from each file, we call it environment_file.
   * `vars-*`: Versions and testcases information, we call it variable_file.
-* `logs/`: In the system test processes, we call ansible scripts within ansible script(See: [./playbooks/run-testcases-in-parallel.yml "run test_cases in parallel."](./playbooks/run-testcases-in-parallel.yml)), so we need to output all test cases' details to files. 
+* `logs/`: In the system test processes, we will call ansible scripts within ansible scripts(See: [./playbooks/run-testcases-in-parallel.yml "run test_cases in parallel."](./playbooks/run-testcases-in-parallel.yml)), so we need to output all test cases' details to log files. 
 
-  One folder for one run. Each of them is named as '**<time_string>--<environment_file>--<variable_file>**'.
+  One log folder for one time run. Each of them is named as '**<time_string>--<environment_file>--<variable_file>**'.
 
 * `playbooks/`: The most inmport folder placing all test scripts/tasks.
 
   They can be separated into two sets:
 
-  `Files starts with 'task-'`: They are a bundle of tasks which can be reused, usually for a standard procedure, can be **import_tasks** elsewhere.
+  `Files starting with 'task-'`: They are a bundle of tasks which can be reused, usually as a standard procedure, can be **import_tasks** elsewhere.
 
   `Files without 'task-' prefix`: They are standalone scripts callable via **ansible-playbook** command line. See Session 'Test Commands' part.
 
-* `scripts/`: They are kinds of shell/python/sql scripts called in playbook yamls, aiming for a easier way to handle test works rather than ansible scripts. In a long perspective, some of them needs to be rewrited in ansible way for consistence.
+* `scripts/`: They are kinds of shell/python/sql scripts called in playbook yamls, aiming for a easier way to handle test works rather than ansible scripts. In a long perspective, some of them need to be rewriten in ansible way for consistence.
 
    Not all the scripts are in use.
 
-* `testcases/`: All test cases. Each subfolder contains `test.yml` file. Beside this file, the test execution is self-organized within the folder.
+* `testcases/`: All test cases. Each subfolder contains a file named `test.yml`. Beside this file, the test execution is self-organized within the folder.
 
 ## Test Commands and Examples
 
 Running the tests via the following command line template:
 
 ```
-$ ansible-playbook -i conf.d/<environment_file> -e @conf.d/<variable_file> playbooks/<playbook_name> [some extra arguments]
+$ ansible-playbook \
+    -i conf.d/<environment_file> \
+    -e @conf.d/<variable_file> \
+    playbooks/<playbook_name> \
+    [some extra arguments]
 ```
 
 * `playbook_name` is the `Files witout 'task-' prefix` mentioned above.
 * `[some extra arguments]`: currently, we have three situations:
 
-  * `-t <tag>`: Run only a subset of tasks defined in ansible scripts with `tags:`. Find details from test case implementation under `testcases/`.
+  * `-t <tag>`: Run only a subset of tasks defined in ansible scripts tagged with `tags:`. Find details from test case implementation under `testcases/`.
   * `-e nogit=yes`: Don't git clone from https://github.com/zongzw/neutron_lbaas_pike-devops-bed when running `setup-neutron-lbaas.yml`. This aims to eliminate the github access issues. 
   * `-e nodelete=yes`: Don't delete resources after tests. By default, deletion is the part of a test.
 
-The `playbook_name`s can be grouped as following:
+The `playbook_name`s can be grouped as following examples:
 
 ### 1. Developing/Debugging
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/ansible-tests.yml`
 
-  This script is used for test/debug/verify some yaml code piece. Comment old codes and paste your code and run it for validation.
+  This script is used for test/debug/verify some yaml code piece. Comment old codes and paste your code pieces here and run it for validation.
 
 ### 2. Clean up Resources
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/clean-bigip-partitions.yml`
 
-  This script is used clean up all bigip configurations under partitions except 'Common'(Removing partition itself as well).
+  This script is used to clean up all bigip configurations under partitions except 'Common'(Removing partitions themself as well).
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/clean-neutron-resources.yml` 
 
@@ -65,7 +69,7 @@ The `playbook_name`s can be grouped as following:
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/ensure-local-env.yml` 
 
-  This script is used to setup localhost, since we need passwordless access to hosts defined in `conf.d/group_and_hosts-*`.
+  This script is used to setup localhost such as ssh keys, yum installations and so on, since we need passwordless access to hosts defined in `conf.d/group_and_hosts-*`.
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/prepare-keypairs.yml`
 
@@ -73,7 +77,7 @@ The `playbook_name`s can be grouped as following:
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/setup-barbican.yml`
 
-  This script is used to setup barbican component for non-`osp` type environments. `osp` type environments are set up by RedHat and KDDI, which are container-based environments, comparing to `rdo` type environments which are set up via `packstack`.
+  This script is used to setup barbican component for non-`osp` type environments. `osp` type environments are set up by RedHat and KDDI. They are container-based environments, comparing to `rdo` type environments which are set up via `packstack`.
 
   Currently, in `conf.d/group_and_hosts-*`, `lab` and `kddi` are `osp` environments, see `[neutron_servers:vars] test_env = osp` in `conf.d/group_and_hosts-*`.
 
@@ -81,7 +85,7 @@ The `playbook_name`s can be grouped as following:
 
   This script is used to setup/refresh neutron/neutron_lbaas installation/configuration, with f5-* installation/configuration included.
 
-  This is an important script to use **frequently** when deploying new versions of plugins or switching versions.
+  This is an important script, will be used **frequently** for deploying new versions of plugins or switching versions.
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/setup-clients.yml`
 
@@ -89,7 +93,7 @@ The `playbook_name`s can be grouped as following:
 
   These scripts are used to setup test clients and test servers(defined as `[clients]` and `[servers]` in `conf.d/group_and_hosts-*`).
 
-  Furthermore, take a look at the `clients and backend_servers fix layout!` session in `conf.d/group_and_hosts-*` when we you add one more environment.
+  Furthermore, take a look at the `clients and backend_servers fix layout!` session in `conf.d/group_and_hosts-*` when you need to add new environment.
 
   ```
     # ============ clients and backend_servers fix layout! ============
@@ -119,9 +123,9 @@ The `playbook_name`s can be grouped as following:
 
 * `$ ansible-playbook -i conf.d/group_and_hosts-dev -e @conf.d/vars-zte-private.yml playbooks/run-testcases.yml`
 
-  This script is used to run tests in parallel mode, which is much faster than `run-testcasts.yml` which is in serial mode.
+  These script are used to run tests in parallel/serial mode. 'parallel' mode is much faster than 'serial' mode since all tests are run cocurrently.
 
-  Some tests may fails because of variable reasons. We need to trace the failure case by case:
+  Some tests may fail because of variable reasons. We need to trace the failures case by case:
 
   * Because of environment setup issues: 
     
@@ -137,4 +141,4 @@ The `playbook_name`s can be grouped as following:
 
     * system test scripts should be upgraded/fixed to compat code changes.
 
-  * may be more ...
+  * Because of any other ...

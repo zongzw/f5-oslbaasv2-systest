@@ -32,6 +32,8 @@
     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
     os_password: "{{ os_env.stdout_lines[1] }}"
 
+# TODO: appoint f5_external_physical_mappings in j2, 
+#   since interfaces for provisioning may vary between environments
 - name: generate f5-openstack-agent-xx.ini
   template:
     src: ../conf.d/templates/f5-openstack-agent.ini.j2

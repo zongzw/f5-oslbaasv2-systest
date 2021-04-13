@@ -49,6 +49,8 @@
     - debug: msg="{{ root_db_password }}"
       run_once: true
 
+
+    
     - name: clean data from barbican db tables
       mysql_db:
         name: barbican

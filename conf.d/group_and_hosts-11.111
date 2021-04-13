@@ -12,9 +12,11 @@ test_ipv6_subnet = ipv6-pd-sub
 environment_prefix = CORE
 download_prefix = http://10.250.11.185/f5-packages
 service_providers = CORE
+neutron_servers = 10.250.11.111
 
 [bigips]
 10.250.70.22
+
 
 [bigips:vars]
 admin_password = P@ssw0rd123

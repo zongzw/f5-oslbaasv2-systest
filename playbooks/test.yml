@@ -1,0 +1,6 @@
+- hosts: neutron_servers[0]
+  gather_facts: False
+  remote_user: root
+  tasks:
+    - debug:
+        msg: "{{neutron_servers}}"

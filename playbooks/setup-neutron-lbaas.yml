@@ -18,6 +18,9 @@
         - customizeneutron
         - reinstallf5packages
         - configureservices
+      when: do_this_task == 1
+      vars:
+        do_this_task: 1
 
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron

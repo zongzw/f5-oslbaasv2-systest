@@ -15,9 +15,9 @@ service_providers = CORE
 neutron_servers = 10.250.11.111
 
 [bigips]
-10.250.70.22
-
-
+#10.250.70.22
+10.250.11.195
+#10.250.11.196
 [bigips:vars]
 admin_password = P@ssw0rd123
 root_password = P@ssw0rd123

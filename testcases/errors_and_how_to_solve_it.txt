@@ -1,0 +1,5 @@
+TASK [debug bigip_infos] *******************************************************
+fatal: [10.250.11.111]: FAILED! => {"msg": "You need to install \"jmespath\" prior to running json_query filter"}
+
+解决方法: 执行ansible-playbook 的机器 执行 pip3 install jmespath 命令 
+如果还出错，执行   sudo python3 -m pip install jmespath  (适用于MacOSX)

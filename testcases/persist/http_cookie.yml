@@ -30,6 +30,7 @@
   loop_control:
     label: "http_cookie_{{ environment_prefix }}_{{ listener_id }}"
 
+
 - name: "now, without http_cookie, the responses are from anyone of {{ groups['pool1'] | join(' ') }}"
   shell: |
     curl -I -v http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H "Cookie: JSESSIONID={{ jsession_id }}" | grep "Set-Cookie: "

@@ -72,6 +72,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "wrapper_policy_{{ listener_id }}"
+ 
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}/api

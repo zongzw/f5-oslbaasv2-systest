@@ -87,6 +87,8 @@
   with_items:
     - "{{service_providers.split(',')}}"
 
+
+
 - name: waiting for agents to be ready
   shell: |
     source {{ openrc }} && python /tmp/scripts/waiting-for-agents-ready.py

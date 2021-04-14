@@ -13,6 +13,7 @@
     - neutron --debug lbaas-pool-create --name {{ pool }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
     - neutron --debug lbaas-listener-create --name {{ listener }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
     - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }} --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}
+  ignore_errors: true
 
 - name: "{{ testcasename }}: create members under pool {{ pool }}"
   shell: |
@@ -21,8 +22,11 @@
       neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} --address {{ item }} --protocol-port {{ member_tcpport }} {{ pool }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['pool1'] }}"
+  ignore_errors: true
 
 - name: "{{ testcasename }}: waiting for resource created"
   shell: |
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
+  ignore_errors: true
+  

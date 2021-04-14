@@ -61,6 +61,7 @@
   loop_control:
     label: "{{ environment_prefix}}_{{ listener_id }}"
   
+  
 - name: "{{ testcasename }}: delete lbaasv2 resources"
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}

@@ -15,6 +15,7 @@ testcases:
   - name: ftp
   - name: udp
   - name: ipv6
+  - name: bwc
   # - name: toa
   # - name: esd
   

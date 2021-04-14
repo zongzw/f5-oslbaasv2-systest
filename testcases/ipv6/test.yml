@@ -43,6 +43,7 @@
   loop_control:
     label: "{{ item.item }} - listener:{{listener_id}} - loadbalancer:{{loadbalancer_id}}"
   run_once: true
+ 
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}

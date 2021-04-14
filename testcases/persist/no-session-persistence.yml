@@ -29,6 +29,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ environment_prefix}}_{{ listener_id }}"
+ 
 
 - name: "now, the response is randomly from {{ groups['pool1'] | join(' ') }}"
   shell: |

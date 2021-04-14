@@ -36,6 +36,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "bwc_irule_{{ loadbalancer_id }}"
+  
 
 # TODO: more check on bwc policy, vs irule binding
 # - name: "there is no way to get acceleration -> bwc controller policy through bigip_device_info."

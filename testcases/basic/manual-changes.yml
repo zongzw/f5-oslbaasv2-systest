@@ -50,6 +50,8 @@
   delegate_to: localhost
   run_once: true
 
+
+
 - name: debug bigip_infos
   debug: msg="{{ (item | json_query(query_string))[0]['insert_x_forwarded_for'] }}"
   vars:
@@ -57,6 +59,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ item.item }}"
+  
 
 - name: assert insert_x_forwarded_for is still no after neutron listener update
   assert:
@@ -68,6 +71,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ item.item }}"
+ 
 
 - name: assert virtual_server's description is kept updated
   assert:
@@ -79,3 +83,4 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ item.item }}"
+ 

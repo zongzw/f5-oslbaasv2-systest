@@ -53,6 +53,7 @@
   loop_control:
     label: "irule_{{ irule_ids.stdout }}"
 
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -v
   args:

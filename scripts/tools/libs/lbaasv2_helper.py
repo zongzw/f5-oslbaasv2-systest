@@ -12,6 +12,8 @@ class LBaasV2Helper:
     def __init__(self):
 
       
+        
+        #for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME']:
         for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME', 'OS_PROJECT_DOMAIN_NAME']:
             if os.environ.get(n, None) == None:
                 traceback.print_exc()
@@ -23,6 +25,10 @@ class LBaasV2Helper:
             raise Exception("invalid OS_AUTH_URL") 
         self.os_host = matched.group(1)
         self.os_project_name = os.environ['OS_PROJECT_NAME']
+        #if('OS_PROJECT_DOMAIN_NAME' in os.environ == True): 
+        #    self.os_project_domain_name = os.environ['OS_PROJECT_DOMAIN_NAME']
+        #else:
+        #    self.os_project_domain_name = "Default"
         self.os_project_domain_name = os.environ['OS_PROJECT_DOMAIN_NAME']
         self.os_username = os.environ['OS_USERNAME']
         self.os_password = os.environ['OS_PASSWORD']

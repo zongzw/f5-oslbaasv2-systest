@@ -7,6 +7,7 @@ debug = True
 agent_id = POD_{{ provider }}
 environment_prefix = {{ provider }}
 
+f5_ha_type = {{bigip_pair_mode}}
 icontrol_hostname = {{ bigip_hostnames }}
 icontrol_password = {{ bigip_admin_password }}
 f5_global_routed_mode = False

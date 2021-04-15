@@ -24,6 +24,7 @@
   with_items: "{{ groups['bigips'] }}"
   delegate_to: localhost
 
+
 - name: assert resources are created on bigips
   assert:
     that:

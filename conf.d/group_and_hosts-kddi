@@ -1,5 +1,5 @@
 [all:vars]
-webproxy = 10.250.64.99
+#webproxy = 10.250.64.99
 
 [neutron_servers]
 10.251.13.58
@@ -8,8 +8,8 @@ webproxy = 10.250.64.99
 
 [neutron_servers:vars]
 test_env = osp
-#openrc = /home/heat-admin/overcloudrc
-openrc = /home/heat-admin/overcloudrc-v2.0
+openrc = /home/heat-admin/overcloudrc
+#openrc = /home/heat-admin/overcloudrc-v2.0
 test_subnet = 10.251.27.0/24
 #test_ipv6_subnet = ipv6-pd-sub
 environment_prefix = CORE
@@ -18,7 +18,9 @@ service_providers = CORE,DMZ
 
 [bigips]
 10.250.11.196
-#10.250.11.195
+10.250.11.195
+#10.250.11.193
+#10.250.11.194
 
 [bigips:vars]
 admin_password = P@ssw0rd123

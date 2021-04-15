@@ -3,14 +3,26 @@
 - hosts: neutron_servers[0]
   gather_facts: False
   remote_user: root
+  vars:
+    bigip_pair_mode: standalone
   tasks:
+    - debug: 
+        msg: "{{ groups['bigips'] | join(',') }}"
+    - debug: 
+        msg: "{{ bigip_pair_mode }}"
+    - set_fact:
+        bigip_pair_mode: standalone
+      when: groups['bigips'] | length ==1
+    - set_fact:
+        bigip_pair_mode: pair
+      when: groups['bigips'] | length !=1
+    - debug: 
+        msg: "{{ bigip_pair_mode }}"
   #
   #  - name: get mysql root password
   #    shell: |
   #     hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
   #    register: root_db_password
-
-
     - name: get mysql root password
       shell: |
         hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
@@ -38,19 +50,19 @@
 
     - debug: msg="{{ root_db_password.stdout }}"
 
-    - import_tasks: ./task-download-scripts.yml
+  #  - import_tasks: ./task-download-scripts.yml
 
-    - name: clean data from barbican db tables
-      mysql_db:
-        name: barbican
-        login_user: root
-        login_password: "{{ root_db_password.stdout }}"
+  #  - name: clean data from barbican db tables
+  #    mysql_db:
+   #     name: barbican
+   #     login_user: root
+   #     login_password: "{{ root_db_password.stdout }}"
     
         #login_password: mariadb_password
-        login_host: "{{neutron_servers}}"
-        target: /tmp/scripts/delete-from-barbican-db.sql
-        state: import
-      run_once: True
+   #     login_host: "{{neutron_servers}}"
+    #    target: /tmp/scripts/delete-from-barbican-db.sql
+   #     state: import
+    #  run_once: True
 
     # - name: pretend to create instance
     #   shell: sleep {{ item }} && exit 1

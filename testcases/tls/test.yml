@@ -1,3 +1,7 @@
+
+
+- pause: prompt="Warning! Detected slight issue. ENTER to continue CTRL-C a to quit" 
+
 - name: check barbican is available
   shell: source {{ openrc }} && barbican secret container list
 

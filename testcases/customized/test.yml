@@ -27,19 +27,6 @@
   delegate_to: localhost
   
 # - debug: msg={{ bigip_infos }}
-- name: jinshuo1
-  debug: 
-    msg: "{{item}}"
-  vars:
-    query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
-  with_items: "{{ bigip_infos.results }}"
-  loop_control:
-    label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
-- name: jinshuo2
-  debug:
-    msg: "{{query_string}}"
-  vars:
-    query_string: "http_profiles[?name == 'http_profile_{{ environment_prefix }}_{{ listener_id }}']"
 
 - name: assert http_profile insert_x_forwarded_for is no
   assert:

@@ -17,15 +17,8 @@ download_prefix = http://10.250.11.185/f5-packages
 service_providers = CORE,DMZ
 
 [bigips]
-<<<<<<< HEAD
-10.250.11.196
-10.250.11.195
-#10.250.11.193
-#10.250.11.194
-=======
 10.250.11.195
 10.250.11.196
->>>>>>> b64a9a38c8347cdb1f69198d0594af4ab1e53e78
 
 [bigips:vars]
 admin_password = P@ssw0rd123

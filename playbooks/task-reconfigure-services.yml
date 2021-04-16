@@ -32,6 +32,14 @@
     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
     os_password: "{{ os_env.stdout_lines[1] }}"
 
+# if bigips has only one ip, then use standalone, otherwise use pair
+- set_fact:
+    bigip_pair_mode: standalone
+  when: groups['bigips'] | length ==1
+- set_fact:
+    bigip_pair_mode: pair
+  when: groups['bigips'] | length !=1
+
 # TODO: appoint f5_external_physical_mappings in j2, 
 #   since interfaces for provisioning may vary between environments
 - name: generate f5-openstack-agent-xx.ini

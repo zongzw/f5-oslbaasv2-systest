@@ -40,6 +40,7 @@
     label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: JSESSIONID={{ jsession_id }}'"
   register: curl_results
   with_items: "{{ range(0, 10, 1) | list }}"
+  delegate_to: "{{ groups['clients_ipv4'][0] }}"
 
 - set_fact:
     unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"
@@ -64,6 +65,7 @@
     label: "{{ item }}: http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -H 'Cookie: {{ uri_responses.cookies_string }}'"
   register: curl_results
   with_items: "{{ range(0, 10, 1) | list }}"
+  delegate_to: "{{ groups['clients_ipv4'][0] }}"
 
 - set_fact:
     unique_responses: "{{ curl_results.results | map(attribute='stdout') | unique | list }}"

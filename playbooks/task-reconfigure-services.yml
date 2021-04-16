@@ -101,7 +101,8 @@
   with_items:
     - "{{service_providers.split(',')}}"
 
-
+- name: waiting for user to confirm
+  pause: prompt="configuring done, press enter to do smoking test ..."
 
 - name: waiting for agents to be ready
   shell: |

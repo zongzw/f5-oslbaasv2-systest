@@ -23,6 +23,9 @@
 
 # - debug: msg="{{ curl_results }}"
 
+
+
+
 # assert the response is from pool1
 - name: "assert the response is from pool1"
   assert:

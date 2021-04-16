@@ -1,8 +1,5 @@
 
-#- shell: source {{ openrc }} && echo $OS_AUTH_URL
-#  register: jinshuo_res
-#- debug:
- #   msg: var1 is {{jinshuo_res}}
+
 
 #- pause: prompt="Warning! Detected slight issue. ENTER to continue CTRL-C a to quit" 
 

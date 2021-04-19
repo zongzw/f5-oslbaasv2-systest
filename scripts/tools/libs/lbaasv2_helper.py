@@ -10,7 +10,8 @@ import re
 class LBaasV2Helper:
     # TODO auth with v2.0
     def __init__(self):
-        for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME', 'OS_PROJECT_DOMAIN_NAME']:
+        #for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME', 'OS_PROJECT_DOMAIN_NAME']:
+        for n in ['OS_AUTH_URL', 'OS_USERNAME', 'OS_PASSWORD', 'OS_PROJECT_NAME']:
             if os.environ.get(n, None) == None:
                 traceback.print_exc()
                 raise Exception("environment %s not defined." % n)
@@ -21,14 +22,43 @@ class LBaasV2Helper:
             raise Exception("invalid OS_AUTH_URL") 
         self.os_host = matched.group(1)
         self.os_project_name = os.environ['OS_PROJECT_NAME']
-        self.os_project_domain_name = os.environ['OS_PROJECT_DOMAIN_NAME']
+        if "OS_PROJECT_DOMAIN_NAME" in os.environ:
+            self.os_project_domain_name = os.environ['OS_PROJECT_DOMAIN_NAME']
+        else:
+            self.os_project_domain_name = "Default"
         self.os_username = os.environ['OS_USERNAME']
         self.os_password = os.environ['OS_PASSWORD']
         self.authed_token = self.auth_token()
         self.timestamp = int(time.time())
-    
-    def auth_token(self):
+    def auth_token_v2(self):
+        auth_url = "%s/tokens" % self.os_auth_url
+        payload = {
+            "auth": {
+                "tenantName": self.os_project_name,
+                "passwordCredentials": {
+                    "username": self.os_username,
+                    "password": self.os_password
+                }
+            }
+        }
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        payload_data = json.dumps(payload)
+        try:
+            response = requests.request("POST", auth_url, headers=headers, data = payload_data)
 
+            if int(response.status_code / 200) == 1:       
+                tokenid = response.json()["access"]["token"]["id"]
+                return tokenid
+            else:
+                print("failed to auth token: %d, %s" % (response.status_code, response.text.encode('utf-8')))
+                sys.exit(1)
+        except Exception as e:
+            traceback.print_exc()
+            raise e
+    def auth_token(self):
+        
         auth_url = "%s/auth/tokens" % self.os_auth_url
         payload = {
             "auth": {
@@ -56,6 +86,18 @@ class LBaasV2Helper:
                 }
             }
         }
+
+        if "v2.0" in self.os_auth_url:
+            auth_url = "%s/tokens" % self.os_auth_url
+            payload = {
+            "auth": {
+                "tenantName": self.os_project_name,
+                "passwordCredentials": {
+                    "username": self.os_username,
+                    "password": self.os_password
+                }
+            }
+        }
         headers = {
             'Content-Type': 'application/json'
         }
@@ -65,7 +107,10 @@ class LBaasV2Helper:
             response = requests.request("POST", auth_url, headers=headers, data = payload_data)
 
             if int(response.status_code / 200) == 1:
-                return response.headers['X-Subject-Token']
+                if "v2.0" in self.os_auth_url:
+                    return response.json()["access"]["token"]["id"]
+                else:
+                    return response.headers['X-Subject-Token']
             else:
                 print("failed to auth token: %d, %s" % (response.status_code, response.text.encode('utf-8')))
                 sys.exit(1)
@@ -218,6 +263,7 @@ class LBaasV2Helper:
 
 
     def get_agents(self, **kwargs):
+       
         agents_url = "http://%s:9696/v2.0/agents" % (self.os_host)
 
         payload  = {}
@@ -232,12 +278,13 @@ class LBaasV2Helper:
         
         if queries:
             agents_url = "%s?%s" % (agents_url, '&'.join(queries))
-
+        
         try:
             response = requests.request("GET", agents_url, headers=headers, data = payload)
             
             if int(response.status_code / 200) == 1:
                 # print(json.dumps(json.loads(response.text.encode('utf8')), indent=2))
+               
                 return json.loads(response.text.encode('utf8'))
             else:
                 print("failed to get loadbalancer: %d, %s" % (response.status_code, response.text.encode('utf-8')))
@@ -259,4 +306,5 @@ if __name__ == "__main__":
     # h.delete_loadbalancer(lbid)
 
     agents = h.get_agents(binary='f5-oslbaasv2-agent')
+    #agents = h.get_agents()
     print(json.dumps(agents, indent=2))

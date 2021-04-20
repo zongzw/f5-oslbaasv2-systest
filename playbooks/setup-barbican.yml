@@ -1,1 +1,2 @@
 # TODO: setup barbican for dev host.
+# refer to: https://github.com/zongzw/neutron_lbaas_pike-devops-bed/blob/master/ansible-scripts-lab-allinone/install-barbican.yml

@@ -1,5 +1,5 @@
 - name: check barbican is available
-  shell: source {{ openrc }} && barbican secret container list
+  shell: source {{ openrc }} && barbican secret container list --os-project-id $OS_PROJECT_ID
 
 - import_tasks: ../../playbooks/task-create-secret-container-hrefs.yml
   tags:

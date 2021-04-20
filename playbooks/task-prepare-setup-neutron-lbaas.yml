@@ -25,6 +25,8 @@
       wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py && \
       python /tmp/get-pip.py
     fi
+    # pip 21.0 will drop support for Python 2.7 in January 2021
+    pip install --upgrade pip===20.3.4
     pip install configparser
   environment: "{{ proxy_env | default({}) }}"
   tags: 

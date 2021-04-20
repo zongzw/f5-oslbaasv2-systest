@@ -1,6 +1,6 @@
 versions:
   agent: mb.upd.opt
-  driver: 12.2.0
+  driver: 212.5.2
   icontrol: 1.3.9
   f5sdk: 3.0.11.1
 

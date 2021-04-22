@@ -43,6 +43,14 @@
       with_items: "{{bigip_infos.partitions}}"
       when: item.name != 'Common'
     
+    # In some case: 
+    #   01070523:3: No Vlan association for STP Interface Member 1.1.
+    #   Unexpected Error: Loading configuration process failed.
+    # use:
+    #   $ tmsh load /sys config default
+    #   $ tmsh save /sys config partitions all
+    # but, thereafter, we need to reprovision the bigip, no licensing needed.
+
     - name: executing tmsh load sys config
       shell: tmsh load sys config
 

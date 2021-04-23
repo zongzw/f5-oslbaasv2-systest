@@ -42,6 +42,12 @@
         dest: /etc/nginx/nginx.conf
       when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
 
+    - name: start nginx if nginx is not runninng
+      shell: |
+        ps  -ef  | grep  -v  grep  |  grep "nginx: master process"
+        if  [  $?  -ne 0  ];  then nginx; fi;
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
     - name: reload nginx to apply new nginx.conf
       shell: nginx -s reload
       when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']

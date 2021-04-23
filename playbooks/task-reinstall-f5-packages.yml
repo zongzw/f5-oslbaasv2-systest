@@ -8,6 +8,8 @@
     - "{{ download_prefix }}/f5-openstack-agent-{{ versions.agent }}-1.el7.noarch.rpm"
   when: (download_prefix | regex_search("^https://github.com")) == None
 
+# TODO: remove the github sceniaro, and support build release test, like: f5-openstack-agent-9.9.2-338.el7.noarch.rpm
+#    this rpm name format is different with f5-openstack-agent-9.8.45-1.el7.noarch.rpm, where build number is not 1
 - name: download f5-* packages
   get_url: url={{ item }} dest=/tmp timeout=30
   with_items:

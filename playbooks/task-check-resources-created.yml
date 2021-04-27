@@ -14,7 +14,8 @@
       # - profiles
       # - devices
       # - http-profiles
-      - monitors
+      #- monitors
+      - gateway-icmp-monitors
     provider:
       user: admin
       server: "{{ item }}"
@@ -31,8 +32,19 @@
       - "'{{loadbalancer_id}}' in '{{item.virtual_addresses | map(attribute='name') | list | join(' ') }}'"
       - "'{{listener_id}}' in '{{item.virtual_servers | map(attribute='name') | list | join(' ') }}'"
       - "'{{pool_id}}' in '{{item.ltm_pools | map(attribute='name') | list | join(' ') }}'"
-      # TODO: check member and healthmonitor
+      - "'{{healthmonitor}}' in '{{item.gateway_icmp_monitors | map(attribute='description',default='default') | list | join(' ') | replace(':','') }}'"  
     quiet: yes
   with_items: "{{bigip_infos.results}}"
   loop_control:
     label: "{{ item.item }}"
+
+- name: assert members are created on bigips
+  assert:
+    that:     
+      - "'{{item[0]}}' in '{{item[1].ltm_pools | map(attribute='members') | flatten | map(attribute='description') |list| join(' ')}}'"
+    quiet: yes
+  with_nested:
+    - "{{member_ids}}"
+    - "{{bigip_infos.results}}"
+  loop_control:
+    label: "memberid: '{{item[0]}}'  "

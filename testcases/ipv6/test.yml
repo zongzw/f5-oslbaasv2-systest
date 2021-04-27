@@ -68,6 +68,9 @@
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers_ipv6'] }}"
 
+# TODO: check the ipv6 member's status from neutron db is ONLINE after creation.
+#   reference: https://github.com/zongzw/f5-oslbaasv2-tools/blob/master/f5-oslbaasv2-batchops/scripts/ansible-scripts/if-exists-resource.sh
+
 - name: "{{ testcasename }}: waiting for ipv6 resource created/updated"
   shell: |
     source {{ openrc }} && \

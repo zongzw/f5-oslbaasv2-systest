@@ -1,0 +1,37 @@
+
+- set_fact:
+    test_casename: "basic test"
+    test_listener_protocol: HTTP
+    test_pool_protocol: HTTP
+    test_listener_tcpport: 80
+    test_healthmonitor_protocol: PING
+
+- import_tasks: ../../playbooks/task-define-resources.yml
+
+- import_tasks: ../../playbooks/task-create-resources.yml
+
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
+- import_tasks: ../../playbooks/task-check-resources-created.yml
+
+# TODO: check the new created members' operating_status from neutron db are ONLINE.
+
+- name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
+  shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
+  args:
+    warn: no # TODO: Consider using the get_url or uri module rather than running 'curl'
+  delegate_to: "{{ item }}"
+  with_items: "{{groups['clients_ipv4']}}"
+  when: test_env == 'osp'
+
+- import_tasks: ./manual-changes.yml
+
+- import_tasks: ./member-operating-status.yml
+
+- import_tasks: ../../playbooks/task-remove-resources.yml
+
+- name: pause for 5 seconds to wait for loadbalancer on bigip disappears
+  pause: seconds=5
+
+- import_tasks: ../../playbooks/task-check-resources-removed.yml
+  when: nodelete is not defined

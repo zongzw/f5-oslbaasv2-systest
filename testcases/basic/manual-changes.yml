@@ -79,3 +79,6 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ item.item }}"
+
+# TODO: Add 1 more member to bigip, check neutron db unchanged.
+# TODO: Delete 1 member from bigip, check neutron db unchanged.

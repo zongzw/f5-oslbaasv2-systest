@@ -1,5 +1,11 @@
+- name: get os-project-id
+  shell: source {{ openrc }} && openstack project show $OS_PROJECT_NAME --format value --column id
+  register: shell_os_project_id
+- set_fact: 
+    os_project_id: "{{ shell_os_project_id.stdout }}"
+
 - name: check barbican is available
-  shell: source {{ openrc }} && barbican secret container list --os-project-id $OS_PROJECT_ID
+  shell: source {{ openrc }} && barbican secret container list --os-project-id {{ os_project_id }}
 
 - import_tasks: ../../playbooks/task-create-secret-container-hrefs.yml
   tags:

@@ -1,0 +1,25 @@
+# TODO: Multiple networks(shared nonshared) creation and deletion test.
+#   steps:
+      # 1. Create 'Dev' user and tenant.
+      # 2. Generate and source rc file, i.e /root/devrc.
+      # 3. The following steps are all under Dev user and tenant.
+      # 4. Create 2 non-share networks: test-net-a, test-net-b
+      # 5. Test 1: 
+      #       1. Create LB in test-net-a
+      #       2. Create pool
+      #       3. Create member with test-net-a
+      #       4. Create member with test-net-b
+      #       5. Verify LB, pool, 2 members exist on bigip.
+      #       6. Delete 2 members, pool, LB.
+      #       7. [Important] Validate The partition 'Dev' is removed.
+      # 6. Test 2:
+      #       1. Create LB in {{ test_subnet }}
+      #       2. Create pool
+      #       3. Create member with {{ test_subnet }}
+      #       4. Create member with test-net-a
+      #       5. Create member with test-net-b
+      #       6. Verify LB, pool, 3 members exist on bigip.
+      #       7. Delete 2 members, pool, LB.
+      #       8. [Important] Validate The partition 'Dev' is removed.
+      # 7. Remove Dev user and tenant(including networks)
+      

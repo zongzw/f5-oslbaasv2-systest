@@ -1,0 +1,52 @@
+
+- set_fact:
+    test_casename: "SNI test"
+    test_pool_protocol: HTTP
+    test_listener_protocol: TERMINATED_HTTPS
+    test_listener_tcpport: 443
+    test_listener_additional_options: --default-tls-container={{ server_container1_href }} --sni-container-refs {{ server_container2_href }} {{ server_container3_href }}
+    test_healthmonitor_protocol: PING
+
+- import_tasks: ../../playbooks/task-define-resources.yml
+
+- import_tasks: ../../playbooks/task-create-resources.yml
+
+- import_tasks: ../../playbooks/task-get-resourceids.yml
+
+- name: Get a cert from an https port
+  community.crypto.get_certificate:
+    host: "{{ vip_address.stdout }}"
+    server_name: server{{ item }}.f5.oslbaas.systest
+    port: "{{ test_listener_tcpport }}"
+    ca_cert: /tmp/kps/ca.crt
+  with_items: "{{ range(1, 6, 1) | list }}"
+  register: certs
+
+- name: assert server certificate is valid
+  assert:
+    that:
+      - certs.results[0].issuer.C == 'CN'
+      - certs.results[0].issuer.O == 'F5China'
+      - certs.results[0].issuer.emailAddress == 'a.zong@f5.com'
+      - certs.results[0].subject.CN == 'server1.f5.oslbaas.systest'
+      - certs.results[1].subject.CN == 'server2.f5.oslbaas.systest'
+      - certs.results[2].subject.CN == 'server3.f5.oslbaas.systest'
+      - certs.results[3].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
+      - certs.results[4].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
+
+- name: "Check SNI {{ test_listener_tcpport }} is reachable"
+  shell: |
+    curl -v -k \
+      --resolve "server{{ item[1] }}.f5.oslbaas.systest:{{ test_listener_tcpport }}:{{ vip_address.stdout }}" \
+      https://server{{ item[1] }}.f5.oslbaas.systest:{{ test_listener_tcpport }} 2>&1 | grep "subject: CN=server{{ item[1] }}.f5.oslbaas.systest"
+  args:
+    warn: no
+  delegate_to: "{{ item[0] }}"
+  with_nested: 
+    - "{{groups['clients_ipv4']}}"
+    - "{{ range(1, 4, 1) | list }}"
+  loop_control:
+    label: "{{ item[0] }} -> server{{ item[1] }}.f5.oslbaas.systest"
+  when: test_env == 'osp'
+
+- import_tasks: ../../playbooks/task-remove-resources.yml

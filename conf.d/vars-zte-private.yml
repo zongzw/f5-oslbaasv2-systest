@@ -1,8 +1,8 @@
 versions:
-  agent: 9.8.45
-  driver: 312.4.4
-  icontrol: 1.3.9
-  f5sdk: 3.0.11
+  agent: 9.8.45-1
+  driver: 312.4.4-1
+  icontrol: 1.3.9-1
+  f5sdk: 3.0.11-1
 
 testcases:
   - name: basic

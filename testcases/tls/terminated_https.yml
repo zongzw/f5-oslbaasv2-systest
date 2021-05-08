@@ -13,21 +13,26 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
-- name: Get a cert from an https port
+- name: Get certs from an https port
   community.crypto.get_certificate:
     host: "{{ vip_address.stdout }}"
-    server_name: server1.f5.oslbaas.systest
+    server_name: server{{ item }}.f5.oslbaas.systest
     port: "{{ test_listener_tcpport }}"
     ca_cert: /tmp/kps/ca.crt
-  register: cert
+  register: certs
+  with_items: "{{ range(1, 6, 1) | list }}"
 
 - name: assert server certificate is valid
   assert:
     that:
-      - cert.issuer.C == 'CN'
-      - cert.issuer.O == 'F5China'
-      - cert.issuer.emailAddress == 'a.zong@f5.com'
-      - cert.subject.CN == 'server1.f5.oslbaas.systest'
+      - certs.results[0].issuer.C == 'CN'
+      - certs.results[0].issuer.O == 'F5China'
+      - certs.results[0].issuer.emailAddress == 'a.zong@f5.com'
+      - certs.results[0].subject.CN == 'server1.f5.oslbaas.systest'
+      - certs.results[1].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
+      - certs.results[2].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
+      - certs.results[3].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
+      - certs.results[4].subject.CN == 'server1.f5.oslbaas.systest' # domain name not found, thus default to server1
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
@@ -37,6 +42,35 @@
   with_items: "{{groups['clients_ipv4']}}"
   when: test_env == 'osp'
 
-# TODO: tls certificate updating test.
+- name: "{{ testcasename }}: update listener with tls sni certs"
+  # command `neutron lbaas-listener-update` does not support updating tls default/sni certificates.
+  # so we need to use neutron v2 rest api within update_tls_listener_with_sni.py script.
+  shell: |
+    source {{ openrc }} && \
+    python /tmp/scripts/update_tls_listener_with_sni.py \
+      {{ listener_id }} {{ server_container2_href }} {{ server_container3_href }} &&
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer_id }}
+
+- name: Get certs from an https port after tls sni updated
+  community.crypto.get_certificate:
+    host: "{{ vip_address.stdout }}"
+    server_name: server{{ item }}.f5.oslbaas.systest
+    port: "{{ test_listener_tcpport }}"
+    ca_cert: /tmp/kps/ca.crt
+  register: upd_certs
+  with_items: "{{ range(1, 6, 1) | list }}"
+
+# - debug: "msg={{ upd_certs }}"
+- name: assert server certificate is valid
+  assert:
+    that:
+      - upd_certs.results[0].issuer.C == 'CN'
+      - upd_certs.results[0].issuer.O == 'F5China'
+      - upd_certs.results[0].issuer.emailAddress == 'a.zong@f5.com'
+      - upd_certs.results[0].subject.CN == 'server2.f5.oslbaas.systest' # domain name not found, thus default to server2
+      - upd_certs.results[1].subject.CN == 'server2.f5.oslbaas.systest'
+      - upd_certs.results[2].subject.CN == 'server3.f5.oslbaas.systest'
+      - upd_certs.results[3].subject.CN == 'server2.f5.oslbaas.systest' # domain name not found, thus default to server2
+      - upd_certs.results[4].subject.CN == 'server2.f5.oslbaas.systest' # domain name not found, thus default to server2
 
 - import_tasks: ../../playbooks/task-remove-resources.yml

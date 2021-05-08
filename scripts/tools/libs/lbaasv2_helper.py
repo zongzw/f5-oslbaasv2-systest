@@ -232,6 +232,31 @@ class LBaasV2Helper:
             traceback.print_exc()
             raise e
 
+    def update_listener_with_tls(self, listener_id, default_tls_container_id, sni_container_refs):
+        tls_update_url = "http://%s:9696/v2.0/lbaas/listeners/%s" % (self.os_host, listener_id)
+
+        payload = {
+            "listener": {
+                "default_tls_container_ref": default_tls_container_id,
+                "sni_container_refs": sni_container_refs
+            }
+        }
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Auth-Token': self.authed_token
+        }
+        payload_data = json.dumps(payload)
+
+        try:
+            response = requests.request("PUT", tls_update_url, headers=headers, data = payload_data)
+            if int(response.status_code / 200) == 1:
+                # print(json.dumps(json.loads(response.text.encode('utf8')), indent=2))
+                return json.loads(response.text.encode('utf8'))
+            else:
+                print("failed to update listener: %d, %s" % (response.status_code, response.text.encode('utf-8')))
+                sys.exit(1)
+        except Exception as e:
+            raise e
 
     def get_agents(self, **kwargs):
         agents_url = "http://%s:9696/v2.0/agents" % (self.os_host)
@@ -273,5 +298,9 @@ if __name__ == "__main__":
     # h.wait_for_loadbalancer_updated(lbid)
     # h.delete_loadbalancer(lbid)
 
-    agents = h.get_agents(binary='f5-oslbaasv2-agent')
-    print(json.dumps(agents, indent=2))
+    # agents = h.get_agents(binary='f5-oslbaasv2-agent')
+    updated = h.update_listener_with_tls(
+        'f5f50b4d-8421-43ee-8482-adbe24cc29f8', 
+        'http://10.250.23.52:9311/v1/containers/dc248de3-dbcd-4c30-aef3-242afac69e5e',
+        [])
+    print(json.dumps(updated, indent=2))

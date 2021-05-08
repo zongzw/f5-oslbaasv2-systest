@@ -22,16 +22,17 @@
 
 - name: Get information from server certificate
   community.crypto.x509_certificate_info:
-    path: ../conf.d/kps/server.crt
+    path: ../conf.d/kps/server1.crt
   register: server_cert_info
   delegate_to: localhost
-# - debug: msg="{{ server_cert_info }}"
 
 - name: Validate server certificate via openssl s_client
   shell: openssl s_client -connect {{ vip_address.stdout }}:{{ test_listener_tcpport }} || true
   register: server_handshake_info
   delegate_to: localhost
 
+# - debug: msg="{{ server_cert_info }}"
+# - debug: msg="{{ server_handshake_info }}"
 - assert:
     that:
       - "server_handshake_info.stdout | regex_search(server_cert_info['subject']['commonName']) != None"

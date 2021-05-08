@@ -143,8 +143,8 @@ yum install -y openssl
 kpsdir=$workdir/kps
 mkdir -p $kpsdir
 openssl genrsa -out $kpsdir/server.key 2048
-openssl req -new -key $kpsdir/server.key -out $kpsdir/server.csr -subj "/C=CN/ST=Beijing/L=BJ/O=F5China-PD-Test/OU=IT Department/CN=example.com"
-openssl x509 -req -in $kpsdir/server.csr -signkey $kpsdir/server.key -out $kpsdir/server.crt
+openssl req -new -key $kpsdir/server.key -out $kpsdir/server1.csr -subj "/C=CN/ST=Beijing/L=BJ/O=F5China-PD-Test/OU=IT Department/CN=example.com"
+openssl x509 -req -in $kpsdir/server1.csr -signkey $kpsdir/server.key -out $kpsdir/server1.crt
 
 # Avoid the following error from curl request:
 # DEBUG:keystoneauth.session:REQ: \
@@ -158,10 +158,10 @@ unset HTTPS_PROXY
 # barbican secret and container test
 dt=`date +%s`
 barbican secret store --name $dt.server.key --payload "`cat $kpsdir/server.key`" --secret-type private --payload-content-type "text/plain"
-barbican secret store --name $dt.server.crt --payload "`cat $kpsdir/server.crt`" --secret-type certificate --payload-content-type "text/plain"
+barbican secret store --name $dt.server1.crt --payload "`cat $kpsdir/server1.crt`" --secret-type certificate --payload-content-type "text/plain"
 
 keyref=`barbican secret list -f value -c "Name" -c "Secret href" | grep $dt.server.key | cut -d' ' -f1`
-crtref=`barbican secret list -f value -c "Name" -c "Secret href" | grep $dt.server.crt | cut -d' ' -f1`
+crtref=`barbican secret list -f value -c "Name" -c "Secret href" | grep $dt.server1.crt | cut -d' ' -f1`
 barbican secret container create --name $dt.container1 --type certificate --secret private_key=$keyref --secret certificate=$crtref
 barbican secret container create --name $dt.container2 --type certificate --secret private_key=$keyref --secret certificate=$crtref
 barbican secret container create --name $dt.container3 --type certificate --secret private_key=$keyref --secret certificate=$crtref

@@ -6,8 +6,12 @@
     client_key: ../conf.d/kps/client.key
     client_csr: ../conf.d/kps/client.csr
     server_key: ../conf.d/kps/server.key
-    server_csr: ../conf.d/kps/server.csr
-    server_crt: ../conf.d/kps/server.crt
+    server1_csr: ../conf.d/kps/server1.csr
+    server1_crt: ../conf.d/kps/server1.crt
+    server2_csr: ../conf.d/kps/server2.csr
+    server2_crt: ../conf.d/kps/server2.crt
+    server3_csr: ../conf.d/kps/server3.csr
+    server3_crt: ../conf.d/kps/server3.crt
 
 - name: Generate private keys
   community.crypto.openssl_privatekey:
@@ -61,31 +65,42 @@
 
 - name: Generate server CSR
   community.crypto.openssl_csr:
-    path: "{{ server_csr }}"
+    path: "{{ item }}"
     privatekey_path: "{{ server_key }}"
-    common_name: server.f5.oslbaas.systest
+    common_name: server{{ index + 1 }}.f5.oslbaas.systest
     force: yes
+  with_items:
+    - "{{ server1_csr }}"
+    - "{{ server2_csr }}"
+    - "{{ server3_csr }}"
+  loop_control:
+    index_var: index
 
 - name: Generate server certificate with CA
   community.crypto.x509_certificate:
-    path: "{{ server_crt }}"
-    csr_path: "{{ server_csr }}"
+    path: "{{ item.path }}"
+    csr_path: "{{ item.csr }}"
     ownca_path: "{{ ca_crt }}"
     ownca_privatekey_path: "{{ ca_key }}"
     provider: ownca
     force: yes
+  with_items:
+    - {'path': '{{ server1_crt }}', 'csr': '{{ server1_csr }}' }
+    - {'path': '{{ server2_crt }}', 'csr': '{{ server2_csr }}' }
+    - {'path': '{{ server3_crt }}', 'csr': '{{ server3_csr }}' }
+
 # - name: Generate server selfsigned certificate
 #   community.crypto.x509_certificate:
-#     path: "{{ server_crt }}"
+#     path: "{{ server1_crt }}"
 #     privatekey_path: "{{ server_key }}"
-#     csr_path: "{{ server_csr }}"
+#     csr_path: "{{ server1_csr }}"
 #     provider: selfsigned
 
 # - name: Get information on generated certificate
 #   community.crypto.x509_certificate_info:
 #     path: "{{ item }}"
 #   with_items:
-#     - "{{ server_crt }}"
+#     - "{{ server1_crt }}"
 #     - "{{ client_crt }}"
 #     - "{{ ca_crt }}"
 #   register: certs

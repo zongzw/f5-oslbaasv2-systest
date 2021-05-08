@@ -16,7 +16,7 @@
 - name: Get a cert from an https port
   community.crypto.get_certificate:
     host: "{{ vip_address.stdout }}"
-    server_name: server.f5.oslbaas.systest
+    server_name: server1.f5.oslbaas.systest
     port: "{{ test_listener_tcpport }}"
     ca_cert: /tmp/kps/ca.crt
   register: cert
@@ -27,7 +27,7 @@
       - cert.issuer.C == 'CN'
       - cert.issuer.O == 'F5China'
       - cert.issuer.emailAddress == 'a.zong@f5.com'
-      - cert.subject.CN == 'server.f5.oslbaas.systest'
+      - cert.subject.CN == 'server1.f5.oslbaas.systest'
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl -k https://{{ vip_address.stdout }}:{{ test_listener_tcpport }}

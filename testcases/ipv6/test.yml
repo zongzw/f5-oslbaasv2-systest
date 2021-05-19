@@ -68,13 +68,40 @@
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['backend_servers_ipv6'] }}"
 
-# TODO: check the ipv6 member's status from neutron db is ONLINE after creation.
-#   reference: https://github.com/zongzw/f5-oslbaasv2-tools/blob/master/f5-oslbaasv2-batchops/scripts/ansible-scripts/if-exists-resource.sh
-
 - name: "{{ testcasename }}: waiting for ipv6 resource created/updated"
   shell: |
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
+
+- name: "get member's id"
+  shell: |
+    source {{ openrc }} && \
+      neutron lbaas-member-list {{ pool }}-ipv6 --format value --column id
+  register: member_ids
+
+- import_tasks: ../../playbooks/task-neutron-db-info.yml
+
+- name: get ipv6 member's operating_status
+  community.mysql.mysql_query:
+    login_host: "{{ neutron_db_info.results[2].stdout }}"
+    login_user: "{{ neutron_db_info.results[0].stdout }}"
+    login_password: "{{ neutron_db_info.results[1].stdout }}"
+    login_db: "{{ neutron_db_info.results[3].stdout }}"
+    query: select operating_status from lbaas_members where id = '{{ item }}'
+  with_items: "{{ member_ids.stdout_lines }}"
+  register: op_status
+
+- name: assert the ipv6 member's status from neutron db is ONLINE after creation.
+  assert:
+    that:
+      - "'ONLINE' in '{{ item.1 }}'"
+    quiet: yes
+  with_together:
+    - "{{ member_ids.stdout_lines }}"
+    - "{{ op_status.results | map(attribute='query_result',default=' ') | \ 
+        flatten | map(attribute='operating_status',default=' ') | list  }}"
+  loop_control:
+    label: "{{ item.0 }}"
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl -D  -k -6 -v -g http://[{{ vip_address.stdout }}]:{{ test_listener_tcpport }}

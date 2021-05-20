@@ -27,8 +27,7 @@
 - name: assert resources are removed on bigips
   assert:
     that:
-      # TODO: assert partition is removed.
-      # - "'{{project_id}}' in '{{item.partitions | map(attribute='name') | list | join(' ') }}'"
+      - "'{{project_id}}' not in '{{item.partitions | map(attribute='name') | list | join(' ') }}'"
       - "'{{loadbalancer_id}}' not in '{{item.virtual_addresses | map(attribute='name') | list | join(' ') }}'"
       - "'{{listener_id}}' not in '{{item.virtual_servers | map(attribute='name') | list | join(' ') }}'"
       - "'{{pool_id}}' not in '{{item.ltm_pools | map(attribute='name') | list | join(' ') }}'"

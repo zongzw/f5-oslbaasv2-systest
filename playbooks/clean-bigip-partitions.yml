@@ -8,6 +8,10 @@
       ping:
       delegate_to: localhost
     
+    - name: set environment_prefix variable
+      set_fact:
+        environment_prefix: "{{ hostvars[groups['neutron_servers'][0]]['environment_prefix'] }}"
+
     # Use f5networks.f5_modules.bigip_device_info to handle the issue of: ValueError: invalid value for masklen when ipv6
     # Update f5networks.f5_modules collection: 
       # $ ansible-galaxy collection install f5networks.f5_modules
@@ -25,6 +29,7 @@
           - partitions
           - self-ips
           - vlans
+          - route-domains
         provider:
           user: admin
           server: "{{ inventory_hostname }}"
@@ -38,19 +43,78 @@
     #   run_once: true
     #   tags: getbigipinfo
 
-    - name: remove objects under partitions
-      file: path=/config/partitions/{{ item.name }} state=absent
+    - name: remove resources under partitions
+      file: path=/config/partitions/{{ item.name }}/bigip.conf state=absent
       with_items: "{{bigip_infos.partitions}}"
       when: item.name != 'Common'
     
-    # In some case: 
-    #   01070523:3: No Vlan association for STP Interface Member 1.1.
-    #   Unexpected Error: Loading configuration process failed.
-    # use:
-    #   $ tmsh load /sys config default
-    #   $ tmsh save /sys config partitions all
-    # but, thereafter, we need to reprovision the bigip, no licensing needed.
+    # file: path=/config/partitions/{{ item.name }} state=absent
+    # We may not remove the whole folder /config/partitions/{{ item.name }}.
+    # /config/partitions/{{ item.name }}/bigip_base.conf has some network setting, deleting it may lead to the issue: 
+      # In some case: 
+      #   01070523:3: No Vlan association for STP Interface Member 1.1.
+      #   Unexpected Error: Loading configuration process failed.
+      # use:
+      #   $ tmsh load /sys config default
+      #   $ tmsh save /sys config partitions all
+      # but, thereafter, we need to reprovision the bigip, no licensing needed.
 
+    - name: executing tmsh load sys config
+      shell: tmsh load sys config
+
+    - name: delete self-ips
+      bigip_selfip:
+        name: "{{ item.name }}"
+        partition: "{{ item.full_path | regex_search(environment_prefix + '_[0-9a-f]{32}') }}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
+          validate_certs: False
+      with_items: "{{ bigip_infos.self_ips }}"
+      loop_control:
+        label: "selfip {{ item.name }}"
+      when: item.full_path != '/Common/vtep' and (item.name | regex_search('^.*[0-9a-f\-]{36}$'))
+
+    - name: delete vlans
+      bigip_vlan:
+        name: "{{ item.name }}"
+        partition: "{{ item.full_path | regex_search(environment_prefix + '_[0-9a-f]{32}') }}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
+          validate_certs: False
+      with_items: "{{ bigip_infos.vlans }}"
+      loop_control:
+        label: "vlan {{ item.name }}"
+      when: (item.description | default('') | regex_search('^[0-9a-f\-]{36}$'))
+
+    - name: delete route-domains
+      bigip_routedomain:
+        name: "{{ item.name }}"
+        partition: "{{ item.full_path | regex_search(environment_prefix + '_[0-9a-f]{32}') }}"
+        state: absent
+        provider:
+          user: admin
+          server: "{{ inventory_hostname }}"
+          password: "{{ admin_password }}"
+          validate_certs: False
+      with_items: "{{ bigip_infos.route_domains }}"
+      loop_control:
+        label: "routedomain {{ item.name }}"
+      when: (item.name | regex_search(environment_prefix + '_[0-9a-f]{32}'))
+
+    - name: executing tmsh save sys config
+      shell: tmsh save sys config
+
+    - name: remove resources under partitions
+      file: path=/config/partitions/{{ item.name }}/bigip_base.conf state=absent
+      with_items: "{{bigip_infos.partitions}}"
+      when: item.name != 'Common'
+      
     - name: executing tmsh load sys config
       shell: tmsh load sys config
 
@@ -67,33 +131,5 @@
       loop_control:
         label: "{{ item.name }}"
       when: item.name != "Common"
-
-    - name: delete self-ips
-      bigip_selfip:
-        name: "{{ item.name }}"
-        state: absent
-        provider:
-          user: admin
-          server: "{{ inventory_hostname }}"
-          password: "{{ admin_password }}"
-          validate_certs: False
-      with_items: "{{ bigip_infos.self_ips }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: item.full_path != '/Common/vtep' and (item.name | regex_search('^.*[0-9a-f\-]{36}$'))
-
-    - name: delete vlans
-      bigip_vlan:
-        name: "{{ item.name }}"
-        state: absent
-        provider:
-          user: admin
-          server: "{{ inventory_hostname }}"
-          password: "{{ admin_password }}"
-          validate_certs: False
-      with_items: "{{ bigip_infos.vlans }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: (item.description | default('') | regex_search('^[0-9a-f\-]{36}$'))
 
 # TODO: clear certificates and kinds of profiles under Common

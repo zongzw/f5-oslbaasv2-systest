@@ -11,6 +11,6 @@
     - neutron lbaas-loadbalancer-delete {{ loadbalancer }}
   when: nodelete is not defined
 
-- name: pause for 5 seconds to wait for loadbalancer on bigip disappears
-  pause: seconds=5
+- name: pause for 15 seconds to wait for loadbalancer on bigip disappears
+  pause: seconds=15
   when: nodelete is not defined

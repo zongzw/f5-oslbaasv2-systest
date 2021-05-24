@@ -1,0 +1,34 @@
+- name: "Create LB in {{ test_subnet }}"
+  shell: |
+    source {{ openrc }} && {{ item }}
+  with_items: 
+    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} --tenant-id {{ project_id }} {{ test_subnet }}
+
+- name: "{{ testcasename }}: create lbaasv2 resources"
+  shell: |
+    source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
+  with_items:
+    - neutron --debug lbaas-pool-create --name {{ pool }} --tenant-id {{ project_id }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
+    - neutron --debug lbaas-listener-create --name {{ listener }} --tenant-id {{ project_id }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }} --tenant-id {{ project_id }} --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}
+
+- name: "Create members with {{ test_subnet }} , test-net-a , test-net-b"
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      {{ item }}
+  with_items:
+    - neutron --debug lbaas-member-create --subnet {{ test_subnet }} --address {{ hostvars[inventory_hostname]['groups']['pool1'][0] }} --tenant-id {{ project_id }} --protocol-port {{ member_tcpport }} {{ pool }}
+    - neutron --debug lbaas-member-create --subnet test-subnet-a --address {{ hostvars[inventory_hostname]['groups']['pool1'][1] }} --tenant-id {{ project_id }} --protocol-port {{ member_tcpport }} {{ pool }}
+    - neutron --debug lbaas-member-create --subnet test-subnet-b --address {{ hostvars[inventory_hostname]['groups']['pool1'][2] }} --tenant-id {{ project_id }} --protocol-port {{ member_tcpport }} {{ pool }}
+    
+- import_tasks: "../../playbooks/task-get-resourceids.yml"
+
+- name: pause for 15 seconds to wait for loadbalancer on bigip appears
+  pause: seconds=15
+
+- import_tasks: "../../playbooks/task-check-resources-created.yml"
+
+- import_tasks: "../../playbooks/task-remove-resources.yml"
+
+- import_tasks: "../../playbooks/task-check-resources-removed.yml"

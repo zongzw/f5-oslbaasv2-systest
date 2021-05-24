@@ -1,0 +1,41 @@
+- name: "Create Dev user and tenant"
+  shell: |
+    source {{ openrc }} && \
+    openstack user create --password default Dev && \
+    openstack project create --description "Dev" Dev && \
+    openstack user set --project=Dev Dev 
+    openstack role add --user Dev --project Dev admin
+
+- name: "copy rcfile to neutron servers"
+  shell: |
+    cp {{ openrc }} /tmp/rcfile
+
+- set_fact:
+    dev_openrc: "{{ openrc }}"
+    openrc: /tmp/rcfile
+
+- shell: |
+    echo '' >> {{ openrc }} && \
+    echo 'export OS_USERNAME=Dev' >> {{ openrc }} && \
+    echo 'export OS_PASSWORD=default' >> {{ openrc }} && \
+    echo 'export OS_PROJECT_NAME=Dev' >> {{ openrc }}
+
+- name: "Create 2 non-share networks: test-net-a, test-net-b"
+  shell: |
+    source {{ openrc }} && \
+    openstack network create test-net-a --project=Dev --provider-network-type=vlan && \
+    openstack network create test-net-b --project=Dev --provider-network-type=vlan && \
+    openstack network set --no-share test-net-a && \
+    openstack network set --no-share test-net-b && \
+    openstack subnet create test-subnet-a --network test-net-a --subnet-range 10.250.101.0/24 && \
+    openstack subnet create test-subnet-b --network test-net-b --subnet-range 10.250.102.0/24 && \
+    openstack role add --user Dev --project Dev admin
+
+- name: "get Dev tenant id"
+  shell: |
+    source {{ openrc }} && \
+    openstack project show $OS_PROJECT_NAME --format value --column id
+  register: shell_projectid
+
+- set_fact:
+    project_id: "{{ shell_projectid.stdout }}"

@@ -1,0 +1,23 @@
+- name: clear previous test net 
+  shell: |
+    source {{ openrc }} && \
+    openstack network delete {{ item }}
+  with_items:
+    - test-net-a
+    - test-net-b
+  loop_control:
+    label: "delete {{ item }}"
+  ignore_errors: true
+
+- name: clear previous Dev tenant
+  shell: |
+    source {{ openrc }} && \
+    openstack project delete Dev
+  ignore_errors: true
+
+- name: clear previous Dev user
+  shell: |
+    source {{ openrc }} && \
+    openstack user delete Dev 
+  ignore_errors: true
+

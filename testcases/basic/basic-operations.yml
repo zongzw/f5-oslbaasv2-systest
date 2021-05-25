@@ -14,7 +14,7 @@
 
 - import_tasks: ../../playbooks/task-check-resources-created.yml
 
-# TODO: check the new created members' operating_status from neutron db are ONLINE.
+- import_tasks: ./check-member-operating-status.yml
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}

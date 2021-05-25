@@ -1,0 +1,23 @@
+- import_tasks: ../../playbooks/task-neutron-db-info.yml
+
+- name: get member's operating_status
+  community.mysql.mysql_query:
+    login_host: "{{ neutron_db_info.results[2].stdout }}"
+    login_user: "{{ neutron_db_info.results[0].stdout }}"
+    login_password: "{{ neutron_db_info.results[1].stdout }}"
+    login_db: "{{ neutron_db_info.results[3].stdout }}"
+    query: select operating_status from lbaas_members where id = '{{ item }}'
+  with_items: "{{ member_ids }}"
+  register: op_status
+
+- name: assert member's status from neutron db is ONLINE after creation.
+  assert:
+    that:
+      - "'ONLINE' in '{{ item.1 }}'"
+    quiet: yes
+  with_together:
+    - "{{ member_ids }}"
+    - "{{ op_status.results | map(attribute='query_result',default=' ') | \ 
+        flatten | map(attribute='operating_status',default=' ') | list  }}"
+  loop_control:
+    label: "{{ item.0 }}"

@@ -1,23 +1,25 @@
-- name: clear previous test net 
+- name: get all previous test-net ids
+  shell: |
+    source {{ openrc }} && \
+    openstack network list | grep test-net | cut -d '|' -f 2
+    if [ $? -ne 0 ]; then echo 'test-net does not exist';  fi;
+  register: shell_test_net
+
+- name: delete all previous test-net
   shell: |
     source {{ openrc }} && \
     openstack network delete {{ item }}
-  with_items:
-    - test-net-a
-    - test-net-b
-  loop_control:
-    label: "delete {{ item }}"
-  ignore_errors: true
+  with_items: "{{ shell_test_net.stdout_lines }}"
+  when: shell_test_net.stdout != 'test-net does not exist'
 
-- name: clear previous Dev tenant
+- name: clear previous project Dev
   shell: |
     source {{ openrc }} && \
     openstack project delete Dev
-  ignore_errors: true
-
-- name: clear previous Dev user
+    if [ $? -ne 0 ]; then echo 'project Dev does not exist';  fi;
+  
+- name: clear previous user Dev
   shell: |
     source {{ openrc }} && \
     openstack user delete Dev 
-  ignore_errors: true
-
+    if [ $? -ne 0 ]; then echo 'user Dev does not exist';  fi;

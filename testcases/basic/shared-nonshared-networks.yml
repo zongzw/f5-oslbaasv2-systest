@@ -1,5 +1,7 @@
 - import_tasks: ../../playbooks/task-define-resources.yml
 
+- import_tasks: ./clear-previous-networks.yml
+
 - import_tasks: ./create-Dev-networks.yml
 
 - import_tasks: ./test-nonshared-network.yml

@@ -7,17 +7,13 @@
     - test-net-b
   loop_control:
     label: "delete {{ item }}"
-  ignore_errors: true
 
-- name: clear previous Dev tenant
+- name: clear previous project Dev
   shell: |
     source {{ openrc }} && \
     openstack project delete Dev
-  ignore_errors: true
 
-- name: clear previous Dev user
+- name: clear previous user Dev
   shell: |
     source {{ openrc }} && \
     openstack user delete Dev 
-  ignore_errors: true
-

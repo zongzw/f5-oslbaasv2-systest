@@ -1,3 +1,13 @@
+# 6. Test 2:
+#       1. Create LB in {{ test_subnet }}
+#       2. Create pool
+#       3. Create member with {{ test_subnet }}
+#       4. Create member with test-net-a
+#       5. Create member with test-net-b
+#       6. Verify LB, pool, 3 members exist on bigip.
+#       7. Delete 2 members, pool, LB.
+#       8. [Important] Validate The partition 'Dev' is removed.
+
 - name: "Create LB in {{ test_subnet }}"
   shell: |
     source {{ openrc }} && {{ item }}

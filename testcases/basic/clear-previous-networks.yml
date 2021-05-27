@@ -1,7 +1,11 @@
+# 7. Remove Dev user and tenant(including networks)
+
+- set_fact:
+    openrc: "{{ admin_openrc }}"
+
 - name: clear previous test net 
   shell: |
-    source {{ openrc }} && \
-    openstack network delete {{ item }}
+    source {{ openrc }} && openstack network delete {{ item }}
   with_items:
     - test-net-a
     - test-net-b
@@ -10,10 +14,8 @@
 
 - name: clear previous project Dev
   shell: |
-    source {{ openrc }} && \
-    openstack project delete Dev
+    source {{ openrc }} && openstack project delete Dev
 
 - name: clear previous user Dev
   shell: |
-    source {{ openrc }} && \
-    openstack user delete Dev 
+    source {{ openrc }} && openstack user delete Dev 

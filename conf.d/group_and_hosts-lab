@@ -1,5 +1,5 @@
 [all:vars]
-webproxy = 10.250.64.99
+# webproxy = 10.250.64.99
 
 [neutron_servers]
 10.250.23.60

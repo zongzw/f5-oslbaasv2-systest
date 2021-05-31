@@ -53,6 +53,9 @@
     os_auth_host: "{{ os_env.stdout_lines[0] | regex_search('[\\d\\.]+') }}"
     os_password: "{{ os_env.stdout_lines[1] }}"
     provider: "{{ item }}"
+    # need to install ansible.utils: ansible-galaxy collection install ansible.utils
+    server_count: "{{ groups['neutron_servers'] | length }}"
+    server_index: "{{ lookup('ansible.utils.index_of', groups['neutron_servers'], 'eq', inventory_hostname) }}"
   with_items: "{{ service_providers.split(',') }}"
 
 - name: generate f5-openstack-agent-xx.service

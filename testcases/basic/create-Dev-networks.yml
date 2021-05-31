@@ -1,3 +1,9 @@
+#   steps:
+      # 1. Create 'Dev' user and tenant.
+      # 2. Generate and source rc file, i.e /root/devrc.
+      # 3. The following steps are all under Dev user and tenant.
+      # 4. Create 2 non-share networks: test-net-a, test-net-b
+      
 - name: "Create Dev user and tenant"
   shell: |
     source {{ openrc }} 
@@ -17,10 +23,11 @@
     cp {{ openrc }} /tmp/rcfile
 
 - set_fact:
-    dev_openrc: "{{ openrc }}"
+    admin_openrc: "{{ openrc }}"
     openrc: /tmp/rcfile
 
-- shell: |
+- name: update {{ openrc }} with Dev environments
+  shell: |
     echo '' >> {{ openrc }} && \
     echo 'export OS_USERNAME=Dev' >> {{ openrc }} && \
     echo 'export OS_PASSWORD=default' >> {{ openrc }} && \
@@ -39,12 +46,3 @@
     - {"name": "test-net-b", "subnet_range": "10.250.102.0/24", "subnet_name": "test-subnet-b"}
   loop_control:
     label: "create {{ item.name }}"
-    
-- name: "get Dev tenant id"
-  shell: |
-    source {{ openrc }} && \
-    openstack project show $OS_PROJECT_NAME --format value --column id
-  register: shell_projectid
-
-- set_fact:
-    project_id: "{{ shell_projectid.stdout }}"

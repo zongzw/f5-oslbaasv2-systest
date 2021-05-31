@@ -25,5 +25,8 @@ cert_manager = f5_openstack_agent.lbaasv2.drivers.bigip.barbican_cert.BarbicanCe
 f5_vtep_folder = DELETE_ME
 f5_vtep_selfip_name = DELETE_ME
 
-member_update_interval = 180
 member_update_mode = DELETE_ME
+member_update_number = -1
+member_update_interval = 300
+member_update_agent_number = {{ server_count }}
+member_update_agent_order = {{ server_index }}

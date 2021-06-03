@@ -48,5 +48,9 @@ call AddCol(DATABASE(), 'lbaas_listeners', 'mutual_authentication_up', 'tinyint(
 call AddCol(DATABASE(), 'lbaas_listeners', 'ca_container_id', 'varchar(128) AFTER mutual_authentication_up');
 call AddCol(DATABASE(), 'lbaas_listeners', 'customized', 'varchar(1024)');
 call AddCol(DATABASE(), 'lbaas_listeners', 'transparent', 'bool');
+call AddCol(DATABASE(), 'lbaas_listeners', 'tls_protocols', 'varchar(255) AFTER ca_container_id');
+call AddCol(DATABASE(), 'lbaas_listeners', 'cipher_suites', 'varchar(4095) AFTER tls_protocols');
+call AddCol(DATABASE(), 'lbaas_listeners', 'http2', 'boolean NOT NULL default false AFTER cipher_suites');
 call AddCol(DATABASE(), 'lbaas_sessionpersistences', 'persistence_timeout', 'int AFTER type');
 call AddCol(DATABASE(), 'lbaas_loadbalancers', 'bandwidth', 'integer');
+call AddCol(DATABASE(), 'lbaas_loadbalancers', 'flavor', 'integer');

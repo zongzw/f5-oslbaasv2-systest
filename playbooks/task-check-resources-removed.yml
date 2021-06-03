@@ -23,6 +23,7 @@
   register: bigip_infos
   with_items: "{{ groups['bigips'] }}"
   delegate_to: localhost
+  when: nodelete is not defined
 
 - name: assert resources are removed on bigips
   assert:
@@ -36,6 +37,7 @@
   with_items: "{{bigip_infos.results}}"
   loop_control:
     label: "{{ item.item }}"
+  when: nodelete is not defined
 
 - name: assert members are removed on bigips
   assert:
@@ -47,3 +49,4 @@
     - "{{ bigip_infos.results }}"
   loop_control:
     label: "memberid: '{{ item[0] }}'"
+  when: nodelete is not defined

@@ -40,5 +40,7 @@
 - import_tasks: "../../playbooks/task-check-resources-created.yml"
 
 - import_tasks: "../../playbooks/task-remove-resources.yml"
+  when: nodelete is not defined
 
 - import_tasks: "../../playbooks/task-check-resources-removed.yml"
+  when: nodelete is not defined

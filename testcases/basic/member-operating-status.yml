@@ -1,1 +1,57 @@
-# TODO: add an offline member, check it's operating_status keeps to be OFFLINE
+- name: set timestamp variable
+  shell: echo $$-`date +%s`
+  register: test_timestamp
+  delegate_to: localhost
+
+- name: set member name
+  set_fact:
+    test_member: test-mb-{{ test_timestamp.stdout }}
+
+- name: "{{ testcasename }}: create an offline member under pool {{ pool }}"
+  shell: |
+    source {{ openrc }} && \
+      bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+      neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} \ 
+      --address 10.250.100.255 --protocol-port {{ member_tcpport }} {{ pool }} --name {{ test_member }} && \
+      sleep 300
+  with_items:
+    - "{{ hostvars[inventory_hostname]['groups']['pool1'] }}"
+  loop_control:
+    index_var: index
+  when: "index == 0"
+  register: test_processes
+  async: 1800
+  poll: 0
+
+- name: waiting for the new added member's operating status changes to offline
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: inst
+  until: inst.finished
+  delay: 5
+  retries: 120
+  with_items: "{{ test_processes.results }}"
+  when: item.ansible_job_id is defined
+
+- import_tasks: ./playbooks/task-neutron-db-info.yml
+
+- name: get the new added member's operating_status
+  community.mysql.mysql_query:
+    login_host: "{{ neutron_db_info.results[2].stdout }}"
+    login_user: "{{ neutron_db_info.results[0].stdout }}"
+    login_password: "{{ neutron_db_info.results[1].stdout }}"
+    login_db: "{{ neutron_db_info.results[3].stdout }}"
+    query: select operating_status from lbaas_members where address = '10.250.100.255' and name = '{{ test_member }}'
+  register: op_status
+
+- debug:
+    msg: "the new added member's operating_status : {{ op_status.query_result | \
+    flatten | map(attribute='operating_status',default=' ') | list | join(' ') }}"
+
+- name: assert the new added member's operating_status is offline 
+  assert:
+    that:
+      - "'OFFLINE' in '{{ op_status.query_result | \
+    flatten | map(attribute='operating_status',default=' ') | list | join(' ') }}'"
+    quiet: yes
+  

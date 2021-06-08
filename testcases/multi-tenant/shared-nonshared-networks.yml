@@ -1,14 +1,16 @@
 - import_tasks: ./create-Dev-networks.yml
 
-- import_tasks: ../../playbooks/task-define-resources.yml
-  vars:
+- set_fact:
     test_casename: nonshared-test
+
+- import_tasks: ../../playbooks/task-define-resources.yml
 
 - import_tasks: ./test-nonshared-network.yml
 
-- import_tasks: ../../playbooks/task-define-resources.yml
-  vars:
+- set_fact:
     test_casename: shared-nonshared-test
+
+- import_tasks: ../../playbooks/task-define-resources.yml
 
 - import_tasks: ./test-shared-nonshared-network.yml
 

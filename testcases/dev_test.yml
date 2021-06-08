@@ -42,3 +42,7 @@
       tags: ipv6
       run_once: True
       when: test_env == 'osp'
+
+    - import_tasks: ./multi-tenant/test.yml
+      tags: multi-tenant
+      run_once: True

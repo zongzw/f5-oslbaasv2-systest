@@ -13,6 +13,15 @@
 
 - import_tasks: ../../playbooks/task-get-resourceids.yml
 
+# TODO: (only for agent >v9.9.30) check cipher and cipher-suite is customized.
+# hints:
+  # 1. add to 'test_listener_additional_options': --tls-protocols TLS1.2 --cipher-suites ECDHE-RSA-AES128-GCM-SHA256
+  # 2. check the client ssl profile properties.
+  #   "ciphers": [
+  #       "ECDHE-RSA-AES128-GCM-SHA256"
+  #   ],
+  #   and "tmOptions": "{ dont-insert-empty-fragments no-tlsv1.3 }",
+
 - name: Get certs from an https port
   community.crypto.get_certificate:
     host: "{{ vip_address.stdout }}"

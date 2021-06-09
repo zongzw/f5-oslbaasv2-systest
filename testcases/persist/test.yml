@@ -35,10 +35,13 @@
       - unique_responses | length > 1
   when: groups['pool1'] | length > 1
 
-# TODO: --no-session-persistence test after each persistence mechanizm.
 - import_tasks: ./http_cookie.yml
 
+- import_tasks: ./no-session-persistence.yml
+
 - import_tasks: ./app_cookie.yml
+
+- import_tasks: ./no-session-persistence.yml
 
 - import_tasks: ./source_ip.yml
 

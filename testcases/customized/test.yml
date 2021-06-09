@@ -40,6 +40,29 @@
   loop_control:
     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
 
+# TODO: check the created VS is binding to /Common/request-log profile(only for agent v9.9.x)
+# hints: 
+  # 1. L19 add '- virtual-servers'
+  # 2. check virtual-servers properties like L31 - 41
+  #         {
+  #           "context": "all",
+  #           "full_path": "/Common/request-log",
+  #           "name": "request-log"
+  #         },
+
+# TODO: check the created VS properties with flavor value set
+# hints:
+  # 1. add test_loadbalancer_additional_options: "--flavor 6"
+  # 2. check virtual server's properties:
+      # "connection_limit": 1000000
+      # "rate_limit": 100000
+      # "rate_limit_destination_mask": 0,
+      # "rate_limit_mode": "object",
+      # "rate_limit_source_mask": 0,
+
+# TODO: check the VS properties changed after lbaas-loadbalancer-update --flavor 3
+# https://github.com/F5Networks/f5-openstack-agent/pull/1718/files#diff-ecab4d596472eb371c8b9cf2827f7a42a31f08890225c664e01d423753f1b37bR466
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}
   args:

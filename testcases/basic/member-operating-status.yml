@@ -12,26 +12,13 @@
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
       neutron --debug lbaas-member-create --subnet {{ hostvars[item].subnet }} \ 
-      --address 10.250.100.255 --protocol-port {{ member_tcpport }} {{ pool }} --name {{ test_member }} && \
-      sleep 300
+      --address 10.250.100.255 --protocol-port {{ member_tcpport }} {{ pool }} --name {{ test_member }}
   with_items:
     - "{{ hostvars[inventory_hostname]['groups']['pool1'] }}"
   loop_control:
     index_var: index
   when: "index == 0"
   register: test_processes
-  async: 1800
-  poll: 0
-
-- name: waiting for the new added member's operating status changes to offline
-  async_status:
-    jid: "{{ item.ansible_job_id }}"
-  register: inst
-  until: inst.finished
-  delay: 5
-  retries: 120
-  with_items: "{{ test_processes.results }}"
-  when: item.ansible_job_id is defined
 
 - import_tasks: ./playbooks/task-neutron-db-info.yml
 
@@ -41,8 +28,12 @@
     login_user: "{{ neutron_db_info.results[0].stdout }}"
     login_password: "{{ neutron_db_info.results[1].stdout }}"
     login_db: "{{ neutron_db_info.results[3].stdout }}"
-    query: select operating_status from lbaas_members where address = '10.250.100.255' and name = '{{ test_member }}'
+    query: select operating_status from lbaas_members where name = '{{ test_member }}'
   register: op_status
+  delay: 10
+  retries: 120
+  until: "'OFFLINE' in '{{ op_status.query_result | \
+    flatten | map(attribute='operating_status',default=' ') | list | join(' ') }}'"
 
 - debug:
     msg: "the new added member's operating_status : {{ op_status.query_result | \
@@ -54,4 +45,3 @@
       - "'OFFLINE' in '{{ op_status.query_result | \
     flatten | map(attribute='operating_status',default=' ') | list | join(' ') }}'"
     quiet: yes
-  

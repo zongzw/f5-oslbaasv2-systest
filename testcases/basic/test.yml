@@ -1,5 +1,1 @@
 - import_tasks: ./basic-operations.yml
-
-- import_tasks: ./shared-nonshared-networks.yml
-  tags:
-    - multi-tenant

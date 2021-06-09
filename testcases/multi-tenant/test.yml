@@ -1,0 +1,8 @@
+- set_fact:
+    test_casename: "multi-tenant test"
+    test_listener_protocol: HTTP
+    test_pool_protocol: HTTP
+    test_listener_tcpport: 80
+    test_healthmonitor_protocol: PING
+
+- import_tasks: ./shared-nonshared-networks.yml

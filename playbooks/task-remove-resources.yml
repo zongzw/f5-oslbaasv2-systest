@@ -1,5 +1,8 @@
-
-# TODO: add removing members task for member-delete test
+- name: "{{ testcasename }}: remove one member from pool"
+  shell: |
+    source {{ openrc }} && \
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
+    neutron lbaas-member-delete {{ member_ids[0] }} {{ pool }}
 
 - name: "{{ testcasename }}: delete lbaasv2 resources"
   shell: |

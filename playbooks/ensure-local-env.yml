@@ -1,6 +1,11 @@
 ---
 
 # TODO: validate ansible running environment on localhost
+# TODO: construct docker based ansible running environment.
+
+# TODO: Inject general ssh key for running playbooks. 
+#   Means: generate and use common ssh key instead of /Users/xxxx/.ssh/id_rsa
+#   Thus use ansible-playbook --private-key <path> --user root xxxx 
 
 # 1. validate installation: ansible openssl git
 

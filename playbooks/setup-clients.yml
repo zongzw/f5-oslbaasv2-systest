@@ -1,8 +1,6 @@
 # TODO: setup client and backend servers.
 #   Refer to: https://github.com/zongzw-learn/learn-consul/blob/main/setup-examples/0.setup-server.yml
 
-# TODO: Inject general ssh key for running playbooks. 
-#   Thus use ansible-playbook --private-key <path> --user root xxxx 
 ---
 
 - hosts: clients

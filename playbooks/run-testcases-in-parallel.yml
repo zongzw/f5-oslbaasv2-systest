@@ -45,6 +45,7 @@
     - name: create log directory {{ test_logpath }}
       file: path="{{ test_logpath }}" state=directory
 
+    # TODO: run the testcases in separate tenants to avoid mutual impacts.
     - name: run test_cases in parallel.
       shell: |
         cmd="ansible-playbook -i ../conf.d/{{ test_env }} -e @../conf.d/{{ test_suite }} ../testcases/dev_test.yml -t {{ item }}"

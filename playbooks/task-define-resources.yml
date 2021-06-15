@@ -22,3 +22,23 @@
     listener_additional_options: "{{ test_listener_additional_options | default('') }}"
     member_tcpport: "{{ test_member_tcpport | default(80) }}"
     healthmonitor_protocol: "{{ test_healthmonitor_protocol | default('PING') }}"
+
+- set_fact:
+    monitor_type: gateway-icmp-monitors
+    monitor_type_result: gateway_icmp_monitors
+  when: healthmonitor_protocol == 'PING'
+
+- set_fact:
+    monitor_type: tcp-monitors
+    monitor_type_result: tcp_monitors
+  when: healthmonitor_protocol == 'TCP'
+
+- set_fact:
+    monitor_type: http-monitors
+    monitor_type_result: http_monitors
+  when: healthmonitor_protocol == 'HTTP'
+
+- set_fact:
+    monitor_type: https-monitors
+    monitor_type_result: https_monitors
+  when: healthmonitor_protocol == 'HTTPS'

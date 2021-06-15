@@ -73,11 +73,11 @@
     source {{ openrc }} && \
       bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
 
-- name: "get member's id"
+- name: "get ipv6 member's id"
   shell: |
     source {{ openrc }} && \
       neutron lbaas-member-list {{ pool }}-ipv6 --format value --column id
-  register: member_ids
+  register: ipv6_member_ids
 
 - import_tasks: ../../playbooks/task-neutron-db-info.yml
 
@@ -88,7 +88,7 @@
     login_password: "{{ neutron_db_info.results[1].stdout }}"
     login_db: "{{ neutron_db_info.results[3].stdout }}"
     query: select operating_status from lbaas_members where id = '{{ item }}'
-  with_items: "{{ member_ids.stdout_lines }}"
+  with_items: "{{ ipv6_member_ids.stdout_lines }}"
   register: op_status
 
 - name: assert the ipv6 member's status from neutron db is ONLINE after creation.
@@ -97,7 +97,7 @@
       - "'ONLINE' in '{{ item.1 }}'"
     quiet: yes
   with_together:
-    - "{{ member_ids.stdout_lines }}"
+    - "{{ ipv6_member_ids.stdout_lines }}"
     - "{{ op_status.results | map(attribute='query_result',default=' ') | \ 
         flatten | map(attribute='operating_status',default=' ') | list  }}"
   loop_control:

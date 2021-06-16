@@ -4,7 +4,7 @@
     test_listener_protocol: FTP
     test_pool_protocol: TCP
     test_listener_tcpport: 21
-    test_healthmonitor_protocol: PING
+    test_healthmonitor_protocol: TCP
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 

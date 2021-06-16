@@ -18,7 +18,12 @@ while retries > 0:
     time.sleep(delay)
     retries = retries - 1
 
-    agents = l.get_agents(binary='f5-oslbaasv2-agent')
+    try:
+        agents = l.get_agents(binary='f5-oslbaasv2-agent')
+    except Exception as e:
+        print("Failed to get agents through agent api, retry.")
+        continue
+
     live_agents = filter(lambda a: a['alive'], agents['agents'])
     if len(live_agents) == 0:
         print('live agents found: 0')

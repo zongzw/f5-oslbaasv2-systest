@@ -17,6 +17,7 @@
   bigip_device_info:
     gather_subset:
       - http-profiles
+      - virtual-servers
     provider:
       user: admin
       server: "{{ item }}"
@@ -40,15 +41,23 @@
   loop_control:
     label: "http_profile_{{ environment_prefix }}_{{ listener_id }}"
 
-# TODO: check the created VS is binding to /Common/request-log profile(only for agent v9.9.x)
-# hints: 
-  # 1. L19 add '- virtual-servers'
-  # 2. check virtual-servers properties like L31 - 41
-  #         {
-  #           "context": "all",
-  #           "full_path": "/Common/request-log",
-  #           "name": "request-log"
-  #         },
+- shell: |
+    rpm -qa | grep f5 | grep agent
+  register: agent_version
+
+- name: check VS is binding to /Common/request-log profile
+  assert:
+    that:
+      - "{{ item | json_query(query_vs_string) | length }} == 1"
+      - "{{ ((item | json_query(query_vs_string))[0] | json_query(query_profile_string)) | length}} != 0"
+    quiet: yes
+  vars:
+    query_vs_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+    query_profile_string: "profiles[?name == 'request-log' && context == 'all' && full_path == '/Common/request-log']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix }}_{{ listener_id }}"
+  when: "'9.9' in '{{ agent_version.stdout }}'"
 
 # TODO: check the created VS properties with flavor value set
 # hints:

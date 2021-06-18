@@ -1,38 +1,39 @@
 ---
 
-# using separate repo for storing patch files.
-- name: checkout patches for setup neutron env
-  git:
-    repo: https://github.com/zongzw/neutron_lbaas_pike-devops-bed
-    dest: ../conf.d/patches/pike
-  delegate_to: localhost
-  environment: "{{ proxy_env | default({}) }}"
+- name: download neutron_* installables
+  get_url: url=http://10.250.11.185/neutron_lbaas-installables/{{ item }} dest=/tmp timeout=30
+  with_items:
+    - neutron_lbaas-latest.tar.gz
+    - neutronclient.tar.gz
+
+- name: unarchive the neutron_* installable to /usr/lib/python2.7/site-packages
+  unarchive:
+    remote_src: true
+    src: /tmp/{{ item }}
+    dest: /usr/lib/python2.7/site-packages
+  with_items:
+    - neutron_lbaas-latest.tar.gz
+    - neutronclient.tar.gz
+
+# We use mysql command to change the db directly instead of using neutron-db-manage,
+# because the alembic_version_lbaas record in db is mismatch with revision numbers under
+# neutron_lbaas/db/migration/alembic_migrations/.
+# The disadvantage for this is: we need to check regularly whether there is new expand/contract
+# under neutron_lbaas/db/migration/alembic_migrations/ 
+# - name: migrate neutron db to heads
+#   shell: |
+#     neutron-db-manage --subproject neutron-lbaas upgrade heads
+#   run_once: true
+
+- block:
+  - import_tasks: ./task-neutron-db-info.yml
+  - name: migrate neutron db tables
+    mysql_db:
+      name: "{{neutron_db_info.results[3].stdout}}"
+      login_user: "{{neutron_db_info.results[0].stdout}}"
+      login_password: "{{neutron_db_info.results[1].stdout}}"
+      login_host: "{{neutron_db_info.results[2].stdout}}"
+      target: /tmp/scripts/customizing.db.sql
+      state: import
+  tags: migratedb
   run_once: true
-  tags: copyfile
-  when: nogit is not defined
-
-- name: list the files of patches directory
-  shell: ls chdir=../conf.d/patches/pike/patches
-  delegate_to: localhost
-  register: patch_files
-  tags: copyfile
-  run_once: True
-
-- name: customize neutron* code
-  copy: src=../conf.d/patches/pike/patches/{{ item }} dest=/ force=yes
-  with_items: "{{ patch_files.stdout_lines }}"
-  tags: copyfile
-
-- import_tasks: ./task-neutron-db-info.yml
-  tags: migratedb
-
-- name: migrate neutron db tables
-  mysql_db:
-    name: "{{neutron_db_info.results[3].stdout}}"
-    login_user: "{{neutron_db_info.results[0].stdout}}"
-    login_password: "{{neutron_db_info.results[1].stdout}}"
-    login_host: "{{neutron_db_info.results[2].stdout}}"
-    target: /tmp/scripts/customizing.db.sql
-    state: import
-  run_once: True
-  tags: migratedb

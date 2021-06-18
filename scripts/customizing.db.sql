@@ -54,3 +54,53 @@ call AddCol(DATABASE(), 'lbaas_listeners', 'http2', 'boolean NOT NULL default fa
 call AddCol(DATABASE(), 'lbaas_sessionpersistences', 'persistence_timeout', 'int AFTER type');
 call AddCol(DATABASE(), 'lbaas_loadbalancers', 'bandwidth', 'integer');
 call AddCol(DATABASE(), 'lbaas_loadbalancers', 'flavor', 'integer');
+call AddCol(DATABASE(), 'lbaas_loadbalancers', 'availability_zone_hints', 'varchar(255)');
+
+CREATE TABLE IF NOT EXISTS `lbaas_acl_groups` (
+  `project_id` varchar(255) DEFAULT NULL,
+  `id` varchar(36) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `lbaas_acl_group_listener_bindings` (
+  `listener_id` varchar(36) NOT NULL,
+  `acl_group_id` varchar(36) NOT NULL,
+  `type` enum('blacklist','whitelist') NOT NULL,
+  `enabled` tinyint(1) NOT NULL,
+  PRIMARY KEY (`listener_id`),
+  KEY `acl_group_id` (`acl_group_id`),
+  CONSTRAINT `lbaas_acl_group_listener_bindings_ibfk_1` FOREIGN KEY (`listener_id`) REFERENCES `lbaas_listeners` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `lbaas_acl_group_listener_bindings_ibfk_2` FOREIGN KEY (`acl_group_id`) REFERENCES `lbaas_acl_groups` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `lbaas_acl_rules` (
+  `project_id` varchar(255) DEFAULT NULL,
+  `id` varchar(36) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(255) NOT NULL,
+  `ip_version` enum('IPv4','IPv6') NOT NULL,
+  `acl_group_id` varchar(36) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `acl_group_id` (`acl_group_id`),
+  CONSTRAINT `lbaas_acl_rules_ibfk_1` FOREIGN KEY (`acl_group_id`) REFERENCES `lbaas_acl_groups` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- recover manual changes
+
+-- ALTER TABLE lbaas_loadbalancers DROP COLUMN IF EXISTS bandwidth;
+-- ALTER TABLE lbaas_loadbalancers DROP COLUMN IF EXISTS flavor;
+-- ALTER TABLE lbaas_loadbalancers DROP COLUMN IF EXISTS availability_zone_hints;
+-- ALTER TABLE lbaas_sessionpersistences DROP COLUMN IF EXISTS persistence_timeout;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS http2;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS cipher_suites;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS tls_protocols;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS transparent;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS customized;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS ca_container_id;
+-- ALTER TABLE lbaas_listeners DROP COLUMN IF EXISTS mutual_authentication_up;
+-- DROP TABLE IF EXISTS lbaas_acl_group_listener_bindings;
+-- DROP TABLE IF EXISTS lbaas_acl_rules;
+-- DROP TABLE IF EXISTS lbaas_acl_groups;

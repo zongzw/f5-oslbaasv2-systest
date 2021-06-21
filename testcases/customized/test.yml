@@ -6,6 +6,7 @@
     test_listener_tcpport: 80
     test_healthmonitor_protocol: HTTP
     test_listener_additional_options: "--customized '{\"http_profile\": {\"insertXforwardedFor\": \"disabled\"}}'"
+    test_loadbalancer_additional_options: "--flavor 6"
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -59,16 +60,22 @@
     label: "{{ environment_prefix }}_{{ listener_id }}"
   when: "'9.9' in '{{ agent_version.stdout }}'"
 
-# TODO: check the created VS properties with flavor value set
-# hints:
-  # 1. add test_loadbalancer_additional_options: "--flavor 6"
-  # 2. check virtual server's properties:
-      # "connection_limit": 1000000
-      # "rate_limit": 100000
-      # "rate_limit_destination_mask": 0,
-      # "rate_limit_mode": "object",
-      # "rate_limit_source_mask": 0,
-
+- name: check the created VS properties with flavor value set
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0].connection_limit == 200000"
+      - "(item | json_query(query_string))[0].rate_limit == 20000"
+      - "(item | json_query(query_string))[0].rate_limit_destination_mask == 0"
+      - "(item | json_query(query_string))[0].rate_limit_mode == 'object'"
+      - "(item | json_query(query_string))[0].rate_limit_source_mask == 0"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix }}_{{ listener_id }}"
+    
 # TODO: check the VS properties changed after lbaas-loadbalancer-update --flavor 3
 # https://github.com/F5Networks/f5-openstack-agent/pull/1718/files#diff-ecab4d596472eb371c8b9cf2827f7a42a31f08890225c664e01d423753f1b37bR466
 

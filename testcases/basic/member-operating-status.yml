@@ -32,5 +32,5 @@
   register: op_status
   delay: 10
   retries: 120
-  until: "'OFFLINE' in '{{ op_status.query_result | \
-    flatten | map(attribute='operating_status',default=' ') | list | join(' ') }}'"
+  until: "'OFFLINE' in ( op_status.query_result | \
+    flatten | map(attribute='operating_status',default=' ') | list | join(' ') )"

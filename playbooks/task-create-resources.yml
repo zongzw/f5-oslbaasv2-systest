@@ -4,7 +4,7 @@
   shell: |
     source {{ openrc }} && {{ item }}
   with_items:
-    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }}
+    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} {{ loadbalancer_additional_options}} {{ subnet }} --bandwidth 200
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |

@@ -20,7 +20,7 @@
   shell: |
     source {{ openrc }} && {{ item }}
   with_items: 
-    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} --tenant-id {{ project_id }} test-subnet-a
+    - neutron --debug lbaas-loadbalancer-create --name {{ loadbalancer }} --tenant-id {{ project_id }} test-subnet-a --bandwidth 200
 
 - name: "{{ testcasename }}: create lbaasv2 resources"
   shell: |

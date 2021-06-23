@@ -58,7 +58,7 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ environment_prefix }}_{{ listener_id }}"
-  when: "'9.9' in '{{ agent_version.stdout }}'"
+  when: "'9.9' in ( agent_version.stdout )"
 
 - name: check the created VS properties with flavor value set
   assert:

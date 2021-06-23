@@ -75,9 +75,41 @@
   with_items: "{{ bigip_infos.results }}"
   loop_control:
     label: "{{ environment_prefix }}_{{ listener_id }}"
-    
-# TODO: check the VS properties changed after lbaas-loadbalancer-update --flavor 3
-# https://github.com/F5Networks/f5-openstack-agent/pull/1718/files#diff-ecab4d596472eb371c8b9cf2827f7a42a31f08890225c664e01d423753f1b37bR466
+
+- name: "change {{ loadbalancer }} to flavor 3"
+  shell: |
+    source {{ openrc }} && \
+    neutron lbaas-loadbalancer-update --flavor 3 {{ loadbalancer }} && \
+    bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }}
+
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - virtual-servers
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: check the VS properties changed after lbaas-loadbalancer-update --flavor 3
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(item | json_query(query_string))[0].connection_limit == 20000"
+      - "(item | json_query(query_string))[0].rate_limit == 2000"
+      - "(item | json_query(query_string))[0].rate_limit_destination_mask == 0"
+      - "(item | json_query(query_string))[0].rate_limit_mode == 'object'"
+      - "(item | json_query(query_string))[0].rate_limit_source_mask == 0"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ environment_prefix }}_{{ listener_id }}"
 
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }}

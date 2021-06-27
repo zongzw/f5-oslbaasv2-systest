@@ -1,10 +1,11 @@
 ---
 
 - name: download neutron_* installables
-  get_url: url=http://10.250.11.185/neutron_lbaas-installables/{{ item }} dest=/tmp timeout=30
+  get_url: url=http://10.250.11.185/neutron_lbaas-installables/{{ item }} dest=/tmp force=yes timeout=30
   with_items:
     - neutron_lbaas-{{ versions.lbaas }}.tar.gz
     - neutronclient-{{ versions.lbaas }}.tar.gz
+    - neutronclient-entry_points.txt-{{ versions.lbaas }}
 
 - name: unarchive the neutron_* installable to /usr/lib/python2.7/site-packages
   unarchive:
@@ -14,6 +15,18 @@
   with_items:
     - neutron_lbaas-{{ versions.lbaas }}.tar.gz
     - neutronclient-{{ versions.lbaas }}.tar.gz
+
+- name: find python_neutronclient entry_points.txt path
+  shell: find /usr/lib/python2.7/site-packages/python_neutronclient-* -name entry_points.txt
+  register: entry_points_txt_path
+  run_once: true
+
+- name: replace python_neutronclient-6.5.1-py2.7.egg-info/entry_points.txt
+  copy:
+    src: /tmp/neutronclient-entry_points.txt-{{ versions.lbaas }}
+    dest: "{{ entry_points_txt_path.stdout }}"
+    force: yes
+    remote_src: true
 
 # We use mysql command to change the db directly instead of using neutron-db-manage,
 # because the alembic_version_lbaas record in db is mismatch with revision numbers under

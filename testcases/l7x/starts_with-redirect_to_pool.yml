@@ -32,6 +32,7 @@
   loop_control:
     label: "{{ item.item }}"
   with_items: "{{ curl_results.results }}"
+  when: test_env == 'osp'
 
 - name: "{{ testcasename }}: create pool2 l7policy, bind it to {{ listener }} via l7policy"
   shell: |
@@ -92,6 +93,7 @@
   loop_control:
     label: "{{ item.item }}"
   with_items: "{{ curl_results.results }}"
+  when: test_env == 'osp'
 
 - name: remove {{ pool }}-pool2 and its healthmonitor, l7policy and l7rule
   shell: |

@@ -72,6 +72,7 @@
   loop_control:
     label: "{{ item.item }}"
   with_items: "{{ curl_results.results }}"
+  when: test_env == 'osp'
 
 - name: delete l7policy and l7rule
   shell: |

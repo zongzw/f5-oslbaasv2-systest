@@ -14,7 +14,7 @@ download_prefix = http://10.250.11.185/f5-packages
 service_providers = CORE
 
 [bigips]
-10.250.85.4
+10.250.85.3
 
 [bigips:vars]
 admin_password = P@ssw0rd123
@@ -62,7 +62,7 @@ pool1
 pool2
 
 [pool1:children]
-servers_vlan85
+servers_vlan87
 
 [pool2:children]
 servers_vlan86
@@ -70,7 +70,7 @@ servers_vlan86
 [backend_servers_ipv6:children]
 servers_vlan73
 
-[servers_vlan85]
+[servers_vlan87]
 10.250.26.13
 10.250.26.7
 10.250.26.8
@@ -86,8 +86,8 @@ ipv6 = 2005:db8:cafe:16::7
 10.250.28.5
 10.250.28.6
 
-[servers_vlan85:vars]
-subnet = subnet-vlan-85
+[servers_vlan87:vars]
+subnet = subnet-vlan-87
 
 [servers_vlan86:vars]
 subnet = subnet-vlan-86

@@ -1,0 +1,24 @@
+- name: collect resources from bigip
+  bigip_device_info:
+    gather_subset:
+      - client-ssl-profiles
+    provider:
+      user: admin
+      server: "{{ item }}"
+      password: "{{ hostvars[item].admin_password }}"
+      validate_certs: False
+  register: bigip_infos
+  with_items: "{{ groups['bigips'] }}"
+  delegate_to: localhost
+
+- name: check cipher
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "(cipher_suites) in (item | json_query(query_string))[0]['ciphers']"
+    quiet: yes
+  vars:
+    query_string: "client_ssl_profiles[? contains(name,'{{environment_prefix}}_{{listener_id}}')]"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }}"

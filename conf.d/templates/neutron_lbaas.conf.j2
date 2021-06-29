@@ -1,5 +1,5 @@
 [DEFAULT]
-f5_driver_perf_mode = 3
+f5_driver_perf_mode = {{ versions.config_set.f5_driver_perf_mode | default(3) }}
 
 [quotas]
 quota_loadbalancer = -1

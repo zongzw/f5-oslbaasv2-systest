@@ -40,7 +40,13 @@ def update_config(configpath, updatedpath):
             else:
                 if not conf.has_section(section):
                     conf.add_section(section)
-                conf.set(section, option, conf_upd.get(section, option))
+                if option in conf_upd.defaults().keys() and \
+                    conf_upd['DEFAULT'][option] == conf_upd[section][option]:
+                    pass # don't set if it's a default option.
+                else: conf.set(section, option, conf_upd.get(section, option))
+                if option in conf.defaults().keys() and \
+                    conf['DEFAULT'][option] == conf[section][option]:
+                    conf.remove_option(section, option)
 
     with open(configpath, 'w+') as fw:
         conf.write(fw)

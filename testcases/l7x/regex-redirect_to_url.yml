@@ -53,6 +53,18 @@
   loop_control:
     label: "irule_{{ irule_ids.stdout }}"
 
+- name: Check virtual server contains irule reference
+  assert:
+    that:
+      - "{{ item | json_query(query_string) | length }} == 1"
+      - "'/{{ environment_prefix }}_{{ project_id }}/irule_{{ irule_ids.stdout }}' in (( item | json_query(query_string) )[0].irules )"
+    quiet: yes
+  vars:
+    query_string: "virtual_servers[?name == '{{ environment_prefix }}_{{ listener_id }}']"
+  with_items: "{{ bigip_infos.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
 - name: "Check {{ test_listener_protocol }} {{ test_listener_tcpport }} is reachable"
   shell: curl http://{{ vip_address.stdout }}:{{ test_listener_tcpport }} -v
   args:

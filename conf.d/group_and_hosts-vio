@@ -1,5 +1,5 @@
 [neutron_servers]
-10.145.73.123
+10.145.70.105
 
 [neutron_servers:vars]
 test_env = rdo
@@ -10,7 +10,7 @@ environment_prefix = CORE
 download_prefix = https://github.com
 
 [bigips]
-10.145.75.136
+10.145.72.236
 
 [bigips:vars]
 admin_password = admin

@@ -45,7 +45,7 @@ clients_ipv4
 clients_ipv6
 
 [clients_ipv4]
-10.250.27.104
+10.250.88.4
 
 [clients_ipv6]
 10.250.29.16
@@ -71,9 +71,9 @@ servers_vlan86
 servers_vlan73
 
 [servers_vlan87]
-10.250.26.13
-10.250.26.7
-10.250.26.8
+10.250.87.6
+10.250.87.11
+10.250.87.19
 
 [servers_vlan73]
 10.250.29.5
@@ -82,9 +82,9 @@ servers_vlan73
 ipv6 = 2005:db8:cafe:16::7
 
 [servers_vlan86]
-10.250.28.14
-10.250.28.5
-10.250.28.6
+10.250.86.11
+10.250.86.22
+10.250.86.21
 
 [servers_vlan87:vars]
 subnet = subnet-vlan-87

@@ -19,6 +19,20 @@
         src: ../conf.d/templates/resolv.conf.j2
         dest: /etc/resolv.conf
 
+    - name: install yum-utils
+      yum:
+        state: present
+        name: 
+          - yum-utils
+      environment: "{{ proxy_env | default({}) }}"
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
+    - name: update /etc/yum.repos.d/nginx.repo
+      template:
+        src: ../conf.d/templates/nginx.repo.j2
+        dest: /etc/yum.repos.d/nginx.repo
+      when: inventory_hostname in hostvars[inventory_hostname]['groups']['backend_servers_ipv4']
+
     - name: make sure yum packages installed - for centos only
       yum:
         state: present

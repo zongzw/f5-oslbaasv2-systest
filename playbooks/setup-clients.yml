@@ -15,6 +15,11 @@
       ping:
       delegate_to: localhost
 
+    - name: update /etc/resolv.conf
+      template:
+        src: ../conf.d/templates/resolv.conf.j2
+        dest: /etc/resolv.conf
+
     - name: make sure yum packages installed
       yum:
         name: 

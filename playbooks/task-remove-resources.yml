@@ -3,6 +3,7 @@
     source {{ openrc }} && \
     bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && \
     neutron lbaas-member-delete {{ member_ids[0] }} {{ pool }}
+  when: nodelete is not defined
 
 - name: "{{ testcasename }}: delete lbaasv2 resources"
   shell: |

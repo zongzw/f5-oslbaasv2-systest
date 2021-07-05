@@ -14,10 +14,7 @@
       delegate_to: localhost
 
     - import_tasks: ./task-prepare-setup-neutron-lbaas.yml
-      tags:
-        - customizeneutron
-        - reinstallf5packages
-        - configureservices
+      tags: always
 
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron

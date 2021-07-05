@@ -84,6 +84,11 @@
 - name: execute systemctl daemon-reload
   shell: systemctl daemon-reload
 
+- name: stop original f5-openstack-agent service
+  service:
+    name: f5-openstack-agent
+    state: stopped
+
 - name: restart neutron-server
   service:
     name: "{{ item }}"

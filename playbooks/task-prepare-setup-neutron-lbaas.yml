@@ -7,7 +7,6 @@
   environment: "{{ proxy_env | default({}) }}"
 
 - import_tasks: ./task-download-scripts.yml
-  tags: configureneutron
 
 # Make sure wget installed
 - name: make sure yum packages are installed
@@ -29,6 +28,3 @@
     pip install --upgrade pip===20.3.4
     pip install configparser
   environment: "{{ proxy_env | default({}) }}"
-  tags: 
-    - migratedb
-    - customizeneutron

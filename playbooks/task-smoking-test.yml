@@ -3,7 +3,8 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-
+    tenant: smokingtest
+    
 - import_tasks: ./task-define-resources.yml
 
 - import_tasks: ./task-create-resources.yml

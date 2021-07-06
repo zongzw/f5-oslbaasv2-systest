@@ -1,4 +1,6 @@
 ---
+- import_tasks: ./task-create-testcase-tenant.yml
+  when: tenant is defined
 
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |

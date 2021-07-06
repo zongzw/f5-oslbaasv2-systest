@@ -5,6 +5,9 @@
     test_listener_tcpport: 5672
     test_healthmonitor_protocol: PING
 
+- import_tasks: ../playbooks/task-create-testcase-tenant.yml
+  when: tenant is defined
+
 - import_tasks: ../../playbooks/task-define-resources.yml
 
 - name: "{{ testcasename }}: create loadbalancer"
@@ -68,3 +71,10 @@
     - neutron lbaas-listener-delete {{ listener }}
     - neutron lbaas-loadbalancer-delete {{ loadbalancer }}
   when: nodelete is not defined
+
+- name: pause for 15 seconds to wait for loadbalancer on bigip disappears
+  pause: seconds=15
+  when: nodelete is not defined  
+
+- import_tasks: ../../playbooks/task-remove-testcase-tenant.yml
+  when: tenant is defined and nodelete is not defined

@@ -1,0 +1,36 @@
+- name: "create {{ test_casename }}'s tenant"
+  shell: |
+    source {{ openrc }} && \ 
+    openstack project create --description "{{ tenant }}" --or-show {{ tenant }} && \
+    openstack user create --password default --or-show {{ tenant }} && \
+    openstack role add --project {{ tenant }} --user {{ tenant }} admin
+    
+- name: "get {{ test_casename }}'s tenant id"
+  shell: |
+    source {{ openrc }} && \
+    openstack project show {{ tenant }} --format value --column id
+  register: testcase_project_id
+
+- name: "get {{ test_casename }}'s user id"
+  shell: |
+    source {{ openrc }} && \
+    openstack user show {{ tenant }} --format value --column id
+  register: testcase_user_id
+
+- name: "copy rcfile to neutron servers"
+  shell: |
+    cp {{ openrc }} /tmp/rcfile-{{ tenant }}
+
+- set_fact:
+    admin_openrc: "{{ openrc }}"
+    openrc: "/tmp/rcfile-{{ tenant }}"
+
+- name: update {{ openrc }} with Dev environments
+  shell: |
+    echo '' >> {{ openrc }} && \
+    echo 'export OS_PROJECT_NAME={{ tenant }}' >> {{ openrc }}  && \ 
+    echo 'export OS_USERNAME={{ tenant }}' >> {{ openrc }} && \
+    echo 'export OS_PASSWORD=default' >> {{ openrc }}
+
+- set_fact:
+    tenantid: --tenant-id {{ testcase_project_id.stdout }}

@@ -18,3 +18,6 @@
 - name: pause for 15 seconds to wait for loadbalancer on bigip disappears
   pause: seconds=15
   when: nodelete is not defined
+
+- import_tasks: ./task-remove-testcase-tenant.yml
+  when: tenant is defined and nodelete is not defined

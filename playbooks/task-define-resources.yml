@@ -46,3 +46,7 @@
 - set_fact:
     loadbalancer_additional_options: --bandwidth 200 {{ loadbalancer_additional_options }}
   when: (versions.lbaas | string != 'oss') and not (loadbalancer_additional_options | regex_search('--bandwidth'))
+
+- set_fact:
+    tenant: "{{ tenant_name }}-{{ test_timestamp.stdout }}"
+  when: tenant_name is defined

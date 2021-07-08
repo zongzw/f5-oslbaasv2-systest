@@ -5,10 +5,10 @@
     test_listener_tcpport: 5672
     test_healthmonitor_protocol: PING
 
+- import_tasks: ../../playbooks/task-define-resources.yml
+
 - import_tasks: ../playbooks/task-create-testcase-tenant.yml
   when: tenant_name is defined
-
-- import_tasks: ../../playbooks/task-define-resources.yml
 
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |

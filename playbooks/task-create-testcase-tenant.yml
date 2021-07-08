@@ -1,12 +1,3 @@
-- name: set timestamp variable
-  shell: echo $$-`date +%s`
-  register: test_timestamp
-  delegate_to: localhost
-
-- name: set tenant name
-  set_fact:
-    tenant: "{{ tenant_name }}-{{ test_timestamp.stdout }}"
-
 - name: "create {{ test_casename }}'s tenant"
   shell: |
     source {{ openrc }} && \ 

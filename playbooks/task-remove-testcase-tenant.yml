@@ -1,0 +1,13 @@
+- set_fact:
+    openrc: "{{ admin_openrc }}"
+
+- name: remove tenant
+  shell: |
+    source {{ openrc }} && \
+    neutron lbaas-loadbalancer-list --format value --column tenant_id | grep {{ testcase_project_id.stdout }}
+    if [ $? -ne 0 ];  then
+      openstack project delete {{ testcase_project_id.stdout }}
+    else
+      echo "unable to remove tenant, because there are still loadbalancers on it"
+      exit 1
+    fi

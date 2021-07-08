@@ -1,0 +1,27 @@
+- name: "create {{ test_casename }}'s tenant"
+  shell: |
+    source {{ openrc }} && \ 
+    openstack project create --description "{{ tenant }}" --or-show {{ tenant }} && \
+    openstack role add --project {{ tenant }} --user admin admin
+   
+- name: "get {{ test_casename }}'s tenant id"
+  shell: |
+    source {{ openrc }} && \
+    openstack project show {{ tenant }} --format value --column id
+  register: testcase_project_id
+
+- name: "copy rcfile to neutron servers"
+  shell: |
+    cp {{ openrc }} /tmp/rcfile-{{ tenant_name }}
+
+- set_fact:
+    admin_openrc: "{{ openrc }}"
+    openrc: "/tmp/rcfile-{{ tenant_name }}"
+
+- name: update {{ openrc }} with Dev environments
+  shell: |
+    echo '' >> {{ openrc }} && \
+    echo 'export OS_PROJECT_NAME={{ tenant }}' >> {{ openrc }}  
+    
+- set_fact:
+    tenantid: --tenant-id {{ testcase_project_id.stdout }}

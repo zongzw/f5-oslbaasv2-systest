@@ -20,7 +20,7 @@
   when: "index == 0"
   register: test_processes
 
-- import_tasks: ./playbooks/task-neutron-db-info.yml
+- import_tasks: ../../playbooks/task-neutron-db-info.yml
 
 - name: check until the new added member's operating_status changes to offline
   community.mysql.mysql_query:

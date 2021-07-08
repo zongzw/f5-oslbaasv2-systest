@@ -7,6 +7,9 @@
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
+- import_tasks: ../playbooks/task-create-testcase-tenant.yml
+  when: tenant_name is defined
+
 - name: "{{ testcasename }}: create loadbalancer"
   shell: |
     source {{ openrc }} && {{ item }}
@@ -68,3 +71,10 @@
     - neutron lbaas-listener-delete {{ listener }}
     - neutron lbaas-loadbalancer-delete {{ loadbalancer }}
   when: nodelete is not defined
+
+- name: pause for 15 seconds to wait for loadbalancer on bigip disappears
+  pause: seconds=15
+  when: nodelete is not defined  
+
+- import_tasks: ../../playbooks/task-remove-testcase-tenant.yml
+  when: tenant_name is defined and nodelete is not defined

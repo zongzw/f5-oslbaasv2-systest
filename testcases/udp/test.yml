@@ -6,7 +6,7 @@
     test_healthmonitor_protocol: PING
 
 - import_tasks: ../playbooks/task-create-testcase-tenant.yml
-  when: tenant is defined
+  when: tenant_name is defined
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -77,4 +77,4 @@
   when: nodelete is not defined  
 
 - import_tasks: ../../playbooks/task-remove-testcase-tenant.yml
-  when: tenant is defined and nodelete is not defined
+  when: tenant_name is defined and nodelete is not defined

@@ -5,7 +5,7 @@
     - import_tasks: ./basic/test.yml
       tags: basic
       vars:
-        tenant: basic
+        tenant_name: basic
       run_once: True
     
     - import_tasks: ./tls/test.yml
@@ -15,50 +15,50 @@
     - import_tasks: ./tcphttps/test.yml
       tags: tcphttps
       vars:
-        tenant: tcphttps
+        tenant_name: tcphttps
       run_once: True
 
     - import_tasks: ./persist/test.yml
       tags: persist
       vars:
-        tenant: persist
+        tenant_name: persist
       run_once: True
 
     - import_tasks: ./l7x/test.yml
       vars:
-        tenant: l7x
+        tenant_name: l7x
       tags: l7x
       run_once: True
 
     - import_tasks: ./customized/test.yml
       tags: customized
       vars:
-        tenant: customized
+        tenant_name: customized
       run_once: True
 
     - import_tasks: ./ftp/test.yml
       tags: ftp
       vars:
-        tenant: ftp
+        tenant_name: ftp
       run_once: True
 
     - import_tasks: ./udp/test.yml
       tags: udp
       vars:
-        tenant: udp
+        tenant_name: udp
       run_once: True
 
     - import_tasks: ./bwc/test.yml
       tags: bwc
       vars:
-        tenant: bwc
+        tenant_name: bwc
       run_once: True
 
     - import_tasks: ./ipv6/test.yml
       tags: ipv6
       run_once: True
       vars:
-        tenant: ipv6
+        tenant_name: ipv6
       when: test_env == 'osp'
 
     - import_tasks: ./multi-tenant/test.yml

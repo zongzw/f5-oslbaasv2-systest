@@ -14,6 +14,7 @@ test_subnet = 10.251.27.0/24
 environment_prefix = CORE
 download_prefix = http://10.250.11.185/f5-packages
 service_providers = CORE,DMZ
+f5_external_physical_mappings = default:1.2:True
 
 [bigips]
 10.250.11.195

@@ -1,16 +1,18 @@
 [DEFAULT]
 
 f5_agent_mode = lite
-periodic_interval = 60
+periodic_interval = {{ versions.config_set.periodic_interval | default(60) }}
 debug = True
 
 agent_id = POD_{{ provider }}
 environment_prefix = {{ provider }}
 
+f5_external_physical_mappings = {{ f5_external_physical_mappings | default('default:1.1:True') }}
+
 f5_ha_type = {{bigip_pair_mode}}
 icontrol_hostname = {{ bigip_hostnames }}
 icontrol_password = {{ bigip_admin_password }}
-f5_global_routed_mode = False
+f5_global_routed_mode = {{ versions.config_set.f5_global_routed_mode | default(False)}}
 
 auth_version = v3
 os_auth_url = http://{{ os_auth_host }}:5000/v3
@@ -22,8 +24,8 @@ os_project_domain_name = default
 
 cert_manager = f5_openstack_agent.lbaasv2.drivers.bigip.barbican_cert.BarbicanCertManager
 
-f5_vtep_folder = DELETE_ME
-f5_vtep_selfip_name = DELETE_ME
+f5_vtep_folder = {{ versions.config_set.f5_vtep_folder | default('DELETE_ME') }}
+f5_vtep_selfip_name = {{ versions.config_set.f5_vtep_selfip_name | default('DELETE_ME') }}
 
 member_update_mode = DELETE_ME
 member_update_number = -1

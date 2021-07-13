@@ -58,3 +58,16 @@
         target: /tmp/scripts/delete-from-barbican-db.sql
         state: import
       run_once: True
+    
+    - name: list all projects
+      shell: |
+        source {{ openrc }} && openstack project list --format value --column Name
+      run_once: true
+      register: project_res
+    
+    - name: delete all tenants
+      shell: |
+        source {{ openrc }} && openstack project delete {{ item }}
+      with_items: "{{ project_res.stdout_lines }}"
+      run_once: true
+      when: "( item | regex_search('^.+-[\\d]+-[\\d]+$') ) != None"

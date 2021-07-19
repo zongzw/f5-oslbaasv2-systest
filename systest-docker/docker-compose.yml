@@ -1,0 +1,12 @@
+services:
+  f5-oslbaasv2-systest:
+    image: f5-openstack-systest-ansible-env:latest
+    container_name: f5-oslbaasv2-systest-con
+    working_dir: /f5-oslbaasv2-systest
+    build: .
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - $HOMEDIR/..:/f5-oslbaasv2-systest
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true

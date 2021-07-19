@@ -142,3 +142,9 @@ The `playbook_name`s can be grouped as following examples:
     * system test scripts should be upgraded/fixed to compat code changes.
 
   * Because of any other ...
+
+### 5. Setup Docker Environment
+* `sh ./systest-docker/compose.sh`
+  This script is used to build a ansible based docker image and start a docker container.
+* `docker exec -it f5-oslbaasv2-systest-con /bin/bash`
+  This script is used to enter the docker container after creating docker image and container.

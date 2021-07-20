@@ -7,7 +7,7 @@
 [neutron_servers:vars]
 test_env = osp
 openrc = /home/heat-admin/overcloudrc
-test_subnet = subnet-vlan-57
+test_subnet = subnet-vlan-56
 # test_subnet = subnet-vxlan-1
 test_ipv6_subnet = fbe6b276-74e6-408d-a56e-0d01ad2b2e82
 environment_prefix = CORE
@@ -16,12 +16,13 @@ service_providers = CORE
 f5_external_physical_mappings = default:1.1:True
 
 [bigips]
+10.250.11.197 # v12.1.3.2 vmware
 #10.250.57.105 # v12.1.3
 #10.250.56.3  # v15
 #10.250.11.193
 #10.250.11.194
-10.250.11.195
-10.250.11.196
+#10.250.11.195
+#10.250.11.196
 #10.250.2.211
 #10.250.2.212
 

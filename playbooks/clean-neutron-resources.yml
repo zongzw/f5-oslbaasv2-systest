@@ -58,7 +58,20 @@
         target: /tmp/scripts/delete-from-barbican-db.sql
         state: import
       run_once: True
+      when: test_env == 'osp'
     
+    - name: clean data from barbican db tables
+      mysql_db:
+        name: barbican
+        login_user: root
+        login_password: "{{ root_db_password.stdout }}"
+        login_host: localhost
+        target: /tmp/scripts/delete-from-barbican-db.sql
+        state: import
+      run_once: True
+      delegate_to: "{{ inventory_hostname }}"
+      when: test_env == 'rdo'
+
     - name: list all projects
       shell: |
         source {{ openrc }} && openstack project list --format value --column Name

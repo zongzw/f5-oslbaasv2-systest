@@ -7,4 +7,5 @@ RUN ansible-galaxy collection install \
         f5networks.f5_modules:1.8.0 \
         community.mysql:2.1.0 \
         community.crypto:1.4.0 \
-        community.general:2.4.0 && pip3 install jmespath
+        community.general:2.4.0
+RUN pip3 install jmespath

@@ -46,21 +46,25 @@
       when: test_env != 'osp'
       run_once: true
 
-    - debug: msg="{{ root_db_password }}"
+    - debug: msg="{{ root_db_password.stdout }} {{ neutron_db_info.results[2].stdout }}"
       run_once: true
 
-    - name: clean data from barbican db tables
+    - name: clean data from barbican db tables on osp
       mysql_db:
         name: barbican
         login_user: root
         login_password: "{{ root_db_password.stdout }}"
-        login_host: "{{neutron_db_info.results[2].stdout}}"  # same host with neutron db
+        # TODO: login_host bug? cannot use given ip addr.
+        # it always use the first localip when login_host is not localhost
+        # So temporarily, we use ignore_errors: true
+        login_host: "{{ neutron_db_info.results[2].stdout }}"  # same host with neutron db
         target: /tmp/scripts/delete-from-barbican-db.sql
         state: import
       run_once: True
       when: test_env == 'osp'
+      ignore_errors: True
     
-    - name: clean data from barbican db tables
+    - name: clean data from barbican db tables on rdo
       mysql_db:
         name: barbican
         login_user: root

@@ -1,0 +1,25 @@
+# TODO: add acl related tests.
+
+# 要求：
+# 以下每条命令都要测试到.
+# 每条命令的执行结果要到bigip上做验证CRUD的结果。
+ 
+#   1 ACL 的命令行，有acl-group和acl-rule的命令，和绑定解绑listener的命令：
+#   2 neutron lbaas-acl-group-create RegionOne --name test26
+#   3 neutron lbaas-acl-rule-create --ip-address 10.251.13.58 test26
+#   4 neutron lbaas-acl-rule-create --ip-address 10.251.13.56 test26
+#   5 neutron lbaas-acl-rule-create --ip-address 192.168.0.123 test26
+#   6 neutron lbaas-acl-group-list
+#   7 neutron lbaas-acl-group-update test26 --name test26update
+#   8 neutron lbaas-add-listener-acl test26 listener26 --type whitelist --enable True
+#   9 curl http://10.251.26.105
+#  10 neutron lbaas-add-listener-acl test26 listener26 --type blacklist --enable True   -> 使用curl验证 26.105 无法联通。
+#  11 neutron lbaas-acl-rule-list test26
+#  12 neutron lbaas-acl-rule-delete d310912e-a350-401c-bdde-543b4c48007c test26
+#  13 Blacklist/whitelist : neutron lbaas-acl-rule-create --ip-address 10.251.13.0/24 test26 可以生效
+#  14 neutron lbaas-flush-acl-group-rules test26
+#  15 neutron lbaas-acl-group-update --name test26update test26
+#  16 租户下的资源清除时，ACL相关iRule会随着listener删除被清除掉，但不会清除ACL Datagroup资源，因为Datagroup资源存放在Common目录下；  
+#  17 有手工配置的member，该网段的VLAN和Self IP不会被回收，即不会删除partition；
+#  18 neutron lbaas-remove-listener-acl test26 listener260
+#  19 neutron lbaas_acl-group-delete xxxx

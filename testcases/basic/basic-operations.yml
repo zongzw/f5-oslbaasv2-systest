@@ -4,6 +4,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
+    # TODO: add test_healthmonitor_additional_options to use '--http-method HEAD'
     test_healthmonitor_protocol: HTTP
 
 - import_tasks: ../../playbooks/task-define-resources.yml

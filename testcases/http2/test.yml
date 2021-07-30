@@ -1,0 +1,13 @@
+# TODO: add HTTP/2 test
+
+# neutron lbaas-listener-create --loadbalancer lb261 --protocol-port 443 
+# --protocol TERMINATED_HTTPS --name listener261th 
+# --default-tls-container=http://10.251.13.59:9311/v1/containers/e09d1db4-beae-4eeb-ae95-381d6db63cf1 --http2 True
+
+# On BIGIP -> profile HTTP/2 http2 selected.
+# Accessing VIP -> version : HTTP/2
+
+# 与HTTP/2 参数profile联合测试时，算法集合不能太小。cipher ECDHE-RSA-AES128-GCM-SHA256 must be available，
+# 因此必须包含CDHE-RSA-AES128-GCM-SHA256算法，BIG-IP侧iControl才能正常工作。算法集合有可能还会出错，还需要根据BIG-IP错误信息在配置侧加入其他的算法。
+# 4.5.4 测试报告归档地址：
+# https://f5.sharepoint.com/:b:/r/sites/ChinaOpenStack/Shared%20Documents/QA%20Documentation/Agent%20Lite%204.5.x/%E7%A7%BB%E5%8A%A8%E5%85%AC%E6%9C%89%E4%BA%91%E7%89%88%E6%9C%AC4.5.4%20%E6%B5%8B%E8%AF%95%E6%8A%A5%E5%91%8A.pdf?csf=1&web=1&e=CQEy7J

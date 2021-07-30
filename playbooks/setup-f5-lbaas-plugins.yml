@@ -16,8 +16,11 @@
     - import_tasks: ./task-prepare-setup.yml
       tags: always
 
-    - import_tasks: ./task-customize-neutron.yml
-      tags: customizeneutron
+    - import_tasks: ./task-reinstall-f5-packages.yml
+      tags: reinstallf5packages
+
+    - import_tasks: ./task-reconfigure-services.yml
+      tags: configureservices
   
     - import_tasks: ./task-smoking-test.yml
       run_once: True

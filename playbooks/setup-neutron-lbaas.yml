@@ -19,6 +19,13 @@
     - import_tasks: ./task-customize-neutron.yml
       tags: customizeneutron
   
+    - name: restart neutron-server
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+        - neutron-server
+
     - import_tasks: ./task-smoking-test.yml
       run_once: True
       tags: smokingtest

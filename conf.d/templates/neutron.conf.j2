@@ -1,6 +1,8 @@
 [DEFAULT]
 debug = True
-changed_at = {{ config_timestr }}
+changed_at = {{ config_timestr }}-{{ versions.lbaas }}
+api_workers = {{ api_workers | default(1) }}
+rpc_workers = {{ rpc_workers | default(1) }}
 
 [service_auth]
 admin_user = admin

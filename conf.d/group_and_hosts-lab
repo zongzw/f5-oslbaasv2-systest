@@ -16,6 +16,8 @@ environment_prefix = CORE
 download_prefix = http://10.250.11.185/f5-packages
 service_providers = CORE,DMZ
 f5_external_physical_mappings = default:5.0:True
+api_workers = 64
+rpc_workers = 48
 
 [bigips]
 10.250.2.211

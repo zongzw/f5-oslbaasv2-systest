@@ -7,6 +7,9 @@
     - neutronclient-{{ versions.lbaas }}.tar.gz
     - neutronclient-entry_points.txt-{{ versions.lbaas }}
 
+- name: touch file /usr/lib/python2.7/site-packages/neutron_customized_version
+  shell: echo {{ versions.lbaas }} > /usr/lib/python2.7/site-packages/neutron_customized_version
+
 - name: unarchive the neutron_* installable to /usr/lib/python2.7/site-packages
   unarchive:
     remote_src: true

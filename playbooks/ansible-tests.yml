@@ -4,24 +4,47 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: get mysql root password
-      shell: |
-        hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
-      register: root_db_password
+    - name: get virtual_server and http_profile info after neutron update
+      bigip_device_info:
+        gather_subset:
+          - http-profiles
+          - virtual-servers
+        provider:
+          user: admin
+          server: "{{ item }}"
+          password: "{{ hostvars[item].admin_password }}"
+          validate_certs: False
+      register: bigip_infos
+      with_items: "{{ groups['bigips'] }}"
+      delegate_to: localhost
+      run_once: true
 
-    - debug: msg="{{ root_db_password.stdout }}"
+    - name: debug bigip_infos
+      debug: msg="{{ (item | json_query(query_string))[0]['insert_x_forwarded_for'] }}"
+      vars:
+        query_string: "http_profiles[?name == 'http_profile_']"
+      with_items: "{{ bigip_infos.results }}"
+      loop_control:
+        label: "{{ item.item }}"
 
-    - import_tasks: ./task-download-scripts.yml
+    # - name: get mysql root password
+    #   shell: |
+    #     hiera -c /etc/puppet/hiera.yaml "mysql::server::root_password"
+    #   register: root_db_password
 
-    - name: clean data from barbican db tables
-      mysql_db:
-        name: barbican
-        login_user: root
-        login_password: "{{ root_db_password.stdout }}"
-        login_host: 10.250.22.53
-        target: /tmp/scripts/delete-from-barbican-db.sql
-        state: import
-      run_once: True
+    # - debug: msg="{{ root_db_password.stdout }}"
+
+    # - import_tasks: ./task-download-scripts.yml
+
+    # - name: clean data from barbican db tables
+    #   mysql_db:
+    #     name: barbican
+    #     login_user: root
+    #     login_password: "{{ root_db_password.stdout }}"
+    #     login_host: 10.250.22.53
+    #     target: /tmp/scripts/delete-from-barbican-db.sql
+    #     state: import
+    #   run_once: True
 
     # - name: pretend to create instance
     #   shell: sleep {{ item }} && exit 1

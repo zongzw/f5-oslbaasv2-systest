@@ -1,3 +1,4 @@
+# TODO: works only in oss version.
 - name: update pool with session persistence of http_cookie,persistence_timeout
   shell: |
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}

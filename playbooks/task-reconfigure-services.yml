@@ -3,6 +3,7 @@
   run_once: true
   register: datetime_str
 
+# TODO: failed backup
 - name: backup original configuration files
   copy: src="{{ item }}" dest=/tmp/backup-{{ datetime_str.stdout }}/ force=yes remote_src=yes
   with_items:

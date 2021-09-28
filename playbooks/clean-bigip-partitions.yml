@@ -135,44 +135,45 @@
         label: "{{ item.name }}"
       when: item.name != "Common"
 
-    - name: remove client ssl profiles
-      bigip_profile_client_ssl:
-        name: "{{ item.name }}"
-        state: absent
-        provider:
-          user: admin
-          server: "{{ inventory_hostname }}"
-          password: "{{ admin_password }}"
-          validate_certs: False 
-      with_items: "{{ bigip_infos.client_ssl_profiles }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))
+    # TODO: failed removal
+    # - name: remove client ssl profiles
+    #   bigip_profile_client_ssl:
+    #     name: "{{ item.name }}"
+    #     state: absent
+    #     provider:
+    #       user: admin
+    #       server: "{{ inventory_hostname }}"
+    #       password: "{{ admin_password }}"
+    #       validate_certs: False 
+    #   with_items: "{{ bigip_infos.client_ssl_profiles }}"
+    #   loop_control:
+    #     label: "{{ item.name }}"
+    #   when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))
 
-    - name: remove ssl certs
-      bigip_ssl_certificate:
-        name: "{{ item.name }}"
-        state: absent
-        provider:
-          user: admin
-          server: "{{ inventory_hostname }}"
-          password: "{{ admin_password }}"
-          validate_certs: False 
-      with_items: "{{ bigip_infos.ssl_certs }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))
+    # - name: remove ssl certs
+    #   bigip_ssl_certificate:
+    #     name: "{{ item.name }}"
+    #     state: absent
+    #     provider:
+    #       user: admin
+    #       server: "{{ inventory_hostname }}"
+    #       password: "{{ admin_password }}"
+    #       validate_certs: False 
+    #   with_items: "{{ bigip_infos.ssl_certs }}"
+    #   loop_control:
+    #     label: "{{ item.name }}"
+    #   when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))
 
-    - name: remove ssl keys
-      bigip_ssl_key:
-        name: "{{ item.name }}"
-        state: absent
-        provider:
-          user: admin
-          server: "{{ inventory_hostname }}"
-          password: "{{ admin_password }}"
-          validate_certs: False 
-      with_items: "{{ bigip_infos.ssl_keys }}"
-      loop_control:
-        label: "{{ item.name }}"
-      when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))
+    # - name: remove ssl keys
+    #   bigip_ssl_key:
+    #     name: "{{ item.name }}"
+    #     state: absent
+    #     provider:
+    #       user: admin
+    #       server: "{{ inventory_hostname }}"
+    #       password: "{{ admin_password }}"
+    #       validate_certs: False 
+    #   with_items: "{{ bigip_infos.ssl_keys }}"
+    #   loop_control:
+    #     label: "{{ item.name }}"
+    #   when: (item.name | regex_search('^' + environment_prefix + '_[0-9a-f\-]{36}'))

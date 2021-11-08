@@ -1,0 +1,24 @@
+versions:
+  agent: 9.9.41-1 # 2021.11.05
+  driver: 212.5.4-1
+  icontrol: 1.3.9-1
+  f5sdk: 3.0.11.4-1
+  lbaas: oss
+  config_set:
+    f5_driver_perf_mode: 3
+
+testcases:
+  - name: basic
+  - name: multi-tenant
+  - name: tls
+    client_ca_path: ../kps/client-ca.cert
+  - name: tcphttps
+  - name: persist
+  - name: l7x
+  - name: customized
+  - name: ftp
+  - name: udp
+  - name: ipv6
+  # - name: toa
+  # - name: esd
+  

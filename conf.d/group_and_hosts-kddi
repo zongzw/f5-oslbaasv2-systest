@@ -17,8 +17,8 @@ service_providers = CORE,DMZ
 f5_external_physical_mappings = default:1.2:True
 
 [bigips]
-10.250.11.195
-10.250.11.196
+10.250.11.193
+10.250.11.194
 
 [bigips:vars]
 admin_password = P@ssw0rd123

@@ -4,28 +4,30 @@
   gather_facts: False
   remote_user: root
   tasks:
-    - name: get virtual_server and http_profile info after neutron update
-      bigip_device_info:
-        gather_subset:
-          - http-profiles
-          - virtual-servers
-        provider:
-          user: admin
-          server: "{{ item }}"
-          password: "{{ hostvars[item].admin_password }}"
-          validate_certs: False
-      register: bigip_infos
-      with_items: "{{ groups['bigips'] }}"
-      delegate_to: localhost
-      run_once: true
+    - debug: msg="OK"
+      when: versions.agent > '9.9.30'
+    # - name: get virtual_server and http_profile info after neutron update
+    #   bigip_device_info:
+    #     gather_subset:
+    #       - http-profiles
+    #       - virtual-servers
+    #     provider:
+    #       user: admin
+    #       server: "{{ item }}"
+    #       password: "{{ hostvars[item].admin_password }}"
+    #       validate_certs: False
+    #   register: bigip_infos
+    #   with_items: "{{ groups['bigips'] }}"
+    #   delegate_to: localhost
+    #   run_once: true
 
-    - name: debug bigip_infos
-      debug: msg="{{ (item | json_query(query_string))[0]['insert_x_forwarded_for'] }}"
-      vars:
-        query_string: "http_profiles[?name == 'http_profile_']"
-      with_items: "{{ bigip_infos.results }}"
-      loop_control:
-        label: "{{ item.item }}"
+    # - name: debug bigip_infos
+    #   debug: msg="{{ (item | json_query(query_string))[0]['insert_x_forwarded_for'] }}"
+    #   vars:
+    #     query_string: "http_profiles[?name == 'http_profile_']"
+    #   with_items: "{{ bigip_infos.results }}"
+    #   loop_control:
+    #     label: "{{ item.item }}"
 
     # - name: get mysql root password
     #   shell: |

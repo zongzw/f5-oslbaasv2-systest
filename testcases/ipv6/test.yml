@@ -5,7 +5,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -57,7 +57,7 @@
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
     - neutron --debug lbaas-pool-create --name {{ pool }}-ipv6 --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
-    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-ipv6 --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}-ipv6
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-ipv6 --delay 15 --timeout 25 --max-retries 10 --type {{ healthmonitor_protocol }} --pool {{ pool }}-ipv6
     - neutron --debug lbaas-listener-update --default-pool {{ pool }}-ipv6 {{ listener }}
 
 - name: "{{ testcasename }}: create members under pool {{ pool }}-ipv6"

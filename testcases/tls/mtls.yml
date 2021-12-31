@@ -6,7 +6,7 @@
     test_pool_protocol: HTTP
     test_listener_tcpport: 443
     test_listener_additional_options: --default-tls-container-ref={{  server_container1_href }} --ca-container-id={{ ca_container_href }} --mutual-authentication-up=True # --sni-container-refs={{ server_container2_href }} 
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
     test_member_tcpport: 80
 
 - import_tasks: ../../playbooks/task-define-resources.yml

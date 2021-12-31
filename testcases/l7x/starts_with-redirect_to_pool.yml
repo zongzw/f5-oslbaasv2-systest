@@ -4,7 +4,7 @@
     test_listener_protocol: HTTP
     test_pool_protocol: HTTP
     test_listener_tcpport: 80
-    test_healthmonitor_protocol: HTTP
+    test_healthmonitor_protocol: PING
 
 - import_tasks: ../../playbooks/task-define-resources.yml
 
@@ -39,7 +39,7 @@
     source {{ openrc }} && bash /tmp/scripts/wait_assert_lb_active.sh {{ loadbalancer }} && {{ item }}
   with_items:
     - neutron --debug lbaas-pool-create --name {{ pool }}-pool2 --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
-    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-pool2 --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}-pool2
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }}-pool2 --delay 15 --timeout 25 --max-retries 10 --type {{ healthmonitor_protocol }} --pool {{ pool }}-pool2
     - neutron lbaas-l7policy-create --name {{ l7policy }} --listener {{ listener }} --action redirect_to_pool --redirect-pool {{ pool }}-pool2 --position 1 && neutron lbaas-l7rule-create {{ l7policy }} --type PATH --compare-type starts_with --value "/api"
 
 - name: "{{ testcasename }}: create members under pool {{ pool }}-pool2"

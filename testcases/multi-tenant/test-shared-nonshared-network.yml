@@ -20,7 +20,7 @@
   with_items:
     - neutron --debug lbaas-pool-create --name {{ pool }} --tenant-id {{ project_id }} --loadbalancer {{ loadbalancer }} --lb-algorithm ROUND_ROBIN --protocol {{ pool_protocol }}
     - neutron --debug lbaas-listener-create --name {{ listener }} --tenant-id {{ project_id }} --loadbalancer {{ loadbalancer }} --default-pool {{ pool }} --protocol {{ listener_protocol }} --protocol-port {{ listener_tcpport }} {{ listener_additional_options }}
-    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }} --tenant-id {{ project_id }} --delay 15 --timeout 15 --max-retries 5 --type {{ healthmonitor_protocol }} --pool {{ pool }}
+    - neutron --debug lbaas-healthmonitor-create --name {{ healthmonitor }} --tenant-id {{ project_id }} --delay 15 --timeout 25 --max-retries 10 --type {{ healthmonitor_protocol }} --pool {{ pool }}
 
 - name: "Create members with {{ test_subnet }} , test-net-a , test-net-b"
   shell: |

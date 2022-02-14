@@ -106,7 +106,7 @@
 
     # - name: generate f5-openstack-agent-xx.ini
     #   template:
-    #     src: ../conf.d/templates/f5-openstack-agent.ini.j2
+    #     src: ../conf.d/templates/openstack-agent.ini.j2
     #     dest: /tmp/f5-openstack-agent-{{ item }}.ini
     #     force: yes
     #   vars:
@@ -118,7 +118,7 @@
 
     # - name: generate f5-openstack-agent-xx.service
     #   template:
-    #     src: ../conf.d/templates/f5-openstack-agent.service.j2
+    #     src: ../conf.d/templates/openstack-agent.service.j2
     #     dest: /usr/lib/systemd/system/f5-openstack-agent-{{ item }}.service
     #     force: yes
     #   vars:

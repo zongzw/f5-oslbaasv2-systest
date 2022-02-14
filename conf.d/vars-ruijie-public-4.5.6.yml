@@ -1,3 +1,4 @@
+brand: f5
 versions:
   # agent: 9.9.41-1 # 2021.11.05
   # agent: 9.9.40.patch1-1 # 2021.11.16

@@ -1,5 +1,6 @@
 versions:
-  agent: 9.8.47-1
+  # agent: 9.8.47-1 # 2021.08.0x
+  agent: 9.8.48.beta-1
   driver: 212.5.4-1
   icontrol: 1.3.9-1
   f5sdk: 3.0.11-1
